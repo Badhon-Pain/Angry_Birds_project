@@ -101,9 +101,12 @@ void iMouseWheel(int dir, int mx, int my)
 void iKeyboard(unsigned char key)
 {
 
-    // place your codes for other keys here
+    if (key=='e')
+    {
+        exit (0);
+    }
+    
 }
-
 /*
     function iSpecialKeyboard() is called whenver user hits special keys like-
     function keys, home, end, pg up, pg down, arraows etc. you have to use
