@@ -2,15 +2,13 @@
 #include <math.h>
 #include <string.h>
 
-
 // Game State
 int screen = 0, currentScreen = -1, score = 0;
 int difficultylevel = 0;
 
-// screen =0-> Menu   
-// screen = 1-> Game screen  
+// screen =0-> Menu
+// screen = 1-> Game screen
 // screen = 2-> Level Selection
-
 
 // Bird Physics and States
 int bluebirdX = 20, bluebirdY = 194;
@@ -28,7 +26,9 @@ int birdRadius = 30;
 
 // Pig Position
 int pig1X = 1070, pig1Y = 431;
-int pigheight = 75, pigwidth = 75;
+int pigheight = 63, pigwidth = 65;
+float pig_vx =0, pig_vy = 0;
+bool pigFalling = false;
 bool pigvisible = true;
 
 // Cursor
@@ -39,6 +39,7 @@ const char *bg = "assets/images/Angry Bird3.jpg";
 const char *catapultBack = "assets/images/CatapultBackSprite.png";
 const char *catapultFront = "assets/images/CatapultFrontSprite.png";
 Image blueImg, redImg, yellowImg;
+
 const char *menuBg = "assets/images/Icon.jpg";
 Image menubutton, levelbutton, scorebutton, pigimage;
 
@@ -46,12 +47,13 @@ Image menubutton, levelbutton, scorebutton, pigimage;
 int leftArmX = 298, leftArmY = 374;
 int rightArmX = 336, rightArmY = 380;
 
-// for brick data
-// #define MAX_BRICKS 5
-// int brickX[MAX_BRICKS] = {500, 560, 720, 780, 840};
-// int brickY[MAX_BRICKS] = {300, 300, 300, 300, 300};
-// int brickW = 60, brickH = 30;
-// bool brickVisible[MAX_BRICKS] = {true, true, true, true, true};
+// for pillar & ground
+int pillarX = 1088, pillarY = 209;
+int pillarwidth = 30, pillarheight = 200;
+int  groundY = 205;
+
+
+
 // void loadResources()
 // {
 // 	iInitSprite(&redbirdsprite, -1);
@@ -65,11 +67,13 @@ int rightArmX = 336, rightArmY = 380;
 // 	iAnimateSprite(&redbirdsprite);
 // }
 
-void drawMenu() {
+void drawMenu()
+{
     iShowImage(-480, -234, menuBg);
     iLoadImage(&menubutton, "assets/images/1.png");
     iResizeImage(&menubutton, 130, 120);
     iShowLoadedImage(110, 237, &menubutton);
+
     iSetColor(0, 0, 0);
     iText(140, 288, "PLAY", GLUT_BITMAP_TIMES_ROMAN_24);
 
@@ -80,7 +84,8 @@ void drawMenu() {
     iText(132, 162, "CREDIT", GLUT_BITMAP_TIMES_ROMAN_24);
 }
 
-void drawLevelSelect() {
+void drawLevelSelect()
+{
     iLoadImage(&levelbutton, "assets/images/10.png");
     iResizeImage(&levelbutton, 140, 130);
     iShowImage(-480, -234, menuBg);
@@ -96,33 +101,40 @@ void drawLevelSelect() {
     iText(120, 150, "BACK", GLUT_BITMAP_TIMES_ROMAN_24);
 }
 
-void drawRubberLines(int x, int y) {
+void drawRubberLines(int x, int y)
+{
     iSetColor(0, 0, 0);
     iLine(leftArmX, leftArmY, x + birdRadius / 2, y + birdRadius / 2);
     iLine(rightArmX, rightArmY, x + birdRadius / 2, y + birdRadius / 2);
 }
 
-void drawPathway(int x, int y, float vx, float vy) {
+void drawPathway(int x, int y, float vx, float vy)
+{
     float fx = x + birdRadius / 2;
     float fy = y + birdRadius / 2;
     float dt = 0.1f;
-    for (int i = 0; i < 200; i++) {
+    for (int i = 0; i < 200; i++)
+    {
         fx += vx * dt;
         fy += vy * dt;
         vy += g * dt;
-        if (fy < 0) break;
+        if (fy < groundY)
+            break;
         iSetColor(0, 0, 0);
         iFilledCircle(fx, fy, 2);
     }
 }
 
-void drawBirds() {
+void drawBirds()
+{
     iLoadImage(&blueImg, "assets/images/Blue_angry_bird5.png");
+
     iResizeImage(&blueImg, 65, 63);
     iShowLoadedImage(bluebirdX, bluebirdY, &blueImg);
 
     iLoadImage(&redImg, "assets/images/redAngryBird.png");
     iResizeImage(&redImg, 65, 63);
+
     iShowLoadedImage(redbirdX, redbirdY, &redImg);
 
     iLoadImage(&yellowImg, "assets/images/yellowAngryBird.png");
@@ -130,20 +142,28 @@ void drawBirds() {
     iShowLoadedImage(yellowbirdX, yellowbirdY, &yellowImg);
 }
 
-void updateSingleBird(int &x, int &y, float &vx, float &vy, bool &flying) {
-    if (flying) {
+void updateSingleBird(int &x, int &y, float &vx, float &vy, bool &flying)
+{
+    if (flying)
+    {
         x += vx;
         y += vy;
         vy += g;
-        if (y < 0) {
-            flying = false;
-            vx = vy = 0;
+        if (y < groundY)
+        {
+            y = groundY;
+            // flying = false;
+            // vx = vy = 0;
+            
+            vy = -vy * 0.25f;
         }
-        if (pigvisible) {
+        if (pigvisible)
+        {
             int birdheight = 63, birdwidth = 65;
             bool collisionX = x + birdwidth >= pig1X && x <= pig1X + pigwidth;
             bool collisionY = y + birdheight >= pig1Y && y <= pig1Y + pigheight;
-            if (collisionX && collisionY) {
+            if (collisionX && collisionY)
+            {
                 pigvisible = false;
                 score += 100;
                 PlaySound("assets/sounds/bird_01_collision_a1.wav", NULL, SND_FILENAME | SND_ASYNC);
@@ -151,45 +171,37 @@ void updateSingleBird(int &x, int &y, float &vx, float &vy, bool &flying) {
         }
     }
 }
-  
-//for bricks
 
-// void drawBricks()
-// {
-//     for (int i = 0; i < MAX_BRICKS; i++)
-//     {
-//         if (brickVisible[i])
-//         {
 
-//             iSetColor(192, 192, 192);
-//             iFilledRectangle(brickX[i], brickY[i], brickW, brickH + 20);
 
-//             iSetColor(105, 105, 105);
-//             iRectangle(brickX[i], brickY[i], brickW, brickH + 20);
-//         }
-//     }
-// }
-
-void drawGame() {
+void drawGame()
+{
     iShowImage(0, 0, bg);
     iShowImage(208, 177, catapultBack);
 
-    if (bluedragging) drawRubberLines(bluebirdX, bluebirdY);
-    if (reddragging) drawRubberLines(redbirdX, redbirdY);
-    if (yellowdragging) drawRubberLines(yellowbirdX, yellowbirdY);
+    if (bluedragging)
+        drawRubberLines(bluebirdX, bluebirdY);
+    if (reddragging)
+        drawRubberLines(redbirdX, redbirdY);
+    if (yellowdragging)
+        drawRubberLines(yellowbirdX, yellowbirdY);
 
     drawBirds();
 
-    if (bluedragging || blueflying) drawPathway(bluebirdX, bluebirdY, blue_vx, blue_vy);
-    if (reddragging || redflying) drawPathway(redbirdX, redbirdY, red_vx, red_vy);
-    if (yellowdragging || yellowflying) drawPathway(yellowbirdX, yellowbirdY, yellow_vx, yellow_vy);
+    if (bluedragging || blueflying)
+        drawPathway(bluebirdX, bluebirdY, blue_vx, blue_vy);
+    if (reddragging || redflying)
+        drawPathway(redbirdX, redbirdY, red_vx, red_vy);
+    if (yellowdragging || yellowflying)
+        drawPathway(yellowbirdX, yellowbirdY, yellow_vx, yellow_vy);
 
     iShowImage(208, 177, catapultFront);
-    iSetColor(192,192,192);
-    iFilledRectangle(1088, 209, 30, 200); //vertical
-    iSetColor(192,192,192);
+    iSetColor(192, 192, 192);
+    iFilledRectangle(pillarX, pillarY, pillarwidth, pillarheight); // vertical
+    iSetColor(192, 192, 192);
     iFilledRectangle(1042, 402, 120, 30); // horizontal
-    if (pigvisible) {
+    if (pigvisible)
+    {
         iLoadImage(&pigimage, "assets/images/Pig_front.png");
         iResizeImage(&pigimage, 65, 63);
         iShowLoadedImage(pig1X, pig1Y, &pigimage);
@@ -205,23 +217,29 @@ void drawGame() {
     iText(55, 750, str);
 }
 
-void iDraw() {
+void iDraw()
+{
     iClear();
-    if (screen != currentScreen) {
+    if (screen != currentScreen)
+    {
         currentScreen = screen;
         if (screen == 1)
             PlaySound("assets/sounds/angry_birds_intro_music.wav", NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
         else if (screen == 0 || screen == 2)
             PlaySound("assets/sounds/angry_birds_2.wav", NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
     }
-    if (screen == 0) drawMenu();
-    else if (screen == 1) drawGame();
-    else if (screen == 2) drawLevelSelect();
+    if (screen == 0)
+        drawMenu();
+    else if (screen == 1)
+        drawGame();
+    else if (screen == 2)
+        drawLevelSelect();
 
-    //drawbricks
+    // drawbricks
 }
 
-void updateBird() {
+void updateBird()
+{
     updateSingleBird(bluebirdX, bluebirdY, blue_vx, blue_vy, blueflying);
 
     updateSingleBird(redbirdX, redbirdY, red_vx, red_vy, redflying);
@@ -229,25 +247,28 @@ void updateBird() {
     updateSingleBird(yellowbirdX, yellowbirdY, yellow_vx, yellow_vy, yellowflying);
 
     //    brick collision
-        // for (int i = 0; i < MAX_BRICKS; i++)
-        // {
-        //     if (brickVisible[i])
-        //     {
-        //         if (birdX + birdRadius > brickX[i] && birdX < brickX[i] + brickW &&
-        //             birdY + birdRadius > brickY[i] && birdY < brickY[i] + brickH + 20)
-        //         {
-        //             brickVisible[i] = false;
-                    
-        //         }
-        //     }
-        // }
+    // for (int i = 0; i < MAX_BRICKS; i++)
+    // {
+    //     if (brickVisible[i])
+    //     {
+    //         if (birdX + birdRadius > brickX[i] && birdX < brickX[i] + brickW &&
+    //             birdY + birdRadius > brickY[i] && birdY < brickY[i] + brickH + 20)
+    //         {
+    //             brickVisible[i] = false;
+
+    //         }
+    //     }
+    // }
 }
 
-void iMouseMove(int mx, int my) {
+void iMouseMove(int mx, int my)
+{
     cursorX = mx;
     cursorY = my;
-    if (screen == 1) {
-        if (bluedragging) {
+    if (screen == 1)
+    {
+        if (bluedragging)
+        {
             bluebirdX = mx;
             bluebirdY = my;
             float dx = slingX - mx;
@@ -257,7 +278,8 @@ void iMouseMove(int mx, int my) {
             blue_vx = v * cos(angle) * 0.5;
             blue_vy = v * sin(angle) * 0.5;
         }
-        if (reddragging) {
+        if (reddragging)
+        {
             redbirdX = mx;
             redbirdY = my;
             float dx = slingX - mx;
@@ -267,7 +289,8 @@ void iMouseMove(int mx, int my) {
             red_vx = v * cos(angle) * 0.5;
             red_vy = v * sin(angle) * 0.5;
         }
-        if (yellowdragging) {
+        if (yellowdragging)
+        {
             yellowbirdX = mx;
             yellowbirdY = my;
             float dx = slingX - mx;
@@ -280,72 +303,105 @@ void iMouseMove(int mx, int my) {
     }
 }
 
-void iMouse(int button, int state, int mx, int my) {
-    if (screen == 0 && button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
-        if (mx >= 110 && mx <= 240 && my >= 237 && my <= 357) {
+void iMouse(int button, int state, int mx, int my)
+{
+    if (screen == 0 && button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
+    {
+        if (mx >= 110 && mx <= 240 && my >= 237 && my <= 357)
+        {
             screen = 2;
-        } else if (mx >= 110 && mx <= 240 && my >= 177 && my <= 297) {
+        }
+        else if (mx >= 110 && mx <= 240 && my >= 177 && my <= 297)
+        {
             exit(0);
         }
-    } else if (screen == 2 && button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
-        if (mx >= 85 && mx <= 225 && my >= 210 && my <= 340) {
+    }
+    else if (screen == 2 && button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
+    {
+        if (mx >= 85 && mx <= 225 && my >= 210 && my <= 340)
+        {
             difficultylevel = 1;
             screen = 1;
-        } else if (mx >= 85 && mx <= 225 && my >= 155 && my <= 285) {
+        }
+        else if (mx >= 85 && mx <= 225 && my >= 155 && my <= 285)
+        {
             difficultylevel = 2;
             screen = 1;
-        } else if (mx >= 85 && mx <= 225 && my >= 95 && my <= 225) {
+        }
+        else if (mx >= 85 && mx <= 225 && my >= 95 && my <= 225)
+        {
             screen = 0;
         }
-    } else if (screen == 1 && button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
+    }
+    else if (screen == 1 && button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
+    {
         if (mx >= bluebirdX && mx <= bluebirdX + 70 && my >= bluebirdY && my <= bluebirdY + 70)
             bluedragging = true;
         if (mx >= redbirdX && mx <= redbirdX + 70 && my >= redbirdY && my <= redbirdY + 70)
             reddragging = true;
         if (mx >= yellowbirdX && mx <= yellowbirdX + 70 && my >= yellowbirdY && my <= yellowbirdY + 70)
             yellowdragging = true;
-    } else if (screen == 1 && button == GLUT_RIGHT_BUTTON && state == GLUT_UP) {
-        if (bluedragging) {
+    }
+    else if (screen == 1 && button == GLUT_RIGHT_BUTTON && state == GLUT_UP)
+    {
+        if (bluedragging)
+        {
             bluedragging = false;
             blueflying = true;
         }
-        if (reddragging) {
+        if (reddragging)
+        {
             reddragging = false;
             redflying = true;
         }
-        if (yellowdragging) {
+        if (yellowdragging)
+        {
             yellowdragging = false;
             yellowflying = true;
         }
     }
 }
 
-void iKeyboard(unsigned char key) {
-    if (key == 'r') {
-        bluebirdX = 20; bluebirdY = 194; blue_vx = blue_vy = 0; blueflying = bluedragging = false;
-        redbirdX = 100; redbirdY = 194; red_vx = red_vy = 0; redflying = reddragging = false;
-        yellowbirdX = 180; yellowbirdY = 200; yellow_vx = yellow_vy = 0; yellowflying = yellowdragging = false;
+void iKeyboard(unsigned char key)
+{
+    if (key == 'r')
+    {
+        bluebirdX = 20;
+        bluebirdY = 194;
+        blue_vx = blue_vy = 0;
+        blueflying = bluedragging = false;
+        redbirdX = 100;
+        redbirdY = 194;
+        red_vx = red_vy = 0;
+        redflying = reddragging = false;
+        yellowbirdX = 180;
+        yellowbirdY = 200;
+        yellow_vx = yellow_vy = 0;
+        yellowflying = yellowdragging = false;
         pigvisible = true;
         score = 0;
     }
-    if (key == 'q') exit(0);
-    if (key == 'm') screen = 0;
-    
-   
+    if (key == 'q')
+        exit(0);
+    if (key == 'm')
+        screen = 0;
 }
 
-void iSpecialKeyboard(unsigned char key) {
-    if (key == GLUT_KEY_END) exit(0);
+void iSpecialKeyboard(unsigned char key)
+{
+    if (key == GLUT_KEY_END)
+        exit(0);
 }
 
 void iMouseDrag(int mx, int my) {}
 void iMouseWheel(int dir, int mx, int my) {}
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
     glutInit(&argc, argv);
     // loadResources();
-	// iSetTimer(100, iAnim);
+    // iSetTimer(100, iAnim);
     iSetTimer(20, updateBird);
     iInitialize(800, 1000, "Angry Birds - BUET PROJECT");
     return 0;
-}   
+}
