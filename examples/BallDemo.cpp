@@ -1,20 +1,9 @@
 #include "iGraphics.h"
 
-
-int x=0, y=0;
-
 int ball_x, ball_y;
 int dx = 5, dy = 7;
 int ball_radius = 7;
-int r=255, g=255, b=255;
 
-bool musicOn =true;
-
-
-const char* bc[3]= {"assets\\images\\background.jpg","assets\\images\\mmario.png","assets\\images\\rect.png"};
-int bcIndex =0;
- const char* golem[12]={"assets\\images\\sprites\\Golem_2\\Running\\0_Golem_Running_000.png","assets\\images\\sprites\\Golem_2\\Running\\0_Golem_Running_001.png","assets\\images\\sprites\\Golem_2\\Running\\0_Golem_Running_002.png","assets\\images\\sprites\\Golem_2\\Running\\0_Golem_Running_003.png","assets\\images\\sprites\\Golem_2\\Running\\0_Golem_Running_004.png","assets\\images\\sprites\\Golem_2\\Running\\0_Golem_Running_005.png","assets\\images\\sprites\\Golem_2\\Running\\0_Golem_Running_006.png","assets\\images\\sprites\\Golem_2\\Running\\0_Golem_Running_007.png","assets\\images\\sprites\\Golem_2\\Running\\0_Golem_Running_008.png","assets\\images\\sprites\\Golem_2\\Running\\0_Golem_Running_009.png","assets\\images\\sprites\\Golem_2\\Running\\0_Golem_Running_010.png","assets\\images\\sprites\\Golem_2\\Running\\0_Golem_Running_011.png"};
- int golemIndex =0;
 /*
     function iDraw() is called again and again by the system.
 */
@@ -24,19 +13,11 @@ void iDraw()
 
     iClear();
 
-    // iSetColor(r,g,b);
-    // iFilledCircle(ball_x, ball_y, ball_radius);
+    iSetColor(255, 100, 10);
+    iFilledCircle(ball_x, ball_y, ball_radius);
 
-    // iSetColor(255, 255, 255);
-    // iText(100, 100, "Badhon Pain",GLUT_BITMAP_TIMES_ROMAN_24);
-    // iShowImage(0, 0, bc[bcIndex]);
-        iShowImage(100, 100,  golem[ golemIndex]);
-    
-    // iText(100, 100, "Badhon Pain",GLUT_BITMAP_TIMES_ROMAN_24);
-}
-void updateGolemIndex()
-{
-    golemIndex= (golemIndex+1) %12;
+    iSetColor(255, 255, 255);
+    iText(10, 10, "Press p for pause, r for resume, END for exit.");
 }
 
 /*
@@ -79,27 +60,16 @@ void iMouse(int button, int state, int mx, int my)
     function iKeyboard() is called whenever the user hits a key in keyboard.
     key- holds the ASCII value of the key pressed.
 */
-void iKeyboard(unsigned char key)
+void iKeyboard(unsigned char key, int state)
 {
-    if (key == 'w'){
+    if (key == 'p')
+    {
         // do something with 'q'
-        // iPauseTimer(0);
-        x+=10;
+        iPauseTimer(0);
     }
-    if (key == 's')
+    if (key == 'r')
     {
-        // iResumeTimer(0);
-        x-=10;
-    }
-      if (key == 'a')
-    {
-        // iResumeTimer(0);
-        y-=10;
-    }
-      if (key == 'd')
-    {
-        // iResumeTimer(0);
-        y+=10;
+        iResumeTimer(0);
     }
     // place your codes for other keys here
 }
@@ -113,44 +83,20 @@ void iKeyboard(unsigned char key)
     GLUT_KEY_LEFT, GLUT_KEY_UP, GLUT_KEY_RIGHT, GLUT_KEY_DOWN, GLUT_KEY_PAGE UP,
     GLUT_KEY_PAGE DOWN, GLUT_KEY_HOME, GLUT_KEY_END, GLUT_KEY_INSERT
 */
-void iSpecialKeyboard(unsigned char key)
+void iSpecialKeyboard(unsigned char key, int state)
 {
 
-    if (key == GLUT_KEY_UP)
+    if (key == GLUT_KEY_END)
     {
-      if(musicOn)
-      {
-        musicOn= false;
-        PlaySound(0, 0, 0);
-      }
-      else {
-        musicOn= true;
-        
-    PlaySound("assets\\sounds\\background.wav", NULL, SND_ASYNC | SND_LOOP);
-      }
+        exit(0);
     }
- else if (key == GLUT_KEY_DOWN)
- {
-   
- }
- 
- else if (key == GLUT_KEY_LEFT)
- {
-    
- }
- 
-
+    // place your codes for other keys here
 }
 
 void ballChange()
 {
-    /*
-
     ball_x += dx;
     ball_y += dy;
-    r=rand()%255;
-    g=rand()%255;
-    b=rand()%255;
 
     if (ball_x + ball_radius > iScreenWidth || ball_x - ball_radius < 0)
     {
@@ -169,31 +115,21 @@ void ballChange()
             ball_y = ball_radius;
         dy = -dy;
     }
-        */
 }
 
 void randomizeBallPosition()
 {
-    /*
     ball_x = rand() % (iScreenWidth - 2 * ball_radius) + ball_radius;
     ball_y = rand() % (iScreenHeight - 2 * ball_radius) + ball_radius;
-    */
 }
 
 int main(int argc, char *argv[])
 {
     glutInit(&argc, argv);
-    // place your own initialization codes here.
-    iSetTimer(10, ballChange);
-        iSetTimer(100, updateGolemIndex );
+
+    iSetTimer(20, ballChange);
     // iSetTimer(2000, randomizeBallPosition);
-    if(musicOn)
-    PlaySound("assets\\sounds\\background.wav", NULL, SND_ASYNC | SND_LOOP);
 
-
-
-     iInitialize(800, 600, "Golem Animation");
-    // iInitialize(400, 400, "Angry Bird");
-
+    iOpenWindow(400, 400, "Ball Demo");
     return 0;
 }

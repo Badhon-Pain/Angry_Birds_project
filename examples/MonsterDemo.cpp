@@ -3,7 +3,6 @@
 	last modified: August 8, 2008
 */
 #include "iGraphics.h"
-#include <algorithm>
 enum
 {
 	IDLE,
@@ -11,7 +10,7 @@ enum
 	JUMP
 };
 int pic_x, pic_y;
-int state = IDLE;
+int m_state = IDLE;
 int direction = 1; // 1 for right, -1 for left
 
 Image idleMonster[4], walkMonster[6], jumpMonster[8];
@@ -23,7 +22,7 @@ void loadResources()
 	iLoadFramesFromSheet(walkMonster, "assets/images/sprites/1 Pink_Monster/Pink_Monster_Walk_6.png", 1, 6);
 	iLoadFramesFromSheet(jumpMonster, "assets/images/sprites/1 Pink_Monster/Pink_Monster_Jump_8.png", 1, 8);
 
-	iInitSprite(&monster, -1);
+	iInitSprite(&monster);
 	iChangeSpriteFrames(&monster, idleMonster, 4);
 	iSetSpritePosition(&monster, 20, 0);
 	iScaleSprite(&monster, 3.0);
@@ -31,7 +30,7 @@ void loadResources()
 
 void updateMonster()
 {
-	switch (state)
+	switch (m_state)
 	{
 	case IDLE:
 		break;
@@ -40,7 +39,7 @@ void updateMonster()
 	case JUMP:
 		if (monster.y == 0)
 		{
-			state = IDLE;
+			m_state = IDLE;
 			iChangeSpriteFrames(&monster, idleMonster, 4);
 		}
 		break;
@@ -105,7 +104,7 @@ void iMouse(int button, int state, int mx, int my)
 	function iKeyboard() is called whenever the user hits a key in keyboard.
 	key- holds the ASCII value of the key pressed.
 */
-void iKeyboard(unsigned char key)
+void iKeyboard(unsigned char key, int state)
 {
 	if (key == 'x')
 	{
@@ -124,7 +123,7 @@ void iKeyboard(unsigned char key)
 	GLUT_KEY_LEFT, GLUT_KEY_UP, GLUT_KEY_RIGHT, GLUT_KEY_DOWN, GLUT_KEY_PAGE UP,
 	GLUT_KEY_PAGE DOWN, GLUT_KEY_HOME, GLUT_KEY_END, GLUT_KEY_INSERT
 */
-void iSpecialKeyboard(unsigned char key)
+void iSpecialKeyboard(unsigned char key, int state)
 {
 
 	if (key == GLUT_KEY_END)
@@ -141,9 +140,9 @@ void iSpecialKeyboard(unsigned char key)
 		else
 		{
 			monster.x--;
-			if (state != WALK)
+			if (m_state != WALK)
 			{
-				state = WALK;
+				m_state = WALK;
 				iChangeSpriteFrames(&monster, walkMonster, 6);
 			}
 		}
@@ -158,9 +157,9 @@ void iSpecialKeyboard(unsigned char key)
 		else
 		{
 			monster.x++;
-			if (state != WALK)
+			if (m_state != WALK)
 			{
-				state = WALK;
+				m_state = WALK;
 				iChangeSpriteFrames(&monster, walkMonster, 6);
 			}
 		}
@@ -168,9 +167,9 @@ void iSpecialKeyboard(unsigned char key)
 	if (key == GLUT_KEY_UP)
 	{
 		monster.y++;
-		if (state != JUMP)
+		if (m_state != JUMP)
 		{
-			state = JUMP;
+			m_state = JUMP;
 			iChangeSpriteFrames(&monster, jumpMonster, 8);
 		}
 	}
@@ -184,9 +183,8 @@ void iSpecialKeyboard(unsigned char key)
 int main(int argc, char *argv[])
 {
 	glutInit(&argc, argv);
-	// place your own initialization codes here.
 	loadResources();
 	iSetTimer(100, updateMonster);
-	iInitialize(500, 400, "SpriteDemo");
+	iOpenWindow(500, 400, "SpriteDemo");
 	return 0;
 }

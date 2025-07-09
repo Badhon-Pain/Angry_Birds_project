@@ -18,13 +18,19 @@
 					<Add directory="." />
 					<Add directory="OpenGL/include" />
 					<Add directory="OpenGL/include/SDL2" />
+					<Add directory="OpenGL/include/Freetype" />
 				</Compiler>
 				<Linker>
 					<Add option="-static-libgcc -static-libstdc++" />
-					<Add library="mingw32" />
-					<Add library="OPENGL32" />
-					<Add library="winmm" />
 					<Add directory="OpenGL/lib" />
+					<Add library="mingw32" />
+					<Add library="SDL2main" />
+					<Add library="SDL2" />
+					<Add library="SDL2_mixer" />
+					<Add library="OPENGL32" />
+					<Add library="freeglut" />
+					<Add library="winmm" />		
+					<Add library="freetype" />					
 				</Linker>
 			</Target>
 		</Build>
