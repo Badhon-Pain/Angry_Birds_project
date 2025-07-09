@@ -6,10 +6,6 @@
 int screen = 0, currentScreen = -1, score = 0;
 int difficultylevel = 0;
 
-// screen =0-> Menu
-// screen = 1-> Game screen
-// screen = 2-> Level Selection
-
 // Bird Physics and States
 int bluebirdX = 20, bluebirdY = 194;
 int redbirdX = 100, redbirdY = 194;
@@ -23,12 +19,13 @@ int currentBird = 0; // 0-> blue, 1-> red, 2-> yellow
 float g = -9.8;
 int slingX = 312, slingY = 358;
 int birdRadius = 30;
+int birdheight = 63, birdwidth = 65;
 
 // Pig Position
 int pig1X = 1070, pig1Y = 431;
 int pigheight = 63, pigwidth = 65;
-float pig_vx =0, pig_vy = 0;
-bool pigFalling = false;
+float pig_vx = 0, pig_vy = 0;
+bool pigfalling = false;
 bool pigvisible = true;
 
 // Cursor
@@ -48,11 +45,9 @@ int leftArmX = 298, leftArmY = 374;
 int rightArmX = 336, rightArmY = 380;
 
 // for pillar & ground
-int pillarX = 1088, pillarY = 209;
+int pillarX = 1088, pillarY = 205;
 int pillarwidth = 30, pillarheight = 200;
-int  groundY = 205;
-
-
+int groundY = 205;
 
 // void loadResources()
 // {
@@ -146,30 +141,47 @@ void updateSingleBird(int &x, int &y, float &vx, float &vy, bool &flying)
 {
     if (flying)
     {
+
         x += vx;
         y += vy;
         vy += g;
-        if (y < groundY)
+        if (y <= groundY)
         {
             y = groundY;
-            // flying = false;
-            // vx = vy = 0;
+            vy = -vy * 0.25;
             
-            vy = -vy * 0.25f;
+            drawPathway(0, 0, 0, 0);
         }
-        if (pigvisible)
+        if (y >= pillarY && y <= pillarY + pillarheight &&
+            x + birdwidth >= pillarX && x <= pillarX + pillarwidth)
         {
-            int birdheight = 63, birdwidth = 65;
-            bool collisionX = x + birdwidth >= pig1X && x <= pig1X + pigwidth;
-            bool collisionY = y + birdheight >= pig1Y && y <= pig1Y + pigheight;
-            if (collisionX && collisionY)
-            {
-                pigvisible = false;
-                score += 100;
-                PlaySound("assets/sounds/bird_01_collision_a1.wav", NULL, SND_FILENAME | SND_ASYNC);
-            }
+            vx = -vx * 0.6;
+            drawPathway(0, 0, 0, 0);
+        }
+       
+    }
+if (pigvisible)
+{
+   
+    bool collisionX = x + birdwidth >= pig1X && x <= pig1X + pigwidth;
+    bool collisionY = y + birdheight >= pig1Y && y <= pig1Y + pigheight;
+    if (collisionX && collisionY)
+    {
+        pigfalling= true;
+       
+        PlaySound("assets/sounds/bird_01_collision_a1.wav", NULL, SND_FILENAME | SND_ASYNC);
+    }
+    if (pigfalling) {
+        pig_vy += -1;
+        pig1Y += pig_vy;
+        if (pig1Y <= groundY) {
+            pig1Y = groundY;
+             pigfalling = false;
+            pigvisible = false;
+           
         }
     }
+}
 }
 
 
@@ -180,19 +192,25 @@ void drawGame()
     iShowImage(208, 177, catapultBack);
 
     if (bluedragging)
+    
         drawRubberLines(bluebirdX, bluebirdY);
+       
     if (reddragging)
+    
         drawRubberLines(redbirdX, redbirdY);
+        
     if (yellowdragging)
+    
         drawRubberLines(yellowbirdX, yellowbirdY);
+       
 
     drawBirds();
 
-    if (bluedragging || blueflying)
+    if ( bluedragging || blueflying)
         drawPathway(bluebirdX, bluebirdY, blue_vx, blue_vy);
-    if (reddragging || redflying)
+    if ( reddragging || redflying)
         drawPathway(redbirdX, redbirdY, red_vx, red_vy);
-    if (yellowdragging || yellowflying)
+    if ( yellowdragging || yellowflying)
         drawPathway(yellowbirdX, yellowbirdY, yellow_vx, yellow_vy);
 
     iShowImage(208, 177, catapultFront);
@@ -246,19 +264,7 @@ void updateBird()
 
     updateSingleBird(yellowbirdX, yellowbirdY, yellow_vx, yellow_vy, yellowflying);
 
-    //    brick collision
-    // for (int i = 0; i < MAX_BRICKS; i++)
-    // {
-    //     if (brickVisible[i])
-    //     {
-    //         if (birdX + birdRadius > brickX[i] && birdX < brickX[i] + brickW &&
-    //             birdY + birdRadius > brickY[i] && birdY < brickY[i] + brickH + 20)
-    //         {
-    //             brickVisible[i] = false;
-
-    //         }
-    //     }
-    // }
+ 
 }
 
 void iMouseMove(int mx, int my)
@@ -378,7 +384,7 @@ void iKeyboard(unsigned char key)
         yellowbirdY = 200;
         yellow_vx = yellow_vy = 0;
         yellowflying = yellowdragging = false;
-        pigvisible = true;
+        pigvisible= true;
         score = 0;
     }
     if (key == 'q')
