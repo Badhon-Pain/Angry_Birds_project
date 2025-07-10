@@ -107,6 +107,7 @@ void drawRubberLines(int x, int y)
     iSetColor(0, 0, 0);
     iLine(leftArmX, leftArmY, x + birdRadius / 2, y + birdRadius / 2);
     iLine(rightArmX, rightArmY, x + birdRadius / 2, y + birdRadius / 2);
+    
 }
 
 void drawPathway(int x, int y, float vx, float vy)
@@ -222,11 +223,21 @@ void draweasy()
     drawBirds();
 
     if (bluedragging)
+    {
         drawPathway(bluebirdX, bluebirdY, blue_vx, blue_vy);
+        
+    }
+
     if (reddragging)
+    {
         drawPathway(redbirdX, redbirdY, red_vx, red_vy);
+        
+    }
     if (yellowdragging)
+    {
         drawPathway(yellowbirdX, yellowbirdY, yellow_vx, yellow_vy);
+        
+    }
 
     iShowImage(208, 177, catapultFront);
     iSetColor(192, 192, 192);
@@ -260,14 +271,7 @@ void drawmedium()
 void iDraw()
 {
     iClear();
-    // if (screen != currentScreen)
-    // {
-    //     currentScreen = screen;
-    //     if (screen == 1 || screen == 3)
-    //         iPlaySound("assets/sounds/angry_birds_intro_music.wav", true, 100);
-    //     else if (screen == 0 || screen == 2)
-    //         iPlaySound("assets/sounds/angry_birds_2.wav", NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
-    // }
+   
     if (screen == 0)
         drawMenu();
     else if (screen == 1)
@@ -295,6 +299,7 @@ void iMouseMove(int mx, int my)
     {
         if (bluedragging)
         {
+            iPlaySound("assets/sounds/slingshot.wav", false, 35);
             bluebirdX = mx;
             bluebirdY = my;
             float dx = slingX - mx;
@@ -306,6 +311,7 @@ void iMouseMove(int mx, int my)
         }
         if (reddragging)
         {
+            iPlaySound("assets/sounds/slingshot.wav", false, 35);
             redbirdX = mx;
             redbirdY = my;
             float dx = slingX - mx;
@@ -317,6 +323,7 @@ void iMouseMove(int mx, int my)
         }
         if (yellowdragging)
         {
+            iPlaySound("assets/sounds/slingshot.wav", false, 35);
             yellowbirdX = mx;
             yellowbirdY = my;
             float dx = slingX - mx;
@@ -337,6 +344,7 @@ void iMouse(int button, int state, int mx, int my)
 
         if (mx >= 110 && mx <= 240 && my >= 237 && my <= 357) // play button
         {
+            iPlaySound("assets/sounds/menu_sound.wav", false);
             screen = 2;
             // iStopAllSounds();
             // iPlaySound("assets/sounds/angry_birds_2.wav", true);
@@ -344,35 +352,40 @@ void iMouse(int button, int state, int mx, int my)
 
         else if (mx >= 110 && mx <= 240 && my >= 177 && my <= 297) // exit button
         {
+            iPlaySound("assets/sounds/menu_sound.wav", false);
             exit(0);
         }
 
         else if (mx >= 110 && mx <= 240 && my >= 110 && my <= 230) // credit button
         {
+            iPlaySound("assets/sounds/menu_sound.wav", false);
         }
     }
 
     else if (screen == 2 && button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
     {
 
-        if (mx >= 85 && mx <= 225 && my >= 210 && my <= 340)
+        if (mx >= 85 && mx <= 225 && my >= 210 && my <= 340) // easy level
         {
+            iPlaySound("assets/sounds/menu_sound.wav", false);
             difficultylevel = 1;
             screen = 1;
             iStopAllSounds();
-            iPlaySound("assets/sounds/angry_birds_intro_music.wav", true, 100);
+            iPlaySound("assets/sounds/angry_birds_intro_music.wav", true);
         }
 
-        else if (mx >= 85 && mx <= 225 && my >= 155 && my <= 285)
+        else if (mx >= 85 && mx <= 225 && my >= 155 && my <= 285) // medium level
         {
+            iPlaySound("assets/sounds/menu_sound.wav", false);
             difficultylevel = 2;
             screen = 3;
             iStopAllSounds();
-            iPlaySound("assets/sounds/angry_birds_intro_music.wav", true, 100);
+            iPlaySound("assets/sounds/angry_birds_intro_music.wav", true);
         }
 
-        else if (mx >= 85 && mx <= 225 && my >= 95 && my <= 225)
+        else if (mx >= 85 && mx <= 225 && my >= 95 && my <= 225) // back button
         {
+            iPlaySound("assets/sounds/menu_sound.wav", false);
             screen = 0;
             iStopAllSounds();
             iPlaySound("assets/sounds/angry_birds_2.wav", true);
@@ -383,10 +396,13 @@ void iMouse(int button, int state, int mx, int my)
     {
         if (mx >= bluebirdX && mx <= bluebirdX + 70 && my >= bluebirdY && my <= bluebirdY + 70)
             bluedragging = true;
+            iPlaySound("assets/sounds/bird_01_select.wav", false);
         if (mx >= redbirdX && mx <= redbirdX + 70 && my >= redbirdY && my <= redbirdY + 70)
             reddragging = true;
+            iPlaySound("assets/sounds/bird_02_select.wav", false);
         if (mx >= yellowbirdX && mx <= yellowbirdX + 70 && my >= yellowbirdY && my <= yellowbirdY + 70)
             yellowdragging = true;
+            iPlaySound("assets/sounds/bird_03_select.wav", false);
     }
 
     else if (screen == 1 && button == GLUT_RIGHT_BUTTON && state == GLUT_UP)
@@ -395,16 +411,19 @@ void iMouse(int button, int state, int mx, int my)
         {
             bluedragging = false;
             blueflying = true;
+            iPlaySound("assets/sounds/bird_01_flying.wav", false);
         }
         if (reddragging)
         {
             reddragging = false;
             redflying = true;
+            iPlaySound("assets/sounds/bird_02_flying.wav", false);
         }
         if (yellowdragging)
         {
             yellowdragging = false;
             yellowflying = true;
+            iPlaySound("assets/sounds/bird_03_flying.wav", false);
         }
     }
 }
@@ -431,7 +450,11 @@ void iKeyboard(unsigned char key, int state)
     if (key == 'q')
         exit(0);
     if (key == 'm')
+    {
         screen = 0;
+        iStopAllSounds();
+        iPlaySound("assets/sounds/angry_birds_2.wav", true,20);
+    }        
 }
 
 void iSpecialKeyboard(unsigned char key, int state)
@@ -447,7 +470,7 @@ int main(int argc, char *argv[])
 {
     glutInit(&argc, argv);
     iInitializeSound();
-    iPlaySound("assets/sounds/angry_birds_2.wav", true);
+    iPlaySound("assets/sounds/angry_birds_2.wav", true,20);
     // loadResources();
     // iSetTimer(100, iAnim);
 
