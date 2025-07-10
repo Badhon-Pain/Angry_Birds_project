@@ -2,6 +2,14 @@
 #include <math.h>
 #include <string.h>
 #include "iSound.h"
+/*
+screen =0 -> very first screen (menu screen)
+screen =1 -> third screen (main game screen) 
+screen =2 -> second screen (level select screen) 
+
+
+
+*/
 
 // Game State
 int screen = 0, currentScreen = -1, score = 0;
@@ -25,7 +33,7 @@ int birdRadius = 30;
 int birdheight = 63, birdwidth = 65;
 
 // Pig Position
-int pig1X = 1070, pig1Y = 431;
+int pig1X = 1070, pig1Y = 420;
 int pigheight = 63, pigwidth = 65;
 float pig_vx = 0, pig_vy = 0;
 bool pigfalling = false;
@@ -38,11 +46,17 @@ int cursorX = -1, cursorY = -1;
 const char *bg = "assets/images/Angry Bird3.jpg";
 const char *catapultBack = "assets/images/CatapultBackSprite.png";
 const char *catapultFront = "assets/images/CatapultFrontSprite.png";
-Image  menuBg, blueImg, redImg, yellowImg, bg1;
-
-// const char *menuBg = "assets/images/Icon.jpg";
+Image  menuBg, blueImg, redImg, yellowImg, bg1, woodHorizontal, woodVertical;
 Image menubutton, levelbutton, scorebutton, pigimage;
 
+void loadResources()
+{
+iLoadImage(&woodHorizontal,"assets/images/Pillar_01.png");
+iResizeImage(&woodHorizontal,120, 30);
+iLoadImage(&woodVertical,"assets/images/Pillar_02.png");
+iResizeImage(&woodVertical,30, 200);
+
+}
 // Rubber Position
 int leftArmX = 298, leftArmY = 374;
 int rightArmX = 336, rightArmY = 380;
@@ -241,9 +255,11 @@ void draweasy()
 
     iShowImage(208, 177, catapultFront);
     iSetColor(192, 192, 192);
-    iFilledRectangle(pillarX, pillarY, pillarwidth, pillarheight); // vertical
+    // iFilledRectangle(pillarX, pillarY, pillarwidth, pillarheight); // vertical
+    iShowLoadedImage(pillarX, pillarY, &woodVertical);
     iSetColor(192, 192, 192);
-    iFilledRectangle(1042, 402, 120, 30); // horizontal
+    // iFilledRectangle(1042, 402, 120, 30); // horizontal
+    iShowLoadedImage(1042,398, &woodHorizontal );
     if (pigvisible)
     {
         iLoadImage(&pigimage, "assets/images/Pig_front.png");
@@ -469,6 +485,7 @@ void iMouseWheel(int dir, int mx, int my) {}
 int main(int argc, char *argv[])
 {
     glutInit(&argc, argv);
+    loadResources();
     iInitializeSound();
     iPlaySound("assets/sounds/angry_birds_2.wav", true,20);
     // loadResources();
