@@ -51,11 +51,23 @@ Image menubutton, levelbutton, scorebutton, pigimage;
 
 void loadResources()
 {
-iLoadImage(&woodHorizontal,"assets/images/Pillar_01.png");
-iResizeImage(&woodHorizontal,120, 30);
-iLoadImage(&woodVertical,"assets/images/Pillar_02.png");
-iResizeImage(&woodVertical,30, 200);
-
+    iLoadImage(&menuBg,"assets/images/IconFinal.png" );
+    iLoadImage(&menubutton, "assets/images/1.png");
+    iResizeImage(&menubutton, 130, 120);
+    iLoadImage(&levelbutton, "assets/images/10.png");
+    iResizeImage(&levelbutton, 140, 130);
+    iLoadImage(&blueImg, "assets/images/Blue_angry_bird5.png");
+    iResizeImage(&blueImg, 65, 63);
+    iLoadImage(&redImg, "assets/images/redAngryBird.png");
+    iResizeImage(&redImg, 65, 63);
+    iLoadImage(&yellowImg, "assets/images/yellowAngryBird.png");
+    iResizeImage(&yellowImg, 65, 63);
+    iLoadImage(&pigimage, "assets/images/Pig_front.png");
+    iResizeImage(&pigimage, 65, 63);
+    iLoadImage(&woodHorizontal,"assets/images/Pillar_01.png");
+    iResizeImage(&woodHorizontal,120,30);
+    iLoadImage(&woodVertical,"assets/images/Pillar_02.png");
+    iResizeImage(&woodVertical,30, 200);
 }
 // Rubber Position
 int leftArmX = 298, leftArmY = 374;
@@ -81,12 +93,12 @@ int groundY = 205;
 
 void drawMenu()
 {
-    // iShowImage(-480, -234, menuBg);
-    iLoadImage(&menuBg,"assets/images/IconFinal.png" );
-    // iResizeImage(&menuBg, 1920, 1440);
+    
+    
+    
     iShowLoadedImage(0,0,&menuBg);
-    iLoadImage(&menubutton, "assets/images/1.png");
-    iResizeImage(&menubutton, 130, 120);
+    
+    
     iShowLoadedImage(110, 237, &menubutton);
 
     iSetColor(255, 255, 255);
@@ -101,8 +113,7 @@ void drawMenu()
 
 void drawLevelSelect()
 {
-    iLoadImage(&levelbutton, "assets/images/10.png");
-    iResizeImage(&levelbutton, 140, 130);
+    
     iShowLoadedImage(0,0,&menuBg);
 
     iShowLoadedImage(85, 210, &levelbutton);
@@ -143,19 +154,15 @@ void drawPathway(int x, int y, float vx, float vy)
 
 void drawBirds()
 {
-    iLoadImage(&blueImg, "assets/images/Blue_angry_bird5.png");
-
-    iResizeImage(&blueImg, 65, 63);
+    
     if(bluevisible)
     iShowLoadedImage(bluebirdX, bluebirdY, &blueImg);
 
-    iLoadImage(&redImg, "assets/images/redAngryBird.png");
-    iResizeImage(&redImg, 65, 63);
+    
     if(redvisible)
     iShowLoadedImage(redbirdX, redbirdY, &redImg);
 
-    iLoadImage(&yellowImg, "assets/images/yellowAngryBird.png");
-    iResizeImage(&yellowImg, 65, 63);
+    
     if(yellowvisible)
     iShowLoadedImage(yellowbirdX, yellowbirdY, &yellowImg);
 }
@@ -262,8 +269,7 @@ void draweasy()
     iShowLoadedImage(1042,398, &woodHorizontal );
     if (pigvisible)
     {
-        iLoadImage(&pigimage, "assets/images/Pig_front.png");
-        iResizeImage(&pigimage, 65, 63);
+        
         iShowLoadedImage(pig1X, pig1Y, &pigimage);
     }
 
@@ -487,7 +493,7 @@ int main(int argc, char *argv[])
     glutInit(&argc, argv);
     loadResources();
     iInitializeSound();
-    iPlaySound("assets/sounds/angry_birds_2.wav", true,20);
+    iPlaySound("assets/sounds/angry_birds_2.wav", true,100);
     // loadResources();
     // iSetTimer(100, iAnim);
 
