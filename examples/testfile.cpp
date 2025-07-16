@@ -15,6 +15,8 @@ screen =4 -> hard level screen
 
 #define ROWS 10
 #define COLLUMS 20
+#define BUET_ROWS 7
+#define BUET_COLS 25
 
 // Game State
 int screen = 0, currentScreen = -1, score = 0;
@@ -54,9 +56,9 @@ char cursorStr[30];
 const char *bg = "assets/images/Angry Bird3.jpg";
 const char *catapultBack = "assets/images/CatapultBackSprite.png";
 const char *catapultFront = "assets/images/CatapultFrontSprite.png";
-Image gultiback, gultifront,map_block, map_mosaic, map_stone,
+Image gultiback, gultifront,map_block, map_mosaic, map_stone, woodblock,
     menuBg, blueImg, redImg, yellowImg, bg1, woodHorizontal, woodVertical,
-    woodHorizontal2, woodVertical2,
+    woodHorizontal2, woodVertical2, rock,
     menubutton, levelbutton, scorebutton, pigimage, credit;
     Image redframes[4];
     Sprite redSprite;
@@ -100,6 +102,9 @@ void loadResources()
     iResizeImage(&map_mosaic, 32, 32);
     iLoadImage(&map_stone, "assets/images/Tile_45.png");
     iResizeImage(&map_stone, 32, 32);
+    iLoadImage(&woodblock, "assets/images/Wooden_Box.png" );
+    iResizeImage(&woodblock, 32, 32);
+    iLoadImage(&rock,"assets/images/Rock_06.png" );
 
     iInitSprite(&redSprite); 
     iLoadFramesFromFolder(redframes, "assets/images/sprites/red_bird"); 
@@ -153,56 +158,67 @@ void drawLevelSelect()
 }
 
 int map1[ROWS][COLLUMS] = {
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 2, 2, 1, 1, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 1, 1, 3, 3, 0, 4, 0, 0, 3, 3, 1, 1, 0, 0, 0},
-    {0, 0, 0, 1, 1, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 1, 1, 0},
-    {0, 0, 1, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 1},
-    {0, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2},
-    {1, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+    {0, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 0}, // top pig
+    {1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1}, // top horizontal
+    {1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 1, 0, 0, 1}, // pig
+    {1, 0, 2, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 2, 1}, // mid horizontal
+    {1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1}, // vertical pillar
+    {1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1}, // vertical pillar
+    {1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1}, // bottom pig
+    {1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1}, // ground horizontal
+    {1, 1, 1, 1, 1, 0, 0, 2, 0, 0, 0, 0, 0, 2, 0, 1, 1, 1, 1, 1},
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
 };
 
-void display_map1()
-{
-   int blockWidth = 32;  
-    int blockHeight = 32; 
-    int startX = 1284;    
-    int startY = 331;     
+void display_map1(){
+    int startX = 1220, startY = 425; // base position
+    int blockW = 30, blockH = 30;
 
-    for (int row = 0; row < ROWS; row++) {
-        for (int col = 0; col < COLLUMS; col++) {
-            int posX = startX + col * blockWidth;
-            int posY = startY - row * blockHeight; 
-            
-            switch (map1[row][col]) {
-                case 1:
-                    iShowLoadedImage(posX, posY, &map_block);
-                    break;
-                case 2: 
-                    iShowLoadedImage(posX, posY, &map_stone);
-                    break;
-                case 3: 
-                    iShowLoadedImage(posX, posY, &map_mosaic);
-                    break;
-                case 4:
-                    iShowLoadedImage(posX, posY, &pigimage);
-                    break;
-                
+    for (int r = 0; r < ROWS; r++)
+    {
+        for (int c = 0; c < COLLUMS; c++)
+        {
+            int x = startX + c * blockW;
+            int y = startY - r * blockH;
+
+            if (map1[r][c] == 1)
+                iShowLoadedImage(x, y, &map_block); // or choose vertical based on design
+            else if (map1[r][c] == 2)
+                iShowLoadedImage2(x-9, y+18, &pigimage,50 ,45);
+            else if (map1[r][c] == 3)
+                iShowLoadedImage(x, y, &rock); // reuse small pig or separate if needed
+        }
+    }
+}
+
+
+
+int map2[BUET_ROWS][BUET_COLS] = {
+    
+    {1,1,1,0,0, 1,0,0,1,0, 1,1,1,0,0, 1,1,1,1,1, 0,0,0,0,0}, 
+    {1,0,0,1,0, 1,0,0,1,0, 1,0,0,0,0, 0,0,1,0,0, 0,0,0,0,0}, 
+    {1,1,1,0,0, 1,0,0,1,0, 1,1,1,0,0, 0,0,1,0,0, 0,0,0,0,0}, 
+    {1,0,0,1,0, 1,0,0,1,0, 1,0,0,0,0, 0,0,1,0,0, 0,0,0,0,0}, 
+    {1,1,1,0,0, 1,1,1,1,0, 1,1,1,0,0, 0,0,1,0,0, 0,0,0,0,0}, 
+    {0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0}, 
+    {0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0}  
+};
+
+void display_map2() {
+    int blockSize = 32; 
+    int startX = 930;    
+    int startY = 305;    
+
+    for (int row = 0; row < BUET_ROWS; row++) {
+        for (int col = 0; col < BUET_COLS; col++) {
+            if (map2[row][col] == 1) {
+                int posX = startX + col * blockSize;
+                int posY = startY - row * blockSize;
+                iShowLoadedImage(posX, posY, &map_block);
             }
         }
     }
-
-
-
-
-
-
-
 }
-
 
 
 
@@ -437,6 +453,9 @@ void drawmedium()
 void drawhard()
 {
     iShowImage(0, 0, bg);
+    iShowLoadedImage(208,177, &gultiback);
+    iShowLoadedImage(208, 177, &gultifront);
+    display_map2();
 
 
 
