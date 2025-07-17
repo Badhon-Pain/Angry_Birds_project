@@ -63,12 +63,18 @@ Image gultiback, gultifront,map_block, map_mosaic, map_stone, woodblock,
     Image redframes[4];
     Sprite redSprite;
 
+//for medium levels collision
+bool mediumblocksVisible[ROWS][COLLUMS]; 
+bool mediumpigsVisible[ROWS][COLLUMS];
+bool mediumrockVisible[ROWS][COLLUMS];
+void initMediumLevel();
+
 void loadResources()
 {
     iLoadImage(&menuBg, "assets/images/IconFinal.png");
-    iLoadImage(&menubutton, "assets/images/1.png");
+    iLoadImage(&menubutton, "assets/images/5.png");
     iResizeImage(&menubutton, 130, 120);
-    iLoadImage(&levelbutton, "assets/images/10.png");
+    iLoadImage(&levelbutton, "assets/images/5.png");
     iResizeImage(&levelbutton, 140, 130);
     iLoadImage(&gultiback, "assets/images/CatapultBackSprite.png");
     iResizeImage(&gultiback, 200, 200);
@@ -106,10 +112,12 @@ void loadResources()
     iResizeImage(&woodblock, 32, 32);
     iLoadImage(&rock,"assets/images/Rock_06.png" );
 
-    iInitSprite(&redSprite); 
-    iLoadFramesFromFolder(redframes, "assets/images/sprites/red_bird"); 
-    iChangeSpriteFrames(&redSprite, redframes, 4); 
-    iSetSpritePosition(&redSprite, 75, 160);
+
+
+    // iInitSprite(&redSprite); 
+    // iLoadFramesFromFolder(redframes, "assets/images/sprites/red_bird"); 
+    // iChangeSpriteFrames(&redSprite, redframes, 4); 
+    // iSetSpritePosition(&redSprite, 75, 160);
 }
 // Rubber Position
 int leftArmX = 298, leftArmY = 374;
@@ -157,6 +165,8 @@ void drawLevelSelect()
     iText(120, 150, "HARD", GLUT_BITMAP_TIMES_ROMAN_24);
 }
 
+ 
+
 int map1[ROWS][COLLUMS] = {
     {0, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 0}, // top pig
     {1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1}, // top horizontal
@@ -170,6 +180,8 @@ int map1[ROWS][COLLUMS] = {
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
 };
 
+
+
 void display_map1(){
     int startX = 1220, startY = 425; // base position
     int blockW = 30, blockH = 30;
@@ -181,12 +193,12 @@ void display_map1(){
             int x = startX + c * blockW;
             int y = startY - r * blockH;
 
-            if (map1[r][c] == 1)
-                iShowLoadedImage(x, y, &map_block); // or choose vertical based on design
-            else if (map1[r][c] == 2)
+            if (map1[r][c] == 1 )
+                iShowLoadedImage(x, y, &map_block); 
+            else if (map1[r][c] == 2 )
                 iShowLoadedImage2(x-9, y+18, &pigimage,50 ,45);
             else if (map1[r][c] == 3)
-                iShowLoadedImage(x, y, &rock); // reuse small pig or separate if needed
+                iShowLoadedImage(x, y, &rock); 
         }
     }
 }
@@ -221,20 +233,18 @@ void display_map2() {
 }
 
 
-
-
-
-
-
-
-
-
-
 void drawRubberLines(int x, int y)
 {
     iSetColor(0, 0, 0);
     iLine(leftArmX, leftArmY, x + birdRadius / 2, y + birdRadius / 2);
     iLine(rightArmX, rightArmY, x + birdRadius / 2, y + birdRadius / 2);
+}
+
+void drawRubberLines_medium(int x, int y)
+{
+    iSetColor(0, 0, 0);
+    iLine(323, 293, x + birdRadius / 2, y + birdRadius / 2);
+    iLine(369, 300, x + birdRadius / 2, y + birdRadius / 2);
 }
 
 void drawPathway(int x, int y, float vx, float vy)
@@ -341,7 +351,7 @@ void updateSingleBird(int &x, int &y, float &vx, float &vy, bool &flying, bool &
                 iPlaySound("assets/sounds/wood_hit.wav");
             }
             
-            // Horizontal long beam (top)
+            //horizontal1
             if (x + birdwidth > baseX - 46 && x < baseX - 46 + 120 &&
                 y + birdheight > 398 && y < 398 + 30) {
                 
@@ -350,7 +360,7 @@ void updateSingleBird(int &x, int &y, float &vx, float &vy, bool &flying, bool &
                 iPlaySound("assets/sounds/wood_hit.wav");
             }
             
-            // Horizontal short beam (middle)
+            //horizontal2
             if (x + birdwidth > baseX + 111 && x < baseX + 111 + 60 &&
                 y + birdheight > 294 && y < 294 + 30) {
                 
@@ -388,11 +398,11 @@ void updateSingleBird(int &x, int &y, float &vx, float &vy, bool &flying, bool &
 
 void draweasy()
 {
-    // Background and slingshot
+   
     iShowImage(0, 0, bg);
     iShowImage(208, 177, catapultBack);
 
-    // Draw rubber lines if dragging
+    
     if (bluedragging)
         drawRubberLines(bluebirdX, bluebirdY);
     if (reddragging)
@@ -400,10 +410,10 @@ void draweasy()
     if (yellowdragging)
         drawRubberLines(yellowbirdX, yellowbirdY);
 
-    // Draw birds
+   
     drawBirds();
 
-    // Draw projectile pathway while dragging
+    
     if (bluedragging)
         drawPathway(bluebirdX, bluebirdY, blue_vx, blue_vy);
     if (reddragging)
@@ -411,17 +421,17 @@ void draweasy()
     if (yellowdragging)
         drawPathway(yellowbirdX, yellowbirdY, yellow_vx, yellow_vy);
 
-    // Draw front part of slingshot
+   
     iShowImage(208, 177, catapultFront);
 
-    // Draw 3 pillar systems (each has: vertical long, horizontal long, horizontal short, vertical short)
+   
     for (int i = 0; i < pillarCount; i++)
     {
         int baseX = 1088 + i * 250;
-        iShowLoadedImage(baseX, pillarY[i], &woodVertical);            // vertical pillar
-        iShowLoadedImage(baseX - 46, 398, &woodHorizontal);            // horizontal top (long)
-        iShowLoadedImage(baseX + 111, 294, &woodHorizontal2);          // horizontal mid (short)
-        iShowLoadedImage(baseX + 125, pillarY[i] - 4, &woodVertical2); // right short pillar
+        iShowLoadedImage(baseX, pillarY[i], &woodVertical);        
+        iShowLoadedImage(baseX - 46, 398, &woodHorizontal);            
+        iShowLoadedImage(baseX + 111, 294, &woodHorizontal2);          
+        iShowLoadedImage(baseX + 125, pillarY[i] - 4, &woodVertical2); 
     }
 
     // Draw pigs
@@ -445,16 +455,50 @@ void drawmedium()
 {
     iShowLoadedImage(0, 0, &bg1);
     iShowLoadedImage(265, 140, &gultiback);
-    iShowLoadedImage(265, 140, &gultifront);
-    iShowSprite(&redSprite);
+    // iShowSprite(&redSprite);
+        if (bluedragging)
+        drawRubberLines_medium(bluebirdX, bluebirdY);
+    if (reddragging)
+        drawRubberLines_medium(redbirdX, redbirdY);
+    if (yellowdragging)
+        drawRubberLines_medium(yellowbirdX, yellowbirdY);
+   drawBirds();
     display_map1();
+        if (bluedragging)
+        drawPathway(bluebirdX, bluebirdY, blue_vx, blue_vy);
+    if (reddragging)
+        drawPathway(redbirdX, redbirdY, red_vx, red_vy);
+    if (yellowdragging)
+        drawPathway(yellowbirdX, yellowbirdY, yellow_vx, yellow_vy);
+        iShowLoadedImage(265, 140, &gultifront);
 }
 
 void drawhard()
 {
-    iShowImage(0, 0, bg);
-    iShowLoadedImage(208,177, &gultiback);
-    iShowLoadedImage(208, 177, &gultifront);
+        iShowImage(0, 0, bg);
+    iShowImage(208, 177, catapultBack);
+
+    
+    if (bluedragging)
+        drawRubberLines(bluebirdX, bluebirdY);
+    if (reddragging)
+        drawRubberLines(redbirdX, redbirdY);
+    if (yellowdragging)
+        drawRubberLines(yellowbirdX, yellowbirdY);
+
+   
+    drawBirds();
+
+    
+    if (bluedragging)
+        drawPathway(bluebirdX, bluebirdY, blue_vx, blue_vy);
+    if (reddragging)
+        drawPathway(redbirdX, redbirdY, red_vx, red_vy);
+    if (yellowdragging)
+        drawPathway(yellowbirdX, yellowbirdY, yellow_vx, yellow_vy);
+
+   
+    iShowImage(208, 177, catapultFront);
     display_map2();
 
 
@@ -500,7 +544,7 @@ void iMouseMove(int mx, int my)
     cursorX = mx;
     cursorY = my;
     sprintf(cursorStr, "Cursor: (%d, %d)", cursorX, cursorY);
-    if (screen == 1)
+    if (screen == 1 || screen ==3 || screen ==4)
     {
         if (bluedragging)
         {
@@ -597,7 +641,7 @@ void iMouse(int button, int state, int mx, int my)
         }
     }
 
-    else if (screen == 1 && button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
+    else if ((screen == 1 || screen==3 || screen==4) && button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
     {
         if (selectedBird = -1 && mx >= bluebirdX && mx <= bluebirdX + 70 && my >= bluebirdY && my <= bluebirdY + 70)
         {
@@ -620,7 +664,7 @@ void iMouse(int button, int state, int mx, int my)
         }
     }
 
-    else if (screen == 1 && button == GLUT_RIGHT_BUTTON && state == GLUT_UP)
+    else if ((screen == 1 || screen ==3 || screen ==4) && button == GLUT_RIGHT_BUTTON && state == GLUT_UP)
     {
         if (bluedragging)
         {
@@ -677,9 +721,9 @@ void iSpecialKeyboard(unsigned char key, int state)
 
 void iMouseDrag(int mx, int my) {}
 void iMouseWheel(int dir, int mx, int my) {}
-void animate() {
-    iAnimateSprite(&redSprite); 
-}
+// void animate() {
+//     iAnimateSprite(&redSprite); 
+// }
 
 int main(int argc, char *argv[])
 {
@@ -688,7 +732,7 @@ int main(int argc, char *argv[])
     iInitializeSound();
     iPlaySound("assets/sounds/angry_birds_2.wav", true, 20);
     iSetTimer(20, updateBird);
-    iSetTimer(200, animate); 
+    // iSetTimer(200, animate); 
     iOpenWindow(1920, 1080, "Angry Birds - BUET PROJECT");
     return 0;
 }
