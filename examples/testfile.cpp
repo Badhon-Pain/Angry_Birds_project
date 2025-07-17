@@ -23,7 +23,7 @@ int screen = 0, currentScreen = -1, score = 0;
 int difficultylevel = 0;
 
 // Bird Physics and States
-bool bluevisible = true, redvisible = true, yellowvisible = true;
+bool bluevisible = true, redvisible = true, yellowvisible = true, blackvisible= true;
 int bluebirdX = 20, bluebirdY = 194;
 int redbirdX = 100, redbirdY = 194;
 int yellowbirdX = 180, yellowbirdY = 200;
@@ -53,12 +53,9 @@ int cursorX = -1, cursorY = -1;
 char cursorStr[30];
 
 // Assets
-const char *bg = "assets/images/Angry Bird3.jpg";
-const char *catapultBack = "assets/images/CatapultBackSprite.png";
-const char *catapultFront = "assets/images/CatapultFrontSprite.png";
-Image gultiback, gultifront,map_block, map_mosaic, map_stone, woodblock,
+Image bg, gultiback, gultifront,map_block, map_mosaic, map_stone, woodblock,
     menuBg, blueImg, redImg, yellowImg, bg1, woodHorizontal, woodVertical,
-    woodHorizontal2, woodVertical2, rock,
+    woodHorizontal2, woodVertical2, rock, blackImg,bgHard,
     menubutton, levelbutton, scorebutton, pigimage, credit;
     Image redframes[4];
     Sprite redSprite;
@@ -71,15 +68,14 @@ void initMediumLevel();
 
 void loadResources()
 {
+    iLoadImage(&bg, "assets/images/Angry Bird3.jpg");
     iLoadImage(&menuBg, "assets/images/IconFinal.png");
     iLoadImage(&menubutton, "assets/images/5.png");
     iResizeImage(&menubutton, 130, 120);
     iLoadImage(&levelbutton, "assets/images/5.png");
     iResizeImage(&levelbutton, 140, 130);
     iLoadImage(&gultiback, "assets/images/CatapultBackSprite.png");
-    iResizeImage(&gultiback, 200, 200);
     iLoadImage(&gultifront, "assets/images/CatapultFrontSprite.png");
-    iResizeImage(&gultifront, 200, 200);
     iLoadImage(&blueImg, "assets/images/Blue_angry_bird5.png");
     iResizeImage(&blueImg, 65, 63);
     iLoadImage(&redImg, "assets/images/redAngryBird.png");
@@ -98,8 +94,7 @@ void loadResources()
     iResizeImage(&woodVertical2, 30, 100);
     iLoadImage(&credit, "assets/images/terrace.png");
     iResizeImage(&credit, 1920, 1080);
-    iLoadImage(&scorebutton, "assets/images/4.png");
-    iResizeImage(&scorebutton, 140, 130);
+    iLoadImage(&scorebutton, "assets/images/18.png");
     iLoadImage(&bg1, "assets/images/BG_03.png");
     iResizeImage(&bg1, 1920, 1080);
     iLoadImage(&map_block,"assets/images/Pillar_05_exs.png");
@@ -111,6 +106,8 @@ void loadResources()
     iLoadImage(&woodblock, "assets/images/Wooden_Box.png" );
     iResizeImage(&woodblock, 32, 32);
     iLoadImage(&rock,"assets/images/Rock_06.png" );
+    iLoadImage(&blackImg,"assets/images/Bomb.png" );
+    iLoadImage(&bgHard,"assets/images/bgHard.jpg" );
 
 
 
@@ -219,7 +216,7 @@ int map2[BUET_ROWS][BUET_COLS] = {
 void display_map2() {
     int blockSize = 32; 
     int startX = 930;    
-    int startY = 305;    
+    int startY = 305-115;    
 
     for (int row = 0; row < BUET_ROWS; row++) {
         for (int col = 0; col < BUET_COLS; col++) {
@@ -299,7 +296,7 @@ void updatePigMotion(int i)
     }
 }
 
-void drawBirds()
+void drawBirds_easy()
 {
 
     if (bluevisible)
@@ -310,6 +307,33 @@ void drawBirds()
 
     if (yellowvisible)
         iShowLoadedImage(yellowbirdX, yellowbirdY, &yellowImg);
+}
+
+void drawBirds_medium()
+{
+
+    if (bluevisible)
+        iShowLoadedImage2(bluebirdX, bluebirdY, &blueImg, 50, 50);
+
+    if (redvisible)
+        iShowLoadedImage2(redbirdX, redbirdY, &redImg, 50, 50);
+
+    if (blackvisible)
+        iShowLoadedImage2(yellowbirdX, yellowbirdY, &blackImg, 50, 50);
+}
+
+void drawBirds_hard()
+{
+
+    if (bluevisible)
+        iShowLoadedImage(bluebirdX, bluebirdY-115, &blueImg);
+
+    if (redvisible)
+        iShowLoadedImage(redbirdX, redbirdY-115, &redImg);
+
+    if (yellowvisible)
+        iShowLoadedImage(yellowbirdX, yellowbirdY-115, &yellowImg);
+
 }
 
 void updateSingleBird(int &x, int &y, float &vx, float &vy, bool &flying, bool &visible) {
@@ -399,8 +423,8 @@ void updateSingleBird(int &x, int &y, float &vx, float &vy, bool &flying, bool &
 void draweasy()
 {
    
-    iShowImage(0, 0, bg);
-    iShowImage(208, 177, catapultBack);
+    iShowLoadedImage2(0,0,&bg);
+    iShowLoadedImage2(208,177, &gultiback);
 
     
     if (bluedragging)
@@ -411,7 +435,7 @@ void draweasy()
         drawRubberLines(yellowbirdX, yellowbirdY);
 
    
-    drawBirds();
+    drawBirds_easy();
 
     
     if (bluedragging)
@@ -422,7 +446,7 @@ void draweasy()
         drawPathway(yellowbirdX, yellowbirdY, yellow_vx, yellow_vy);
 
    
-    iShowImage(208, 177, catapultFront);
+    iShowLoadedImage2(208, 177, &gultifront);
 
    
     for (int i = 0; i < pillarCount; i++)
@@ -443,18 +467,18 @@ void draweasy()
 
     // Draw score panel
 
-    iShowLoadedImage(25, 688, &scorebutton);
+    iShowLoadedImage2(25, 888+50, &scorebutton, 140, 130);
 
     char str[20];
     sprintf(str, "SCORE: %d", score);
     iSetColor(0, 0, 0);
-    iText(55, 750, str);
+    iText(55-2, 950+50, str);
 }
 
 void drawmedium()
 {
     iShowLoadedImage(0, 0, &bg1);
-    iShowLoadedImage(265, 140, &gultiback);
+    iShowLoadedImage2(265, 140, &gultiback, 200, 200);
     // iShowSprite(&redSprite);
         if (bluedragging)
         drawRubberLines_medium(bluebirdX, bluebirdY);
@@ -462,7 +486,7 @@ void drawmedium()
         drawRubberLines_medium(redbirdX, redbirdY);
     if (yellowdragging)
         drawRubberLines_medium(yellowbirdX, yellowbirdY);
-   drawBirds();
+   drawBirds_medium();
     display_map1();
         if (bluedragging)
         drawPathway(bluebirdX, bluebirdY, blue_vx, blue_vy);
@@ -470,13 +494,18 @@ void drawmedium()
         drawPathway(redbirdX, redbirdY, red_vx, red_vy);
     if (yellowdragging)
         drawPathway(yellowbirdX, yellowbirdY, yellow_vx, yellow_vy);
-        iShowLoadedImage(265, 140, &gultifront);
+        iShowLoadedImage2(265, 140, &gultifront, 200, 200);
+        iShowLoadedImage2(25, 888+50, &scorebutton, 140, 130);
+          char str[20];
+    sprintf(str, "SCORE: %d", score);
+    iSetColor(0, 0, 0);
+    iText(55-2, 950+50, str);
 }
 
 void drawhard()
 {
-        iShowImage(0, 0, bg);
-    iShowImage(208, 177, catapultBack);
+        iShowLoadedImage2(0,0, &bgHard, 1920, 1080 );
+    iShowLoadedImage2(208, 177-115, &gultiback, 200, 200);
 
     
     if (bluedragging)
@@ -487,19 +516,25 @@ void drawhard()
         drawRubberLines(yellowbirdX, yellowbirdY);
 
    
-    drawBirds();
+    drawBirds_hard();
+    display_map2();
 
     
     if (bluedragging)
-        drawPathway(bluebirdX, bluebirdY, blue_vx, blue_vy);
+        drawPathway(bluebirdX, bluebirdY-115, blue_vx, blue_vy);
     if (reddragging)
-        drawPathway(redbirdX, redbirdY, red_vx, red_vy);
+        drawPathway(redbirdX, redbirdY-115, red_vx, red_vy);
     if (yellowdragging)
-        drawPathway(yellowbirdX, yellowbirdY, yellow_vx, yellow_vy);
+        drawPathway(yellowbirdX, yellowbirdY-115, yellow_vx, yellow_vy);
 
+   iShowLoadedImage2(208, 177-115, &gultifront, 200, 200);
    
-    iShowImage(208, 177, catapultFront);
-    display_map2();
+    
+    iShowLoadedImage2(25, 888+50, &scorebutton, 140, 130);
+      char str[20];
+    sprintf(str, "SCORE: %d", score);
+    iSetColor(0, 0, 0);
+    iText(55-2, 950+50, str);
 
 
 
@@ -635,6 +670,7 @@ void iMouse(int button, int state, int mx, int my)
 
         else if (mx >= 97&& mx <= 211 && my >= 144 && my <= 178) // hard button button
         {
+            difficultylevel = 3;
             screen = 4;
             iStopAllSounds();
             iPlaySound("assets/sounds/angry_birds_intro_music.wav", true);
