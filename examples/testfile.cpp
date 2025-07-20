@@ -544,7 +544,10 @@ void drawhard()
 
 void iDraw()
 {
+    
     iClear();
+    if (!isFullScreen) iToggleFullscreen();
+    
 
     if (screen == 0)
         drawMenu();
@@ -569,6 +572,7 @@ void updateBird()
     updateSingleBird(yellowbirdX, yellowbirdY, yellow_vx, yellow_vy, yellowflying, yellowvisible);
 
     for (int i = 0; i < pigCount; i++)
+    
     {
         updatePigMotion(i);
     }
