@@ -8,6 +8,7 @@ screen =1 -> third screen (main game screen)
 screen =2 -> second screen (level select screen)
 screen =3 -> medium level screen 
 screen =4 -> hard level screen
+screen =5 -> credit showing 
 
 
 
@@ -57,7 +58,7 @@ char cursorStr[30];
 Image bg, gultiback, gultifront,map_block, map_mosaic, map_stone, woodblock,
     menuBg, blueImg, redImg, yellowImg, bg1, woodHorizontal, woodVertical,
     woodHorizontal2, woodVertical2, rock, blackImg,bgHard,
-    menubutton, levelbutton, scorebutton, pigimage, credit;
+    menubutton, levelbutton, scorebutton, pigimage, credit, creditBack;
     Image redframes[4];
     Sprite redSprite, verticalSprite;
 
@@ -93,8 +94,6 @@ void loadResources()
     iResizeImage(&woodHorizontal2, 60, 30);
     iLoadImage(&woodVertical2, "assets/images/Pillar_02.png");
     iResizeImage(&woodVertical2, 30, 100);
-    iLoadImage(&credit, "assets/images/terrace.png");
-    iResizeImage(&credit, 1920, 1080);
     iLoadImage(&scorebutton, "assets/images/18.png");
     iLoadImage(&bg1, "assets/images/BG_03.png");
     iResizeImage(&bg1, 1920, 1080);
@@ -109,6 +108,8 @@ void loadResources()
     iLoadImage(&rock,"assets/images/Rock_06.png" );
     iLoadImage(&blackImg,"assets/images/Bomb.png" );
     iLoadImage(&bgHard,"assets/images/bgHard.jpg" );
+    iLoadImage(&credit,"assets/images/credits2.png" );
+    iLoadImage(&creditBack,"assets/images/creditback.png" );
 
 
 
@@ -526,9 +527,6 @@ void draweasy()
         int baseX = 1088 + i * 250;
         // Main vertical pillar (rotated)
         iShowLoadedImage(baseX, pillarY[i], &woodVertical);
-        iRotate(baseX + pillarwidth/2, pillarY[i] + pillarheight/2, pillarRotation[i]);
-        
-        iUnRotate();
                              
         
         // Horizontal beams (movable)
@@ -617,10 +615,6 @@ void drawhard()
     iSetColor(0, 0, 0);
     iText(55-2, 950+50, str);
 
-
-
-
-
 }
 
 void iDraw()
@@ -631,7 +625,10 @@ void iDraw()
     
 
     if (screen == 0)
+    {
         drawMenu();
+        
+    }
     else if (screen == 1)
         draweasy();
     else if (screen == 2)
@@ -640,8 +637,19 @@ void iDraw()
         drawmedium();
     else if (screen ==4)
         drawhard();
+     else if (screen ==5 )
+   {
+    iShowLoadedImage(0, 0, &menuBg);
+    iSetTransparentColor(0, 0, 0, 0.7);
+    iFilledRectangle(0,0, 1920, 1080);
+    iShowLoadedImage2(677-152,360-73, &credit);
+    
+   }
+   
     iSetColor(0, 0, 0);
     iText(1700, 1035, cursorStr, GLUT_BITMAP_HELVETICA_18);
+   
+    
 }
 
 void updateBird()
@@ -707,8 +715,6 @@ void iMouseMove(int mx, int my)
 
 void iMouse(int button, int state, int mx, int my)
 {
-    cursorX = mx;
-    cursorY = my;
     if (screen == 0 && button == GLUT_LEFT_BUTTON && state == GLUT_UP)
     {
 
@@ -718,17 +724,16 @@ void iMouse(int button, int state, int mx, int my)
             screen = 2;
         }
 
-        else if (mx >= 123 && mx <= 224 && my >= 219 && my <= 258) // exit button
+         if (mx >= 123 && mx <= 224 && my >= 219 && my <= 258) // exit button
         {
             iPlaySound("assets/sounds/menu_sound.wav", false);
             exit(0);
         }
 
-        else if (mx >= 123 && mx <= 224 && my >= 156 && my <= 191) // credit button
+        if (mx >= 123 && mx <= 224 && my >= 156 && my <= 191) // credit button
         {
             iPlaySound("assets/sounds/menu_sound.wav", false);
-            // iShowLoadedImage2(0, 0, &credit, 1920, 1080);
-            iShowLoadedImage(0, 0, &credit);
+           screen = 5;
         }
     }
 
@@ -831,6 +836,8 @@ void iMouse(int button, int state, int mx, int my)
             selectedBird = -1;
         }
     }
+
+    
 }
 
 void iKeyboard(unsigned char key, int state)
