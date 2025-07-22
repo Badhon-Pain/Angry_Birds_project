@@ -21,6 +21,7 @@ screen =4 -> hard level screen
 // Game State
 int screen = 0, currentScreen = -1, score = 0;
 int difficultylevel = 0;
+bool musicOn= true, soundOn = true;
 
 // Bird Physics and States
 bool bluevisible = true, redvisible = true, yellowvisible = true, blackvisible= true;
@@ -551,6 +552,7 @@ void iDraw()
 
     if (screen == 0)
         drawMenu();
+        
     else if (screen == 1)
         draweasy();
     else if (screen == 2)

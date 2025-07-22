@@ -9,6 +9,10 @@ screen =2 -> second screen (level select screen)
 screen =3 -> medium level screen 
 screen =4 -> hard level screen
 screen =5 -> credit showing 
+screen =6 -> settings page
+screen =7 -> instruction page
+screen =8 -> about page
+screen =9 -> about_2 page
 
 
 
@@ -22,6 +26,7 @@ screen =5 -> credit showing
 // Game State
 int screen = 0, currentScreen = -1, score = 0;
 int difficultylevel = 0;
+bool soundOn = true, musicOn = true;
 
 // Bird Physics and States
 bool bluevisible = true, redvisible = true, yellowvisible = true, blackvisible= true;
@@ -57,8 +62,9 @@ char cursorStr[30];
 // Assets
 Image bg, gultiback, gultifront,map_block, map_mosaic, map_stone, woodblock,
     menuBg, blueImg, redImg, yellowImg, bg1, woodHorizontal, woodVertical,
-    woodHorizontal2, woodVertical2, rock, blackImg,bgHard,
-    menubutton, levelbutton, scorebutton, pigimage, credit, creditBack;
+    woodHorizontal2, woodVertical2, rock, blackImg,bgHard,settings,previous,
+    menubutton, levelbutton, scorebutton, pigimage, credit2, creditBack,credit1, cross_button,
+    sound1,sound2, about,faq, instruction, whiteCanvas, about1, about2, next_button,cross_button2;
     Image redframes[4];
     Sprite redSprite, verticalSprite;
 
@@ -108,8 +114,23 @@ void loadResources()
     iLoadImage(&rock,"assets/images/Rock_06.png" );
     iLoadImage(&blackImg,"assets/images/Bomb.png" );
     iLoadImage(&bgHard,"assets/images/bgHard.jpg" );
-    iLoadImage(&credit,"assets/images/credits2.png" );
+    iLoadImage(&credit2,"assets/images/credits2.png" );
     iLoadImage(&creditBack,"assets/images/creditback.png" );
+    iLoadImage(&settings,"assets/images/settings.png" );
+    iLoadImage(&previous,"assets/images/prew.png" );
+    iLoadImage(&credit1,"assets/images/woodenboard.png" );
+    iLoadImage(&sound1,"assets/images/96.png" ); // sound on
+    iLoadImage(&sound2,"assets/images/95.png" ); // sound off
+    iLoadImage(&about,"assets/images/about.png" );
+    iLoadImage(&instruction,"assets/images/faq.png" );
+    iLoadImage(&cross_button,"assets/images/close.png" );
+    iLoadImage(&whiteCanvas,"assets/images/whiteCanvas.png" );
+    iLoadImage(&about1,"assets/images/About_1.png" );
+    iLoadImage(&about2, "assets/images/About_2.png" );
+    iLoadImage(&next_button, "assets/images/next.png" );
+    iLoadImage(&cross_button2,"assets/images/close_2.png" );
+
+    
 
 
 
@@ -171,6 +192,19 @@ void drawLevelSelect()
     iText(120, 150, "HARD", GLUT_BITMAP_TIMES_ROMAN_24);
 }
 
+void drawSettings()
+{
+    // iPlaySound("assets/sounds/thukraKe.wav", true);
+    iShowLoadedImage(0, 0, &menuBg);
+    iSetTransparentColor(0, 0, 0, 0.5);
+    iFilledRectangle(0,0, 1920, 1080);
+    iShowLoadedImage2(677-152,360-73, &credit2, 1050, 700);
+    iShowLoadedImage2(56, 56,&previous, 50, 50);
+
+
+
+
+}
  
 
 int map1[ROWS][COLLUMS] = {
@@ -621,13 +655,21 @@ void iDraw()
 {
     
     iClear();
+               if (!soundOn)
+    {
+        iStopAllSounds();
+    }
     if (!isFullScreen) iToggleFullscreen();
     
 
     if (screen == 0)
     {
         drawMenu();
-        
+        iShowLoadedImage2(56, 56,&settings, 50, 50);
+        iShowLoadedImage2(1840, 56,&cross_button, 50, 50);
+
+
+
     }
     else if (screen == 1)
         draweasy();
@@ -639,12 +681,67 @@ void iDraw()
         drawhard();
      else if (screen ==5 )
    {
+    
+    iPlaySound("assets/sounds/thukraKe.wav", true, 20);
+    iShowLoadedImage(0, 0, &menuBg);
+    iSetTransparentColor(0, 0, 0, 0.5);
+    iFilledRectangle(0,0, 1920, 1080);
+    iShowLoadedImage2(677-152,360-73, &credit2, 1050, 700);
+    iShowLoadedImage2(56, 56,&previous, 50, 50);
+    
+   }
+   else if (screen ==6) // in settings
+   {
+    iShowLoadedImage(0, 0, &menuBg);
+    iSetTransparentColor(0, 0, 0, 0.5);
+    iFilledRectangle(0,0, 1920, 1080);
+    iShowLoadedImage2(677-152,360-73, &credit1, 1050, 700);
+    iShowLoadedImage2(56, 56,&previous, 50, 50);
+    iSetColor(0, 0, 0);
+    iText(755, 730, "(i)SOUND:",GLUT_BITMAP_HELVETICA_18);
+    if(soundOn)
+    iShowLoadedImage2(1115, 715, &sound1, 120,55);
+    else 
+    iShowLoadedImage2(1115, 715, &sound2, 120,55);
+    
+
+     iText(755, 600, "(ii)INSTRUCTION:",GLUT_BITMAP_HELVETICA_18);
+     iShowLoadedImage2(1115, 585, &instruction, 50,50);
+
+    iText(755, 470, "(iii)ABOUT:",GLUT_BITMAP_HELVETICA_18);
+     iShowLoadedImage2(1115, 460, &about, 50,50);
+
+   
+   }
+   else if (screen ==7)
+   {
+    iShowLoadedImage(0, 0, &menuBg);
+    iSetTransparentColor(0, 0, 0, 0.5);
+    iFilledRectangle(0,0, 1920, 1080);
+    iShowLoadedImage2(56, 56,&previous, 50, 50);
+    iShowLoadedImage2(677-152,360-73, &whiteCanvas);
+   }
+      else if (screen ==8)
+   {
     iShowLoadedImage(0, 0, &menuBg);
     iSetTransparentColor(0, 0, 0, 0.7);
     iFilledRectangle(0,0, 1920, 1080);
-    iShowLoadedImage2(677-152,360-73, &credit);
-    
+    iShowLoadedImage2(56, 56,&previous, 50, 50);
+    iShowLoadedImage2(677-152,360-73, &about1);
+    iShowLoadedImage2(1260,360, &next_button, 50, 50);
    }
+      else if (screen ==9)
+   {
+    iShowLoadedImage(0, 0, &menuBg);
+    iSetTransparentColor(0, 0, 0, 0.6);
+    iFilledRectangle(0,0, 1920, 1080);
+    iShowLoadedImage2(677-152,360-73, &about2);
+    iShowLoadedImage2(582, 367,&previous, 50, 50);
+    iShowLoadedImage2(1350, 780,&cross_button2, 50, 50);
+   }
+   
+   
+   
    
     iSetColor(0, 0, 0);
     iText(1700, 1035, cursorStr, GLUT_BITMAP_HELVETICA_18);
@@ -724,22 +821,36 @@ void iMouse(int button, int state, int mx, int my)
             screen = 2;
         }
 
-         if (mx >= 123 && mx <= 224 && my >= 219 && my <= 258) // exit button
+        else if (mx >= 123 && mx <= 224 && my >= 219 && my <= 258) // exit button
         {
             iPlaySound("assets/sounds/menu_sound.wav", false);
             exit(0);
         }
 
-        if (mx >= 123 && mx <= 224 && my >= 156 && my <= 191) // credit button
+       else if (mx >= 123 && mx <= 224 && my >= 156 && my <= 191) // credit button
         {
             iPlaySound("assets/sounds/menu_sound.wav", false);
            screen = 5;
         }
+        else if (mx >= 58 && mx <= 101 && my >= 65 && my <= 103)  //  settings button
+        {
+            iPlaySound("assets/sounds/menu_sound.wav", false);
+            screen =6;
+        }
+        else if (mx >= 1842 && mx <= 1885 && my >= 65 && my <= 103) // exit button
+        {
+            iPlaySound("assets/sounds/menu_sound.wav", false);
+            iCloseWindow();
+        }
+        
+
+
     }
 
     else if (screen == 2 && button == GLUT_LEFT_BUTTON && state == GLUT_UP)
     {
 
+     
         if (mx >= 97 && mx <= 211 && my >= 258 && my <= 294) // easy level
         {
             
@@ -788,6 +899,7 @@ void iMouse(int button, int state, int mx, int my)
             selectedBird = 2; // yellow bird
             iPlaySound("assets/sounds/bird_03_select.wav", false);
         }
+     
     }
       else if ((screen == 4 ) && button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
     {
@@ -836,6 +948,98 @@ void iMouse(int button, int state, int mx, int my)
             selectedBird = -1;
         }
     }
+    else if ((screen == 5)  && button == GLUT_LEFT_BUTTON && state == GLUT_UP)
+    {
+
+     if ( mx >=58 && mx <=101  && my >= 65&& my <= 103) // credit- previous
+     {
+        iStopAllSounds();
+        iPlaySound("assets/sounds/menu_sound.wav", false);
+        screen = 0;
+        // iStopAllSounds();
+        iPlaySound("assets/sounds/angry_birds_2.wav", true, 20); 
+     }
+
+    }
+        else if (screen == 6  && button == GLUT_LEFT_BUTTON && state == GLUT_UP)
+    {
+
+     if ( mx >=58 && mx <=101  && my >= 65&& my <= 103) // settings- previous
+     {
+        iStopAllSounds();
+        iPlaySound("assets/sounds/menu_sound.wav", false);
+        screen = 0;
+        // iStopAllSounds();
+        iPlaySound("assets/sounds/angry_birds_2.wav", true, 20); 
+     }
+     else if (mx >=1111 && mx <=1283 && my >= 718 && my <= 767) // sound button
+     {
+        iStopAllSounds();
+        iPlaySound("assets/sounds/menu_sound.wav", false);
+        soundOn = !soundOn;
+        if(soundOn)
+        iPlaySound("assets/sounds/angry_birds_2.wav", true, 20); 
+        else 
+        iPlaySound(0,0,0);
+
+
+        
+
+        
+     }
+     else if (mx >=1118 && mx <=1160 && my >= 593 && my <= 635) // instruction button
+     {
+         iStopAllSounds();
+        iPlaySound("assets/sounds/menu_sound.wav", false);
+       screen =7;
+
+     }
+      else if (mx >=1118 && mx <=1160 && my >= 465 && my <= 500 ) // instruction button
+     {
+         iStopAllSounds();
+        iPlaySound("assets/sounds/menu_sound.wav", false);
+       screen =8;
+
+     }
+     
+     
+    }
+    else if ((screen ==7  || screen == 8) && button == GLUT_LEFT_BUTTON && state == GLUT_UP)
+    {
+        if ( mx >=58 && mx <=101  && my >= 65&& my <= 103) // about & instruction- previous
+     {
+         iStopAllSounds();
+        iPlaySound("assets/sounds/menu_sound.wav", false);
+        screen = 6;
+     }
+     else if ( mx >=1264 && mx <=  1307  && my >= 367 && my <= 408) // for going about_2
+     {
+         iStopAllSounds();
+        iPlaySound("assets/sounds/menu_sound.wav", false);
+        screen =9;
+        
+     }
+    }
+     else if ((screen ==9) && button == GLUT_LEFT_BUTTON && state == GLUT_UP)
+    {
+        if ( mx >=585 && mx <= 626  && my >= 374 && my <= 413) // about_2 previous
+     {
+         iStopAllSounds();
+        iPlaySound("assets/sounds/menu_sound.wav", false);
+        screen = 8;
+     }
+     else if ( mx >=1353 && mx <= 1387  && my >= 790 && my <= 830) // about_2 previous
+     {
+         iStopAllSounds();
+        iPlaySound("assets/sounds/menu_sound.wav", false);
+        screen = 6;
+     }
+    }
+
+    
+
+    
+    
 
     
 }
