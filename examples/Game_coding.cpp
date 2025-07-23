@@ -706,22 +706,6 @@ void updateSingleBird(int &x, int &y, float &vx, float &vy, bool &flying, bool &
         float birdVelocity = sqrt(vx * vx + vy * vy) * 0.5;
         float hittingAngle = atan2(vy, vx);
 
-        // // Ground collision
-        // if (y <= groundY) {
-        //     y = groundY;
-        //     vy = -vy * 0.25;
-        //     vx *= 0.6;
-
-        //     if (fabs(vx) < 0.6 && fabs(vy) < 0.6) {
-        //         flying = false;
-        //         visible = false;
-        //     }
-        //     iPlaySound("assets/sounds/ball_bounce.wav");
-        //   x += vx;
-        // y += vy;
-        // vy += g;
-
-        // Ground collision
         if (y <= groundY)
         {
             y = groundY;
@@ -802,8 +786,8 @@ bool Correct_username()
     return false;
 }
 
-void draweasy()
-{
+void draweasy(){
+
 
     iShowLoadedImage2(0, 0, &bg);
     iShowLoadedImage2(208, 177, &gultiback);
@@ -1380,6 +1364,7 @@ void iKeyboard(unsigned char key, int state)
         }
     }
 }
+
 
 void iSpecialKeyboard(unsigned char key, int state)
 {
