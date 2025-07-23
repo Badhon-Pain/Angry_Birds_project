@@ -33,7 +33,6 @@ float red_vx = 0, red_vy = 0;
 float yellow_vx = 0, yellow_vy = 0;
 bool blueflying = false, redflying = false, yellowflying = false;
 bool bluedragging = false, reddragging = false, yellowdragging = false;
-float restitution = 0.8, friction = 0.5;
 
 int currentBird = 0, selectedBird = -1; // 0-> blue, 1-> red, 2-> yellow
 float g = -9.8;
@@ -63,11 +62,10 @@ Image bg, gultiback, gultifront,map_block, map_mosaic, map_stone, woodblock,
     Sprite redSprite;
 
 //for medium levels collision
-bool mediumBlockVisible[ROWS][COLLUMS]; // Tracks which blocks are visible
-bool mediumPigVisible[ROWS][COLLUMS];   // Tracks which pigs are visible
-float blockVelX[ROWS][COLLUMS];         // X velocity for falling blocks
-float blockVelY[ROWS][COLLUMS];         // Y velocity for falling blocks
-bool blockFalling[ROWS][COLLUMS];       // Tracks which blocks are falling
+bool mediumblocksVisible[ROWS][COLLUMS]; 
+bool mediumpigsVisible[ROWS][COLLUMS];
+bool mediumrockVisible[ROWS][COLLUMS];
+void initMediumLevel();
 
 void loadResources()
 {
@@ -181,21 +179,24 @@ int map1[ROWS][COLLUMS] = {
 };
 
 
-void display_map1() {
-    int startX = 1220, startY = 425;
+
+void display_map1(){
+    int startX = 1220, startY = 425; // base position
     int blockW = 30, blockH = 30;
 
-    for(int r = 0; r < ROWS; r++) {
-        for(int c = 0; c < COLLUMS; c++) {
+    for (int r = 0; r < ROWS; r++)
+    {
+        for (int c = 0; c < COLLUMS; c++)
+        {
             int x = startX + c * blockW;
             int y = startY - r * blockH;
 
-            if(map1[r][c] == 1 && mediumBlockVisible[r][c])
-                iShowLoadedImage(x, y, &map_block);
-            else if(map1[r][c] == 2 && mediumPigVisible[r][c])
-                iShowLoadedImage2(x - 9, y + 18, &pigimage, 50, 45);
-            else if(map1[r][c] == 3)
-                iShowLoadedImage(x, y, &rock);
+            if (map1[r][c] == 1 )
+                iShowLoadedImage(x, y, &map_block); 
+            else if (map1[r][c] == 2 )
+                iShowLoadedImage2(x-9, y+18, &pigimage,50 ,45);
+            else if (map1[r][c] == 3)
+                iShowLoadedImage(x, y, &rock); 
         }
     }
 }
@@ -336,39 +337,12 @@ void drawBirds_hard()
 
 }
 
-bool checkCollision(int x1, int y1, int w1, int h1, 
-                    int x2, int y2, int w2, int h2) {
-    // Check if rectangle 1 is to the left of rectangle 2
-    if (x1 + w1 < x2) return false;
-    
-    // Check if rectangle 1 is to the right of rectangle 2
-    if (x1 > x2 + w2) return false;
-    
-    // Check if rectangle 1 is above rectangle 2
-    if (y1 + h1 < y2) return false;
-    
-    // Check if rectangle 1 is below rectangle 2
-    if (y1 > y2 + h2) return false;
-    
-    // If none of the above, they must be colliding
-    return true;
-}
-
 void updateSingleBird(int &x, int &y, float &vx, float &vy, bool &flying, bool &visible) {
-
-    if (!flying) return;
-
-    
-    
+    if (flying) {
         x += vx;
         y += vy;
-        vy+= g;
-        
-      if (screen==1)
-      {
-       
-      
-      
+        vy += g;
+
         // Ground collision
         if (y <= groundY) {
             y = groundY;
@@ -445,87 +419,7 @@ void updateSingleBird(int &x, int &y, float &vx, float &vy, bool &flying, bool &
             updatePigMotion(i);
         }
     }
-    if (screen ==3 )
-    {
-        
-    vy += g * 0.8;
-    x += vx;
-    y += vy;
-
-    // Calculate which grid cell the bird is in
-    int startX = 1220, startY = 425;
-    int blockW = 30, blockH = 30;
-    int col = (x - startX) / blockW;
-    int row = (startY - y) / blockH;
-
-    // Check 3x3 area around bird for collisions
-    for(int r = max(0,row-1); r <= min(ROWS-1,row+1); r++) {
-        for(int c = max(0,col-1); c <= min(COLLUMS-1,col+1); c++) {
-            
-            // Collision with blocks
-            if(map1[r][c] == 1 && mediumBlockVisible[r][c]) {
-                int blockX = startX + c * blockW;
-                int blockY = startY - r * blockH;
-                
-                if(checkCollision(x, y, birdwidth, birdheight, 
-                                blockX, blockY, blockW, blockH)) {
-                    
-                    // Destroy the block
-                    mediumBlockVisible[r][c] = false;
-                    score += 20;
-                    
-                    // Check if blocks above should fall
-                    if(!hasSupport(r,c)) {
-                        makeBlockFall(r,c);
-                    }
-                    
-                    // Bounce the bird
-                    vx = -vx * 0.5f;
-                    vy = -vy * 0.5f;
-                    
-                    iPlaySound("assets/sounds/wood_damage_a1.wav", false);
-                }
-            }
-            
-            // Collision with pigs
-            if(map1[r][c] == 2 && mediumPigVisible[r][c]) {
-                int pigX = startX + c * blockW - 9;
-                int pigY = startY - r * blockH + 18;
-                
-                if(checkCollision(x, y, birdwidth, birdheight, 
-                                pigX, pigY, 50, 45)) {
-                    
-                    mediumPigVisible[r][c] = false;
-                    score += 100;
-                    iPlaySound("assets/sounds/pig_collision_a6.wav", false);
-                }
-            }
-        }
-    }
-
-    // Keep your existing ground collision code
-    if(y <= groundY) {
-        y = groundY;
-        vy = -vy * restitution * 0.6;
-        vx *= friction;
-
-        if(fabs(vx) < 0.8) {
-            flying = false;
-            visible = false;
-        }
-        iPlaySound("assets/sounds/ball_bounce.wav", false);
-    }
-    
-    if(x < 0 || x > 1919 || y > 10080) {
-        flying = false;
-        visible = false;
-    }
-    }
-    
-    
 }
-
-
 
 void draweasy()
 {
@@ -609,73 +503,6 @@ void drawmedium()
     iText(55-2, 950+50, str);
 }
 
-void initMediumLevel() {
-    for(int r = 0; r < ROWS; r++) {
-        for(int c = 0; c < COLLUMS; c++) {
-            mediumBlockVisible[r][c] = (map1[r][c] == 1);
-            mediumPigVisible[r][c] = (map1[r][c] == 2);
-            blockVelX[r][c] = 0;
-            blockVelY[r][c] = 0;
-            blockFalling[r][c] = false;
-        }
-    }
-}
-
-// Checks if a block has support below it
-bool hasSupport(int row, int col) {
-    // Bottom row blocks are always supported
-    if(row == ROWS-1) return true;
-    
-    // Check if block below exists and isn't falling
-    if(row < ROWS-1 && map1[row+1][col] == 1 && 
-       mediumBlockVisible[row+1][col] && !blockFalling[row+1][col]) {
-        return true;
-    }
-    
-    return false;
-}
-
-// Makes a block start falling
-void makeBlockFall(int row, int col) {
-    if(row < 0 || row >= ROWS || col < 0 || col >= COLLUMS) return;
-    if(!mediumBlockVisible[row][col]) return;
-    
-    blockFalling[row][col] = true;
-    blockVelX[row][col] = 0;
-    blockVelY[row][col] = 0;
-    
-    // Make any blocks above this one fall too
-    if(row > 0 && map1[row-1][col] == 1) {
-        makeBlockFall(row-1, col);
-    }
-}
-
-// Updates falling blocks
-void updateFallingBlocks() {
-    const float gravity = 0.5f;
-    
-    for(int r = 0; r < ROWS; r++) {
-        for(int c = 0; c < COLLUMS; c++) {
-            if(blockFalling[r][c]) {
-                // Apply gravity
-                blockVelY[r][c] -= gravity;
-                
-                // Update position
-                map1[r][c] = 0; // Mark as empty in map
-                
-                // Check if block hit ground
-                int groundY = 205; // Your ground level
-                int blockY = 425 - r*30; // Calculate screen Y position
-                
-                if(blockY + blockVelY[r][c] <= groundY) {
-                    mediumBlockVisible[r][c] = false;
-                    blockFalling[r][c] = false;
-                }
-            }
-        }
-    }
-}
-
 void drawhard()
 {
         iShowLoadedImage2(0,0, &bgHard, 1920, 1080 );
@@ -740,16 +567,11 @@ void iDraw()
 
 void updateBird()
 {
-    
     updateSingleBird(bluebirdX, bluebirdY, blue_vx, blue_vy, blueflying, bluevisible);
 
     updateSingleBird(redbirdX, redbirdY, red_vx, red_vy, redflying, redvisible);
 
     updateSingleBird(yellowbirdX, yellowbirdY, yellow_vx, yellow_vy, yellowflying, yellowvisible);
-
-     if(screen == 3) {
-        updateFallingBlocks();
-    }
 
     for (int i = 0; i < pigCount; i++)
     
