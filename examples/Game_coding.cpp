@@ -13,9 +13,8 @@ screen =6 -> settings page
 screen =7 -> instruction page
 screen =8 -> about page
 screen =9 -> about_2 page
-screen =10 -> Username taking screen
-screen =11 -> Medium level cleared
-
+screen =10 -> Username taking screen 
+screen =11 -> Pause
 
 
 */
@@ -29,11 +28,14 @@ screen =11 -> Medium level cleared
 int screen = 0, currentScreen = -1, score = 0;
 int difficultylevel = 0;
 bool soundOn = true, musicOn = true;
-char userName[100] = "";
-int userNameLen = 0;
+char userName[100] ="";
+int userNameLen=0;
 bool writtingName = false, nameWarning = false;
+<<<<<<< HEAD
 bool medium_clear = false, easy_clear = false, hard_clear = false;
 int pigCounter = 0;
+=======
+>>>>>>> 38e2ff90bf0c5861e53fad712f68b1e1bf6ec598
 
 // Bird Physics and States
 bool bluevisible = true, redvisible = true, yellowvisible = true, blackvisible = true;
@@ -67,11 +69,11 @@ int cursorX = -1, cursorY = -1;
 char cursorStr[30];
 
 // Assets
-Image bg, gultiback, gultifront, map_block, map_mosaic, map_stone, woodblock, realwoodSq, realwoodRect,
-    menuBg, blueImg, redImg, yellowImg, bg1, woodHorizontal, woodVertical, realwoodSt, realiceSq, realiceRect,
-    woodHorizontal2, woodVertical2, rock, blackImg, bgHard, settings, previous, realiceSt, nameshowingBar,
-    menubutton, levelbutton, scorebutton, pigimage, credit2, creditBack, credit1, cross_button, mediumCleared,
-    sound1, sound2, about, faq, instruction, whiteCanvas, about1, about2, next_button, cross_button2;
+Image bg, gultiback, gultifront, map_block, map_mosaic, map_stone, woodblock, realwoodSq,realwoodRect,
+    menuBg, blueImg, redImg, yellowImg, bg1, woodHorizontal, woodVertical,realwoodSt, realiceSq, realiceRect,
+    woodHorizontal2, woodVertical2, rock, blackImg, bgHard, settings, previous, realiceSt,nameshowingBar,
+    menubutton, levelbutton, scorebutton, pigimage, credit2, creditBack, credit1, cross_button,
+    sound1, sound2, about, faq, instruction, whiteCanvas, about1, about2, next_button, cross_button2,pause,pausebox;
 Image redframes[4];
 Sprite redSprite, verticalSprite;
 
@@ -84,6 +86,8 @@ void initMediumLevel();
 void loadResources()
 {
     iLoadImage(&bg, "assets/images/Angry Bird3.jpg");
+    iLoadImage(&pausebox,"assets/images/pausebox.png");
+    iLoadImage(&pause,"assets/images/pause.png");
     iLoadImage(&menuBg, "assets/images/IconFinal.png");
     iLoadImage(&menubutton, "assets/images/5.png");
     iResizeImage(&menubutton, 130, 120);
@@ -138,7 +142,6 @@ void loadResources()
     iLoadImage(&cross_button2, "assets/images/close_2.png");
     iLoadImage(&realwoodSq, "assets/images/woodSquare.jpg");
     iLoadImage(&nameshowingBar, "assets/images/93.png");
-    iLoadImage(&mediumCleared, "assets/images/win.png");
 
     // iInitSprite(&redSprite);
     // iLoadFramesFromFolder(redframes, "assets/images/sprites/red_bird");
@@ -207,6 +210,16 @@ void drawSettings()
     iShowLoadedImage2(677 - 152, 360 - 73, &credit2, 1050, 700);
     iShowLoadedImage2(56, 56, &previous, 50, 50);
 }
+ 
+void drawpause(){
+      //iSetTransparentColor(0, 0, 0, 0.5);
+     iShowLoadedImage(0, 0, &bg);o
+  
+    iShowLoadedImage2(530,320,&pausebox,900,700);
+    iShowLoadedImage2(915,360,&previous,70,70);
+
+
+}
 
 int map1[ROWS][COLLUMS] = {
     {0, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 0},
@@ -242,6 +255,7 @@ void display_map1()
         }
     }
 }
+
 
 void checkMapCollision(int birdX, int birdY)
 {
@@ -358,6 +372,7 @@ void display_map3()
         }
     }
 }
+
 
 int map2[BUET_ROWS][BUET_COLS] = {
 
@@ -537,21 +552,18 @@ void drawRubberLines_medium(int x, int y)
 
 void drawPathway(int x, int y, float vx, float vy)
 {
-    float fx = x;
-    float fy = y;
-    float dt = 0.8f; // Match with your flying logic's timestep
-
+    float fx = x + birdRadius / 2;
+    float fy = y + birdRadius / 2;
+    float dt = 0.1f;
     for (int i = 0; i < 200; i++)
     {
-        fx += vx;
-        fy += vy;
+        fx += vx * dt;
+        fy += vy * dt;
         vy += g * dt;
-
         if (fy < groundY)
             break;
-
         iSetColor(0, 0, 0);
-        iFilledCircle(fx, fy, 2);
+        iPoint(fx, fy, 1);
     }
 }
 
@@ -698,12 +710,11 @@ void updateSingleBird(int &x, int &y, float &vx, float &vy, bool &flying, bool &
 {
     if (flying)
     {
-
-        x += vx - 0.4;
+        vy += g * 0.8;
+        x += vx;
         y += vy;
-        vy += g;
 
-        float birdVelocity = sqrt(vx * vx + vy * vy) * 0.5;
+        float birdVelocity = sqrt(vx * vx + vy * vy);
         float hittingAngle = atan2(vy, vx);
 
         if (y <= groundY)
@@ -726,52 +737,48 @@ void updateSingleBird(int &x, int &y, float &vx, float &vy, bool &flying, bool &
             return;
         }
 
-        if (screen == 1)
+        // Collision with pillars
+        for (int i = 0; i < pillarCount; i++)
         {
+            int baseX = 1088 + i * 250;
 
-            // Collision with pillars
-            for (int i = 0; i < pillarCount; i++)
+            // vertical
+            if (checkCollision(x, y, birdwidth, birdheight, baseX, pillarY[i], pillarwidth, pillarheight))
             {
-                int baseX = 1088 + i * 250;
 
-                // vertical
-                if (checkCollision(x, y, birdwidth, birdheight, baseX, pillarY[i], pillarwidth, pillarheight))
-                {
-
-                    vx = -vx * 0.5;
-                    vy *= 0.8;
-                    pillarHit[i] = true;
-                    iPlaySound("assets/sounds/wood_damage_a1.wav");
-                }
-
-                // horizontal
-                if (checkCollision(x, y, birdwidth, birdheight,
-                                   beamPositionsX[i], 398, 120, 30))
-                {
-                    beamVelocitiesX[i] += vx * 0.2f;
-
-                    vy = -vy * restitution;
-                    vx *= 0.9f;
-                    iPlaySound("assets/sounds/wood_damage_a2.wav");
-                }
+                vx = -vx * 0.5;
+                vy *= 0.8;
+                pillarHit[i] = true;
+                iPlaySound("assets/sounds/wood_damage_a1.wav");
             }
 
-            // Pig collision
-            for (int i = 0; i < pigCount; i++)
+            // horizontal
+            if (checkCollision(x, y, birdwidth, birdheight,
+                               beamPositionsX[i], 398, 120, 30))
             {
-                if (pigVisible[i] &&
-                    checkCollision(x, y, birdwidth, birdheight,
-                                   pigX[i], pigY[i], pigwidth, pigheight))
-                {
+                beamVelocitiesX[i] += vx * 0.2f;
 
-                    pigVX[i] = cos(hittingAngle) * birdVelocity * 0.3f;
-                    pigVY[i] = sin(hittingAngle) * birdVelocity * 0.3f;
-                    pigFalling[i] = true;
-                    score += 100;
-                    iPlaySound("assets/sounds/pig_collision_a6.wav");
-                }
-                updatePigMotion(i);
+                vy = -vy * restitution;
+                vx *= 0.9f;
+                iPlaySound("assets/sounds/wood_damage_a2.wav");
             }
+        }
+
+        // Pig collision
+        for (int i = 0; i < pigCount; i++)
+        {
+            if (pigVisible[i] &&
+                checkCollision(x, y, birdwidth, birdheight,
+                               pigX[i], pigY[i], pigwidth, pigheight))
+            {
+
+                pigVX[i] = cos(hittingAngle) * birdVelocity * 0.3f;
+                pigVY[i] = sin(hittingAngle) * birdVelocity * 0.3f;
+                pigFalling[i] = true;
+                score += 100;
+                iPlaySound("assets/sounds/pig_collision_a6.wav");
+            }
+            updatePigMotion(i);
         }
     }
 }
@@ -783,13 +790,14 @@ bool Correct_username()
         if (userName[i] != ' ')
             return true; // sob input space hole false return korbe
     }
-    return false;
+    return false; 
 }
 
 void draweasy(){
 
 
     iShowLoadedImage2(0, 0, &bg);
+    iShowLoadedImage2(70,960,&pause,70,70);
     iShowLoadedImage2(208, 177, &gultiback);
     iShowSprite(&redSprite);
     iShowSprite(&verticalSprite);
@@ -856,7 +864,7 @@ void draweasy(){
 
 void drawmedium()
 {
-    iShowLoadedImage2(0, 0, &bg1);
+    iShowLoadedImage(0, 0, &bg1);
     iShowLoadedImage2(265, 140, &gultiback, 200, 200);
     // iShowSprite(&redSprite);
     if (bluedragging)
@@ -940,11 +948,12 @@ void iDraw()
     else if (screen == 2)
     {
         drawLevelSelect();
+     
     }
     else if (screen == 3)
     {
         drawmedium();
-        iShowLoadedImage2(740, 1030, &nameshowingBar, 350, 50);
+                iShowLoadedImage2(740, 1030, &nameshowingBar, 350, 50);
         char usrnm[200];
         sprintf(usrnm, "%s is playing...", userName);
         iText(788, 1050, usrnm, GLUT_BITMAP_HELVETICA_18);
@@ -960,7 +969,7 @@ void iDraw()
     else if (screen == 5)
     {
 
-        // iPlaySound("assets/sounds/thukraKe.wav", true, 20);
+        iPlaySound("assets/sounds/thukraKe.wav", true, 20);
         iShowLoadedImage(0, 0, &menuBg);
         iSetTransparentColor(0, 0, 0, 0.5);
         iFilledRectangle(0, 0, 1920, 1080);
@@ -976,6 +985,7 @@ void iDraw()
         iShowLoadedImage2(56, 56, &previous, 50, 50);
         iSetColor(0, 0, 0);
         iText(755, 730, "(i)SOUND", GLUT_BITMAP_HELVETICA_18);
+       
         if (soundOn)
             iShowLoadedImage2(1115, 715, &sound1, 120, 55);
         else
@@ -1013,27 +1023,20 @@ void iDraw()
         iShowLoadedImage2(582, 367, &previous, 50, 50);
         iShowLoadedImage2(1350, 780, &cross_button2, 50, 50);
     }
-    else if (screen == 10)
+    else if (screen==10)
     {
-        iShowLoadedImage2(0, 0, &menuBg);
+                iShowLoadedImage2(0, 0, &menuBg);
         iSetTransparentColor(0, 0, 0, 0.6);
         iFilledRectangle(0, 0, 1920, 1080);
-        iText(700, 500, "Enter your name:", GLUT_BITMAP_HELVETICA_18);
-        iRectangle(700, 460, 300, 30);
-        iText(710, 465, userName, GLUT_BITMAP_HELVETICA_18);
-        iText(700, 400, "Press ENTER to continue", GLUT_BITMAP_HELVETICA_12);
-        if (nameWarning)
-        {
-            iSetColor(255, 0, 0);
-            iText(700, 465, "Please, Enter your name", GLUT_BITMAP_HELVETICA_18);
-        }
-    }
-    else if (screen == 11)
+    iText(700, 500, "Enter your name:", GLUT_BITMAP_HELVETICA_18);
+    iRectangle(700, 460, 300, 30);
+    iText(710, 465, userName, GLUT_BITMAP_HELVETICA_18);
+    iText(700, 400, "Press ENTER to continue", GLUT_BITMAP_HELVETICA_12);
+    if (nameWarning)
     {
-        iShowLoadedImage2(0, 0, &menuBg);
-        iSetTransparentColor(0, 0, 0, 0.5);
-        iFilledRectangle(0, 0, 1920, 1080);
-        iShowLoadedImage2(100, 100, &mediumCleared);
+      iSetColor(255,0,0);
+      iText(700, 465, "Please, Enter your name", GLUT_BITMAP_HELVETICA_18);
+
     }
 
     else if (screen == 12)
@@ -1043,6 +1046,15 @@ void iDraw()
         iFilledRectangle(0, 0, 1920, 1080);
         iShowLoadedImage2(100, 100, &mediumCleared);
     }
+    
+
+
+    }
+    else if(screen==11){
+      drawpause();
+    }
+    
+    
 
     iSetColor(0, 0, 0);
     iText(1700, 1035, cursorStr, GLUT_BITMAP_HELVETICA_18);
@@ -1118,8 +1130,8 @@ void iMouse(int button, int state, int mx, int my)
         {
             iPlaySound("assets/sounds/menu_sound.wav", false);
             screen = 10;
-            userName[0] = '\0';
-            userNameLen = 0;
+            userName[0]= '\0';
+            userNameLen =0;
         }
 
         else if (mx >= 123 && mx <= 224 && my >= 219 && my <= 258) // exit button
@@ -1195,6 +1207,10 @@ void iMouse(int button, int state, int mx, int my)
             yellowdragging = true;
             selectedBird = 2; // yellow bird
             iPlaySound("assets/sounds/bird_03_select.wav", false);
+        }
+        else if(mx>=60 && mx<=60+70 && my>=960 && my<=960+70){
+        screen=11;
+       
         }
     }
     else if ((screen == 4) && button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
@@ -1320,27 +1336,49 @@ void iMouse(int button, int state, int mx, int my)
             screen = 6;
         }
     }
+    else if (screen == 11 && button == GLUT_LEFT_BUTTON && state == GLUT_UP){
+        if(mx>=60 && mx<=60+70 && my>=960 && my<=960+70){
+            screen=1;
+        }
+
+    }
 }
 
 void iKeyboard(unsigned char key, int state)
 {
-    if (state != 0)
-        return;
+    if (state != 0) return;
 
+    if (key == 'r')
+    {
+        for (int i = 0; i < pigCount; i++)
+        {
+            pigVisible[i] = true;
+            pigFalling[i] = false;
+            pigX[i] = 1070 + (i / 2) * 250; // adjust position if needed
+            pigY[i] = (i % 2 == 0) ? 420 : 316;
+            pigVX[i] = pigVY[i] = 0;
+        }
+    }
     if (key == 'q')
         iCloseWindow();
 
-    if (screen == 10)
+    if (key == 'm')
+    {
+        screen = 0;
+        iStopAllSounds();
+        iPlaySound("assets/sounds/angry_birds_2.wav", true, 20);
+    }
+    if (screen==10)
     {
         if (key == '\r')
         {
-            if (Correct_username())
-
-            {
-                screen = 2;
-            }
-            else
-                nameWarning = true;
+           if (Correct_username())
+           
+           {
+            screen =2;
+           }
+           else 
+           nameWarning = true;
         }
         if (key == '\b')
         {
@@ -1348,21 +1386,30 @@ void iKeyboard(unsigned char key, int state)
             {
                 userNameLen--;
                 userName[userNameLen] = '\0';
-            }
+            } 
         }
-        if ((key >= 32) && (key <= 126))
+         if (  (key >= 32) && (key <= 126)) 
         {
             if (userNameLen < 99)
             {
-                userName[userNameLen++] = key;
-                userName[userNameLen] = '\0';
-                if (Correct_username())
-                {
-                    nameWarning = false;
-                }
+            userName[userNameLen++] = key;
+            userName[userNameLen] = '\0';
+            if (Correct_username())
+            {
+                nameWarning = false;
             }
+            
+            }
+            
+            
+            // printf("Key pressed: %c\n", key);
+
         }
+
+        
+        
     }
+    
 }
 
 
@@ -1370,6 +1417,8 @@ void iSpecialKeyboard(unsigned char key, int state)
 {
     if (key == GLUT_KEY_END)
         exit(0);
+        
+        
 }
 
 void iMouseDrag(int mx, int my) {}
