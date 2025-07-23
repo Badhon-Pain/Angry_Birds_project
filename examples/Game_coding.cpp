@@ -31,11 +31,8 @@ bool soundOn = true, musicOn = true;
 char userName[100] ="";
 int userNameLen=0;
 bool writtingName = false, nameWarning = false;
-<<<<<<< HEAD
 bool medium_clear = false, easy_clear = false, hard_clear = false;
 int pigCounter = 0;
-=======
->>>>>>> 38e2ff90bf0c5861e53fad712f68b1e1bf6ec598
 
 // Bird Physics and States
 bool bluevisible = true, redvisible = true, yellowvisible = true, blackvisible = true;
