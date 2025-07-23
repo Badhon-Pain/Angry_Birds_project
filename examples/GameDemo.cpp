@@ -13,6 +13,7 @@ bool isMirroredX[2] = {false, false};
 
 void loadResources()
 {
+    // Joya
     clock_t start = clock(); // Start timing
 
     iLoadFramesFromSheet(pinkMonsterFrames, "assets/images/sprites/1 Pink_Monster/Pink_Monster_Idle_4.png", 1, 4);
