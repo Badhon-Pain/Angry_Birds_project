@@ -32,7 +32,7 @@ bool soundOn = true, musicOn = true;
 char userName[100] = "";
 int userNameLen = 0;
 bool writtingName = false, nameWarning = false;
-bool medium_clear= false, easy_clear = false, hard_clear= false;
+bool medium_clear = false, easy_clear = false, hard_clear = false;
 int pigCounter = 0;
 
 // Bird Physics and States
@@ -209,14 +209,14 @@ void drawSettings()
 }
 
 int map1[ROWS][COLLUMS] = {
-    {0, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 0}, 
-    {1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1}, 
-    {1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 1, 0, 0, 1}, 
-    {1, 0, 2, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 2, 1}, 
-    {1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1}, 
-    {1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 1}, 
-    {1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1}, 
-    {1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 1}, 
+    {0, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 0},
+    {1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1},
+    {1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 1, 0, 0, 1},
+    {1, 0, 2, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 2, 1},
+    {1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1},
+    {1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 1},
+    {1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1},
+    {1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 1},
     {1, 1, 1, 1, 1, 0, 0, 2, 0, 0, 1, 0, 0, 2, 0, 1, 1, 1, 1, 1},
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
 };
@@ -255,100 +255,93 @@ void checkMapCollision(int birdX, int birdY)
             int x = startX + c * blockW;
             int y = startY - r * blockH;
 
-            // Check only if block or pig
             if (map1[r][c] == 1 || map1[r][c] == 2 || map1[r][c] == 3)
             {
-                // Check if bird overlaps
+
                 if (birdX + birdRadius > x && birdX - birdRadius < x + blockW &&
                     birdY + birdRadius > y && birdY - birdRadius < y + blockH)
                 {
-                    // Collision occurred: remove block/pig
+
                     map1[r][c] = 0;
-                    for (int r = ROWS - 2; r >= 0; r--) // start from 2nd last row
+                    for (int r = ROWS - 2; r >= 0; r--)
                     {
                         for (int c = 0; c < COLLUMS; c++)
                         {
                             if ((map1[r][c] == 1 || map1[r][c] == 2 || map1[r][c] == 3) && map1[r + 1][c] == 0)
                             {
-                                if (map1[r][c]==1)
+                                if (map1[r][c] == 1)
                                 {
-                                     map1[r + 1][c] = 1; 
-                                map1[r][c] = 0;     
+                                    map1[r + 1][c] = 1;
+                                    map1[r][c] = 0;
                                 }
-                                if (map1[r][c]==2)
+                                if (map1[r][c] == 2)
                                 {
-                                     map1[r + 1][c] = 2; 
-                                map1[r][c] = 0;    
+                                    map1[r + 1][c] = 2;
+                                    map1[r][c] = 0;
                                 }
-                                if (map1[r][c]==3)
+                                if (map1[r][c] == 3)
                                 {
-                                     map1[r + 1][c] = 3; 
-                                map1[r][c] = 0;    
+                                    map1[r + 1][c] = 3;
+                                    map1[r][c] = 0;
                                 }
                             }
-                             if ((map1[r][c] == 1 || map1[r][c] == 2 || map1[r][c] == 3) && map1[r + 1][c] == 2)
+                            if ((map1[r][c] == 1 || map1[r][c] == 2 || map1[r][c] == 3) && map1[r + 1][c] == 2)
                             {
-                                   if (map1[r][c]==1)
+                                if (map1[r][c] == 1)
                                 {
-                                     map1[r + 1][c] = 1; 
-                                map1[r][c] = 0;     
+                                    map1[r + 1][c] = 1;
+                                    map1[r][c] = 0;
                                 }
-                                if (map1[r][c]==2)
+                                if (map1[r][c] == 2)
                                 {
-                                     map1[r + 1][c] = 0;
-                                map1[r][c] = 0;     
+                                    map1[r + 1][c] = 0;
+                                    map1[r][c] = 0;
                                 }
-                                if (map1[r][c]==3)
+                                if (map1[r][c] == 3)
                                 {
-                                     map1[r + 1][c] = 3; 
-                                map1[r][c] = 0;     
+                                    map1[r + 1][c] = 3;
+                                    map1[r][c] = 0;
                                 }
-                               
                             }
-                            
                         }
                     }
                 }
             }
-    }   }
-    
-    
-   
-    
+        }
+    }
 }
 
-
-
-
-
-int map3[15][15] = {
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1},
-    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-
-};
+int map3[20][20] = {
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};
 
 void display_map3()
 {
     int blockSize = 30;
-    int startX = 1000;
-    int startY = 305 ;
+    int startX = 1000 - 50;
+    int startY = 500 + 15;
 
-    for (int row = 0; row < 15; row++)
+    for (int row = 0; row < 20; row++)
     {
-        for (int col = 0; col < 15; col++)
+        for (int col = 0; col < 20; col++)
         {
             if (map3[row][col] == 1)
             {
@@ -356,18 +349,23 @@ void display_map3()
                 int posY = startY - row * blockSize;
                 iShowLoadedImage(posX, posY, &realwoodSq);
             }
+            if (map3[row][col] == 2)
+            {
+                int posX = startX + col * blockSize;
+                int posY = startY - row * blockSize;
+                iShowLoadedImage2(posX, posY + 5, &pigimage, 50, 45);
+            }
         }
     }
 }
-
 
 int map2[BUET_ROWS][BUET_COLS] = {
 
     {1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0},
     {1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0},
     {1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0},
-    {1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0},
-    {1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0},
+    {1, 0, 0, 1, 0, 1, 2, 0, 1, 0, 1, 0, 0, 0, 0, 2, 0, 1, 0, 0, 0, 0, 0, 0, 0},
+    {1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 1, 1, 1, 2, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
 
@@ -386,6 +384,131 @@ void display_map2()
                 int posX = startX + col * blockSize;
                 int posY = startY - row * blockSize;
                 iShowLoadedImage(posX, posY, &realwoodSq);
+            }
+            if (map2[row][col] == 2)
+            {
+                int posX = startX + col * blockSize;
+                int posY = startY - row * blockSize;
+                iShowLoadedImage2(posX, posY, &pigimage, 50, 45);
+            }
+        }
+    }
+}
+
+// void checkMap2Collision(int birdX, int birdY)
+// {
+//     int blockW = 30, blockH = 30;
+//     int startX = 1100;
+//     int startY = 305 - 115;
+
+//     for (int r = 0; r < BUET_ROWS; r++)
+//     {
+//         for (int c = 0; c < BUET_COLS; c++)
+//         {
+//             int x = startX + c * blockW;
+//             int y = startY - r * blockH;
+
+//             if (map2[r][c] == 1 || map2[r][c] == 2)
+//             {
+//                 if (birdX + birdRadius > x && birdX - birdRadius < x + blockW &&
+//                     birdY + birdRadius > y && birdY - birdRadius < y + blockH)
+//                 {
+//                     map2[r][c] = 0;
+
+//                     for (int rr = BUET_ROWS - 2; rr >= 0; rr--)
+//                     {
+//                         for (int cc = 0; cc < BUET_COLS; cc++)
+//                         {
+//                             if ((map2[rr][cc] == 1 || map2[rr][cc] == 2) && map2[rr + 1][cc] == 0)
+//                             {
+//                                 map2[rr + 1][cc] = map2[rr][cc];
+//                                 map2[rr][cc] = 0;
+//                             }
+
+//                             if ((map2[rr][cc] == 1 || map2[rr][cc] == 2) && map2[rr + 1][cc] == 2)
+//                             {
+//                                 if (map2[rr][cc] == 1)
+//                                 {
+//                                     map2[rr + 1][cc] = 1;
+//                                     map2[rr][cc] = 0;
+//                                 }
+//                                 else if (map2[rr][cc] == 2)
+//                                 {
+//                                     map2[rr + 1][cc] = 0;
+//                                     map2[rr][cc] = 0;
+//                                 }
+//                             }
+//                         }
+//                     }
+//                 }
+//             }
+//         }
+//     }
+// }
+
+void checkMap2Collision(int birdX, int birdY)
+{
+    int blockW = 30, blockH = 30;
+    int startX = 1100, startY = 315 - 115;
+
+    for (int r = 0; r < ROWS; r++)
+    {
+        for (int c = 0; c < COLLUMS; c++)
+        {
+            int x = startX + c * blockW;
+            int y = startY - r * blockH;
+
+            if (map2[r][c] == 1 || map2[r][c] == 2 || map2[r][c] == 3)
+            {
+
+                if (birdX + birdRadius > x && birdX - birdRadius < x + blockW &&
+                    birdY + birdRadius > y && birdY - birdRadius < y + blockH)
+                {
+
+                    map2[r][c] = 0;
+                    for (int r = ROWS - 2; r >= 0; r--)
+                    {
+                        for (int c = 0; c < COLLUMS; c++)
+                        {
+                            if ((map2[r][c] == 1 || map2[r][c] == 2 || map2[r][c] == 3) && map2[r + 1][c] == 0)
+                            {
+                                if (map2[r][c] == 1)
+                                {
+                                    map2[r + 1][c] = 1;
+                                    map2[r][c] = 0;
+                                }
+                                if (map2[r][c] == 2)
+                                {
+                                    map2[r + 1][c] = 2;
+                                    map2[r][c] = 0;
+                                }
+                                if (map2[r][c] == 3)
+                                {
+                                    map2[r + 1][c] = 3;
+                                    map2[r][c] = 0;
+                                }
+                            }
+                            if ((map2[r][c] == 1 || map2[r][c] == 2 || map2[r][c] == 3) && map2[r + 1][c] == 2)
+                            {
+                                if (map2[r][c] == 1)
+                                {
+                                    map2[r + 1][c] = 1;
+                                    map2[r][c] = 0;
+                                }
+                                if (map2[r][c] == 2)
+                                {
+                                    map2[r + 1][c] = 0;
+                                    map2[r][c] = 0;
+                                }
+                                if (map2[r][c] == 3)
+                                {
+                                    map2[r + 1][c] = 3;
+                                    map2[r][c] = 0;
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -563,6 +686,12 @@ void updatePhysics()
         checkMapCollision(redSpriteX, redSpriteY);
         checkMapCollision(yellowbirdX, yellowbirdY);
     }
+    if (screen == 4)
+    {
+        checkMap2Collision(bluebirdX, bluebirdY - 115);
+        checkMap2Collision(redSpriteX, redSpriteY - 115);
+        checkMap2Collision(yellowbirdX, yellowbirdY - 115);
+    }
 }
 
 void updateSingleBird(int &x, int &y, float &vx, float &vy, bool &flying, bool &visible)
@@ -712,7 +841,9 @@ void draweasy()
     {
         int baseX = 1088 + i * 250;
         // Main vertical pillar (rotated)
+        iRotate(baseX, pillarY[i], 30);
         iShowLoadedImage(baseX, pillarY[i], &woodVertical);
+        iUnRotate();
 
         // Horizontal beams (movable)
         iShowLoadedImage(beamPositionsX[i], 398, &woodHorizontal);
@@ -779,7 +910,7 @@ void drawhard()
         drawRubberLines_hard(yellowbirdX, yellowbirdY - 115);
 
     drawBirds_hard();
-    display_map3();
+    display_map2();
 
     if (bluedragging)
         drawPathway_hard(bluebirdX, bluebirdY - 115, blue_vx, blue_vy);
@@ -807,9 +938,6 @@ void iDraw()
     }
     if (!isFullScreen)
         iToggleFullscreen();
-
-
-       
 
     if (screen == 0)
     {
@@ -923,15 +1051,14 @@ void iDraw()
         iFilledRectangle(0, 0, 1920, 1080);
         iShowLoadedImage2(100, 100, &mediumCleared);
     }
-    
-        else if (screen == 12)
+
+    else if (screen == 12)
     {
         iShowLoadedImage2(0, 0, &menuBg);
         iSetTransparentColor(0, 0, 0, 0.5);
         iFilledRectangle(0, 0, 1920, 1080);
         iShowLoadedImage2(100, 100, &mediumCleared);
     }
-    
 
     iSetColor(0, 0, 0);
     iText(1700, 1035, cursorStr, GLUT_BITMAP_HELVETICA_18);
@@ -1218,7 +1345,7 @@ void iKeyboard(unsigned char key, int state)
 
     if (key == 'q')
         iCloseWindow();
-  
+
     if (screen == 10)
     {
         if (key == '\r')
@@ -1273,7 +1400,7 @@ int main(int argc, char *argv[])
     loadResources();
     iInitializeSound();
     iPlaySound("assets/sounds/angry_birds_2.wav", true, 20);
-    iSetTimer(20, updateBird);
+    iSetTimer(100, updateBird);
     // iSetTimer(200, animate);
     iOpenWindow(1920, 1080, "Angry Birds - BUET PROJECT");
     return 0;
