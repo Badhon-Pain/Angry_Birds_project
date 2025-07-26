@@ -37,14 +37,20 @@ int pigCounter = 0;
 
 // Bird Physics and States
 bool bluevisible = true, redvisible = true, yellowvisible = true, blackvisible = true;
-int bluebirdX = 20, bluebirdY = 194;
+int bluebirdX[3] = {20, 20, 20};
+int bluebirdY[3] = {194, 194, 194};
+float blue_vx[3] = {0, 0, 0};
+float blue_vy[3] = {0, 0, 0};
+bool blueflying[3] = {false, false, false};
+bool bluevisible_arr[3] = {true, false, false}; // renamed to avoid conflict
+bool blueSplit = false;
 int redSpriteX = 100, redSpriteY = 194;
 int yellowbirdX = 180, yellowbirdY = 200;
-float blue_vx = 0, blue_vy = 0;
+
 float red_vx = 0, red_vy = 0;
 float yellow_vx = 0, yellow_vy = 0;
-bool blueflying = false, redflying = false, yellowflying = false;
-bool bluedragging = false, reddragging = false, yellowdragging = false;
+bool  redflying = false, yellowflying = false;
+bool  bluedragging= false, reddragging = false, yellowdragging = false;
 float restitution = 0.6f, friction = 0.8f, angularFriction = 0.97f;
 
 int currentBird = 0, selectedBird = -1; // 0-> blue, 1-> red, 2-> yellow
@@ -94,11 +100,11 @@ void loadResources()
     iLoadImage(&gultiback, "assets/images/CatapultBackSprite.png");
     iLoadImage(&gultifront, "assets/images/CatapultFrontSprite.png");
     iLoadImage(&blueImg, "assets/images/Blue_angry_bird5.png");
-    iResizeImage(&blueImg, 65, 63);
+    iResizeImage(&blueImg, 57, 57);
     iLoadImage(&redImg, "assets/images/redAngryBird.png");
-    iResizeImage(&redImg, 65, 63);
+    iResizeImage(&redImg, 57, 57);
     iLoadImage(&yellowImg, "assets/images/yellowAngryBird.png");
-    iResizeImage(&yellowImg, 65, 63);
+    iResizeImage(&yellowImg, 57, 57);
     iLoadImage(&pigimage, "assets/images/Pig_front.png");
     iResizeImage(&pigimage, 60, 60);
     iLoadImage(&woodHorizontal, "assets/images/Pillar_01.png");
@@ -162,7 +168,7 @@ int pillarY[pillarCount] = {205, 205, 205};
 bool pillarHit[pillarCount] = {false, false, false};
 float pillarAngle[pillarCount] = {0, 0, 0};
 int pillarwidth = 30, pillarheight = 200;
-int groundY = 205;
+int groundY = 200;
 float pillarRotation[3] = {0}, pillarAngVelocity[3] = {0};
 bool pillarRotating[3] = {false};
 float beamPositionsX[3] = {1088 - 46, 1338 - 46, 1588 - 46}, beamPositionsY[3] = {398, 398, 398},
@@ -620,8 +626,9 @@ void updatePigMotion(int i)
 void drawBirds_easy()
 {
 
-    if (bluevisible)
-        iShowLoadedImage(bluebirdX, bluebirdY, &blueImg);
+      for (int i = 0; i < 3; i++)
+        if (bluevisible_arr[i])
+            iShowLoadedImage(bluebirdX[i], bluebirdY[i], &blueImg);
 
     if (redvisible)
         iShowLoadedImage(redSpriteX, redSpriteY, &redImg);
@@ -635,7 +642,7 @@ void drawBirds_medium()
 {
 
     if (bluevisible)
-        iShowLoadedImage2(bluebirdX, bluebirdY, &blueImg, 50, 50);
+        iShowLoadedImage2(bluebirdX[0], bluebirdY[0], &blueImg, 50, 50);
 
     if (redvisible)
         iShowLoadedImage2(redSpriteX, redSpriteY, &redImg, 50, 50);
@@ -648,7 +655,7 @@ void drawBirds_hard()
 {
 
     if (bluevisible)
-        iShowLoadedImage2(bluebirdX, bluebirdY - 115, &blueImg, 50, 50);
+        iShowLoadedImage2(bluebirdX[0], bluebirdY[0] - 115, &blueImg, 50, 50);
 
     if (redvisible)
         iShowLoadedImage2(redSpriteX, redSpriteY - 115, &redImg, 50, 50);
@@ -717,13 +724,21 @@ void updatePhysics()
     }
     if (screen == 3)
     {
-        checkMapCollision(bluebirdX, bluebirdY);
+        for (int i = 0; i < 3; i++)
+        {
+            checkMapCollision(bluebirdX[i], bluebirdY[i]);
+        }
+        
         checkMapCollision(redSpriteX, redSpriteY);
         checkMapCollision(yellowbirdX, yellowbirdY);
     }
     if (screen == 4)
     {
-        checkMap2Collision(bluebirdX, bluebirdY - 115);
+         for (int i = 0; i < 3; i++)
+        {
+            checkMap2Collision(bluebirdX[i], bluebirdY[i]-115);
+        }
+        
         checkMap2Collision(redSpriteX, redSpriteY - 115);
         checkMap2Collision(yellowbirdX, yellowbirdY - 115);
     }
@@ -873,9 +888,11 @@ void draweasy()
     iShowLoadedImage2(208, 177, &gultiback);
     iShowSprite(&redSprite);
     iShowSprite(&verticalSprite);
-
+    
+    
+    
     if (bluedragging)
-        drawRubberLines(bluebirdX, bluebirdY);
+        drawRubberLines(bluebirdX[0], bluebirdY[0]);
     if (reddragging)
         drawRubberLines(redSpriteX, redSpriteY);
     if (yellowdragging)
@@ -883,8 +900,15 @@ void draweasy()
 
     drawBirds_easy();
 
+  for (int i = 0; i < 3; i++)
+  {
     if (bluedragging)
-        drawPathway(bluebirdX, bluebirdY, blue_vx, blue_vy);
+    {
+       drawPathway(bluebirdX[i], bluebirdY[i], blue_vx[i], blue_vy[i]);
+    }
+    
+  }
+  
     if (reddragging)
         drawPathway(redSpriteX, redSpriteY, red_vx, red_vy);
     if (yellowdragging)
@@ -941,7 +965,7 @@ void drawmedium()
     iShowLoadedImage2(265, 140, &gultiback, 200, 200);
     // iShowSprite(&redSprite);
     if (bluedragging)
-        drawRubberLines_medium(bluebirdX, bluebirdY);
+        drawRubberLines_medium(bluebirdX[0], bluebirdY[0]);
     if (reddragging)
         drawRubberLines_medium(redSpriteX, redSpriteY);
     if (yellowdragging)
@@ -949,7 +973,7 @@ void drawmedium()
     drawBirds_medium();
     display_map1();
     if (bluedragging)
-        drawPathway(bluebirdX, bluebirdY, blue_vx, blue_vy);
+        drawPathway(bluebirdX[0], bluebirdY[0], blue_vx[0], blue_vy[0]);
     if (reddragging)
         drawPathway(redSpriteX, redSpriteY, red_vx, red_vy);
     if (yellowdragging)
@@ -968,7 +992,7 @@ void drawhard()
     iShowLoadedImage2(208, 177 - 115, &gultiback, 200, 200);
 
     if (bluedragging)
-        drawRubberLines_hard(bluebirdX, bluebirdY - 115);
+        drawRubberLines_hard(bluebirdX[0], bluebirdY[0] - 115);
     if (reddragging)
         drawRubberLines_hard(redSpriteX, redSpriteY - 115);
     if (yellowdragging)
@@ -978,7 +1002,7 @@ void drawhard()
     display_map2();
 
     if (bluedragging)
-        drawPathway_hard(bluebirdX, bluebirdY - 115, blue_vx, blue_vy);
+        drawPathway_hard(bluebirdX[0], bluebirdY[0] - 115, blue_vx[0], blue_vy[0]);
     if (reddragging)
         drawPathway_hard(redSpriteX, redSpriteY - 115, red_vx, red_vy);
     if (yellowdragging)
@@ -1130,7 +1154,12 @@ void iDraw()
 void updateBird()
 {
     updatePhysics();
-    updateSingleBird(bluebirdX, bluebirdY, blue_vx, blue_vy, blueflying, bluevisible);
+    for (int i = 0; i < 3; i++) {
+    if (blueflying[i] && bluevisible_arr[i]) {
+        updateSingleBird(bluebirdX[i], bluebirdY[i], blue_vx[i], blue_vy[i], blueflying[i], bluevisible_arr[i]);
+    }
+}
+
 
     updateSingleBird(redSpriteX, redSpriteY, red_vx, red_vy, redflying, redvisible);
 
@@ -1152,14 +1181,14 @@ void iMouseMove(int mx, int my)
         if (bluedragging)
         {
             iPlaySound("assets/sounds/slingshot.wav", false, 35);
-            bluebirdX = mx;
-            bluebirdY = my;
+            bluebirdX[0] = mx;
+            bluebirdY[0] = my;
             float dx = slingX - mx;
             float dy = slingY - my;
             float v = sqrt(dx * dx + dy * dy);
             float angle = atan2(dy, dx);
-            blue_vx = v * cos(angle) * 0.5;
-            blue_vy = v * sin(angle) * 0.5;
+            blue_vx[0] = v * cos(angle) * 0.5;
+            blue_vy[0] = v * sin(angle) * 0.5;
         }
         if (reddragging)
         {
@@ -1255,9 +1284,34 @@ void iMouse(int button, int state, int mx, int my)
         }
     }
 
+    // iMouse()-এ, এই অংশে যুক্ত করুন:
+else if ((screen == 1 || screen == 3 || screen == 4) && button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN)
+{
+    // Blue bird split
+    if (blueflying[0] && !blueSplit)
+    {
+        blueSplit = true;
+        float angle = atan2(blue_vy[0], blue_vx[0]);
+        float speed = sqrt(blue_vx[0]*blue_vx[0] + blue_vy[0]*blue_vy[0]);
+        for (int i = 0; i < 3; i++) {
+            bluebirdX[i] = bluebirdX[0];
+            bluebirdY[i] = bluebirdY[0];
+            blueflying[i] = true;
+            bluevisible_arr[i] = true;
+        }
+        blue_vx[0] = speed * cos(angle);
+        blue_vy[0] = speed * sin(angle);
+        blue_vx[1] = speed * cos(angle + 0.15f); 
+        blue_vy[1] = speed * sin(angle + 0.15f);
+        blue_vx[2] = speed * cos(angle - 0.15f); 
+        blue_vy[2] = speed * sin(angle - 0.15f);
+    }
+   
+}
+
     else if ((screen == 1 || screen == 3) && button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
     {
-        if (selectedBird == -1 && mx >= bluebirdX && mx <= bluebirdX + 70 && my >= bluebirdY && my <= bluebirdY + 70)
+        if (selectedBird == -1 && mx >= bluebirdX[0] && mx <= bluebirdX[0] + 70 && my >= bluebirdY[0] && my <= bluebirdY[0] + 70)
         {
             bluedragging = true;
             selectedBird = 0; // blue bird
@@ -1283,7 +1337,7 @@ void iMouse(int button, int state, int mx, int my)
     }
     else if ((screen == 4) && button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
     {
-        if (selectedBird == -1 && mx >= bluebirdX && mx <= bluebirdX + 50 && my >= bluebirdY - 115 && my <= bluebirdY - 115 + 50)
+        if (selectedBird == -1 && mx >= bluebirdX[0] && mx <= bluebirdX[0] + 50 && my >= bluebirdY[0] - 115 && my <= bluebirdY[0] - 115 + 50)
         {
             bluedragging = true;
             selectedBird = 0;
@@ -1309,7 +1363,7 @@ void iMouse(int button, int state, int mx, int my)
         if (bluedragging)
         {
             bluedragging = false;
-            blueflying = true;
+            blueflying[0] = true;
             iPlaySound("assets/sounds/bird_01_flying.wav", false);
             selectedBird = -1;
         }
@@ -1495,7 +1549,7 @@ int main(int argc, char *argv[])
     loadResources();
     iInitializeSound();
     iPlaySound("assets/sounds/angry_birds_2.wav", true, 20);
-    iSetTimer(50, updateBird);
+    iSetTimer(100, updateBird);
     // iSetTimer(200, animate);
     iOpenWindow(1920, 1080, "Angry Birds - BUET PROJECT");
     return 0;
