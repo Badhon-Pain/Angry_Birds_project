@@ -20,7 +20,7 @@ screen =11 -> Pause
 
 */
 
-#define ROWS 10
+#define ROWS 15
 #define COLLUMS 20
 #define BUET_ROWS 7
 #define BUET_COLS 25
@@ -147,15 +147,12 @@ void loadResources()
     iLoadImage(&realwoodSq, "assets/images/woodSquare.jpg");
     iLoadImage(&nameshowingBar, "assets/images/93.png");
     iLoadImage(&mediumCleared, "assets/images/93.png");
-
-    // iInitSprite(&redSprite);
-    // iLoadFramesFromFolder(redframes, "assets/images/sprites/red_bird");
-    // iChangeSpriteFrames(&redSprite, redframes, 4);
-    // iSetSpritePosition(&redSprite,redSpriteX, redSpriteY);
-
-    // iInitSprite(&verticalSprite);
-    // iChangeSpriteFrames(&verticalSprite, &woodVertical, 1);
-    // iSetSpritePosition(&verticalSprite, 1088, 205);
+    iLoadImage(&realwoodRect, "assets/images/woodRectangle.jpg");
+    iLoadImage(&realiceSq, "assets/images/iceSquare.jpg");
+    iLoadImage(&realiceRect, "assets/images/iceRectangle.jpg");
+    iLoadImage(&realiceSt, "assets/images/iceStick.jpg");
+    iLoadImage(&realwoodSt, "assets/images/woodStick.jpg");
+    
 }
 // Rubber Position
 int leftArmX = 298, leftArmY = 374;
@@ -228,6 +225,9 @@ void drawpause()
 }
 
 int map1[ROWS][COLLUMS] = {
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0},
     {0, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 0},
     {1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1},
     {1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 1, 0, 0, 1},
@@ -242,7 +242,7 @@ int map1[ROWS][COLLUMS] = {
 
 void display_map1()
 {
-    int startX = 1220, startY = 425; // base position
+    int startX = 1220, startY = 500; 
     int blockW = 30, blockH = 30;
 
     for (int r = 0; r < ROWS; r++)
@@ -262,11 +262,13 @@ void display_map1()
     }
 }
 
-void checkMapCollision(int birdX, int birdY)
+void checkMap1Collision(int birdX, int birdY)
 {
     int blockW = 30, blockH = 30;
-    int startX = 1220, startY = 425;
+    int startX = 1220, startY = 500;
+   bool falling = false;
 
+    // 1. Collision: Bird hits block or pig
     for (int r = 0; r < ROWS; r++)
     {
         for (int c = 0; c < COLLUMS; c++)
@@ -276,55 +278,38 @@ void checkMapCollision(int birdX, int birdY)
 
             if (map1[r][c] == 1 || map1[r][c] == 2 || map1[r][c] == 3)
             {
-
+                // Bird hits block or pig
                 if (birdX + birdRadius > x && birdX - birdRadius < x + blockW &&
                     birdY + birdRadius > y && birdY - birdRadius < y + blockH)
                 {
-
                     map1[r][c] = 0;
-                    for (int r = ROWS - 2; r >= 0; r--)
-                    {
-                        for (int c = 0; c < COLLUMS; c++)
-                        {
-                            if ((map1[r][c] == 1 || map1[r][c] == 2 || map1[r][c] == 3) && map1[r + 1][c] == 0)
-                            {
-                                if (map1[r][c] == 1)
-                                {
-                                    map1[r + 1][c] = 1;
-                                    map1[r][c] = 0;
-                                }
-                                if (map1[r][c] == 2)
-                                {
-                                    map1[r + 1][c] = 2;
-                                    map1[r][c] = 0;
-                                }
-                                if (map1[r][c] == 3)
-                                {
-                                    map1[r + 1][c] = 3;
-                                    map1[r][c] = 0;
-                                }
-                            }
-                            if ((map1[r][c] == 1 || map1[r][c] == 2 || map1[r][c] == 3) && map1[r + 1][c] == 2)
-                            {
-                                if (map1[r][c] == 1)
-                                {
-                                    map1[r + 1][c] = 1;
-                                    map1[r][c] = 0;
-                                }
-                                if (map1[r][c] == 2)
-                                {
-                                    map1[r + 1][c] = 0;
-                                    map1[r][c] = 0;
-                                }
-                                if (map1[r][c] == 3)
-                                {
-                                    map1[r + 1][c] = 3;
-                                    map1[r][c] = 0;
-                                }
-                            }
-                        }
-                    }
+                    falling = true; 
                 }
+            }
+        }
+    }
+
+    // 2. Gravity: Make blocks/pigs fall if empty below
+    
+    while (falling)
+    {
+        falling = false;
+        for (int r = ROWS - 2; r >= 0; r--) // bottom-up
+        {
+            for (int c = 0; c < COLLUMS; c++)
+            {
+                if ((map1[r][c] == 1 || map1[r][c] == 2 || map1[r][c] == 3) && map1[r + 1][c] == 0 && r + 1 < ROWS )
+                {
+                    map1[r + 1][c] = map1[r][c];
+                    map1[r][c] = 0;
+                    falling = true; // keep checking until all have fallen
+                }
+                 else if ((map1[r][c] == 1 || map1[r][c] == 3) && map1[r + 1][c] == 2)
+            {
+                
+                map1[r + 1][c] = 0;
+                falling = true;
+            }
             }
         }
     }
@@ -356,7 +341,7 @@ void display_map3()
 {
     int blockSize = 30;
     int startX = 1000 - 50;
-    int startY = 500 + 15;
+    int startY = 600;
 
     for (int row = 0; row < 20; row++)
     {
@@ -558,16 +543,16 @@ void drawPathway(int x, int y, float vx, float vy)
 {
     float fx = x + birdRadius / 2;
     float fy = y + birdRadius / 2;
-    float dt = 0.1f;
+    float dt = 0.8;
     for (int i = 0; i < 200; i++)
     {
         fx += vx * dt;
         fy += vy * dt;
         vy += g * dt;
-        if (fy < groundY)
-            break;
+        // if (fy < groundY)
+        //     break;
         iSetColor(0, 0, 0);
-        iPoint(fx, fy, 1);
+        iFilledCircle(fx, fy, 2);
     }
 }
 
@@ -640,9 +625,11 @@ void drawBirds_easy()
 
 void drawBirds_medium()
 {
-
-    if (bluevisible)
-        iShowLoadedImage2(bluebirdX[0], bluebirdY[0], &blueImg, 50, 50);
+     
+      for (int i = 0; i < 3; i++)
+        if (bluevisible_arr[i])
+            iShowLoadedImage2(bluebirdX[i], bluebirdY[i], &blueImg, 50, 50);
+  
 
     if (redvisible)
         iShowLoadedImage2(redSpriteX, redSpriteY, &redImg, 50, 50);
@@ -726,11 +713,11 @@ void updatePhysics()
     {
         for (int i = 0; i < 3; i++)
         {
-            checkMapCollision(bluebirdX[i], bluebirdY[i]);
+            checkMap1Collision(bluebirdX[i], bluebirdY[i]);
         }
         
-        checkMapCollision(redSpriteX, redSpriteY);
-        checkMapCollision(yellowbirdX, yellowbirdY);
+        checkMap1Collision(redSpriteX, redSpriteY);
+        checkMap1Collision(yellowbirdX, yellowbirdY);
     }
     if (screen == 4)
     {
@@ -768,7 +755,7 @@ void updateSingleBird(int &x, int &y, float &vx, float &vy, bool &flying, bool &
             }
             iPlaySound("assets/sounds/ball_bounce.wav");
         }
-        if (x < 0 || x > 1919 || y > 10080)
+        if (x < 0 || x > 1919 || y > 1080)
         {
             flying = false;
             visible = false;
@@ -999,7 +986,8 @@ void drawhard()
         drawRubberLines_hard(yellowbirdX, yellowbirdY - 115);
 
     drawBirds_hard();
-    display_map2();
+    // display_map2();
+    display_map3();
 
     if (bluedragging)
         drawPathway_hard(bluebirdX[0], bluebirdY[0] - 115, blue_vx[0], blue_vy[0]);
@@ -1164,6 +1152,7 @@ void updateBird()
     updateSingleBird(redSpriteX, redSpriteY, red_vx, red_vy, redflying, redvisible);
 
     updateSingleBird(yellowbirdX, yellowbirdY, yellow_vx, yellow_vy, yellowflying, yellowvisible);
+    updateSingleBird(yellowbirdX, yellowbirdY, yellow_vx, yellow_vy, yellowflying, blackvisible);
 
     for (int i = 0; i < pigCount; i++)
     {
