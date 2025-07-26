@@ -669,6 +669,12 @@ void updatePhysics()
     {
         if (pillarRotating[i])
         {
+        //     if((iCheckImageCollision(24, 205, &blueImg, 1094, 208, &woodVertical ))>0)
+        // {
+        //     iRotate(1094, 208, 90);
+        //     iShowLoadedImage(1094, 208, &woodVertical);
+        //     iUnRotate();
+        // }
             pillarRotation[i] += pillarAngVelocity[i];
             pillarAngVelocity[i] *= angularFriction;
 
@@ -676,6 +682,12 @@ void updatePhysics()
             {
                 pillarRotating[i] = false;
             }
+        }
+        if((iCheckImageCollision(24, 205, &blueImg, 1094, 208, &woodVertical ))>0)
+        {
+            iRotate(1094, 208, 90);
+            iShowLoadedImage(1094, 208, &woodVertical);
+            iUnRotate();
         }
     }
 
@@ -685,6 +697,8 @@ void updatePhysics()
         if (fabs(beamVelocitiesX[i]) > 0.1f)
         {
             beamPositionsX[i] += beamVelocitiesX[i];
+            // float beamVelocitiesY[i];
+            // beamVelocitiesY[i] +=g*0.5;
             beamVelocitiesX[i] *= friction;
         }
     }
@@ -739,14 +753,21 @@ void updateSingleBird(int &x, int &y, float &vx, float &vy, bool &flying, bool &
             int baseX = 1088 + i * 250;
 
             // vertical
-            if (checkCollision(x, y, birdwidth, birdheight, baseX, pillarY[i], pillarwidth, pillarheight))
-            {
+            // if (checkCollision(x, y, birdwidth, birdheight, baseX, pillarY[i], pillarwidth, pillarheight))
+            // {
 
-                vx = -vx * 0.5;
-                vy *= 0.8;
-                pillarHit[i] = true;
-                iPlaySound("assets/sounds/wood_damage_a1.wav");
-            }
+            //     vx = -vx * 0.5;
+            //     vy *= 0.8;
+            //     pillarHit[i] = true;
+            //     iPlaySound("assets/sounds/wood_damage_a1.wav");
+            // }
+             if(iCheckImageCollision(bluebirdX,bluebirdY,  &blueImg,baseX,pillarY[i], &woodVertical )>0)
+        {
+            iRotate(baseX, pillarY[i], 90);
+            iShowLoadedImage(baseX, pillarY[i], &woodVertical);
+            iUnRotate();
+        }
+        
 
             // horizontal
             if (checkCollision(x, y, birdwidth, birdheight,
@@ -828,10 +849,10 @@ void draweasy()
     for (int i = 0; i < pillarCount; i++)
     {
         int baseX = 1088 + i * 250;
-        // Main vertical pillar (rotated)
-        iRotate(baseX, pillarY[i], 30);
+       
+        // iRotate(baseX, pillarY[i], 30);
         iShowLoadedImage(baseX, pillarY[i], &woodVertical);
-        iUnRotate();
+        // iUnRotate();
 
         // Horizontal beams (movable)
         iShowLoadedImage(beamPositionsX[i], 398, &woodHorizontal);

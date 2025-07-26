@@ -373,6 +373,9 @@ void updateSingleBird(int &x, int &y, float &vx, float &vy, bool &flying, bool &
                 vx = -vx * 0.5;
                 vy *= 0.8;
                 pillarHit[i] = true;
+                   iRotate(1094, 208, 90);
+            iShowLoadedImage(1094, 208, &woodVertical);
+            iUnRotate();
                 iPlaySound("assets/sounds/wood_hit.wav");
             }
             
@@ -403,6 +406,14 @@ void updateSingleBird(int &x, int &y, float &vx, float &vy, bool &flying, bool &
                 iPlaySound("assets/sounds/wood_hit.wav");
             }
         }
+        // if((iCheckImageCollision(24, 205, &blueImg, 1094, 208, &woodVertical ))>0)
+        // {
+        //     iRotate(1094, 208, 90);
+        //     iShowLoadedImage(1094, 208, &woodVertical);
+        //     iUnRotate();
+        // }
+        
+        
 
         // Pig collision
         for (int i = 0; i < pigCount; i++) {
@@ -773,7 +784,9 @@ int main(int argc, char *argv[])
     loadResources();
     iInitializeSound();
     iPlaySound("assets/sounds/angry_birds_2.wav", true, 20);
-    iSetTimer(20, updateBird);
+    iSetTimer(50, updateBird);
+    
+
     // iSetTimer(200, animate); 
     iOpenWindow(1920, 1080, "Angry Birds - BUET PROJECT");
     return 0;
