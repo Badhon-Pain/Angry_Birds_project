@@ -49,8 +49,8 @@ int yellowbirdX = 180, yellowbirdY = 200;
 
 float red_vx = 0, red_vy = 0;
 float yellow_vx = 0, yellow_vy = 0;
-bool  redflying = false, yellowflying = false;
-bool  bluedragging= false, reddragging = false, yellowdragging = false;
+bool redflying = false, yellowflying = false;
+bool bluedragging = false, reddragging = false, yellowdragging = false;
 float restitution = 0.6f, friction = 0.8f, angularFriction = 0.97f;
 
 int currentBird = 0, selectedBird = -1; // 0-> blue, 1-> red, 2-> yellow
@@ -61,8 +61,8 @@ int birdheight = 63, birdwidth = 65;
 
 // pig info's:
 const int pigCount = 3;
-int pigX[pigCount] = {1070,  1320,  1570 };
-int pigY[pigCount] = {420, 420,  420};
+int pigX[pigCount] = {1070, 1320, 1570};
+int pigY[pigCount] = {420, 420, 420};
 float pigVX[pigCount] = {}, pigVY[pigCount] = {};
 bool pigVisible[pigCount] = {true, true, true};
 bool pigFalling[pigCount] = {false, false, false};
@@ -77,7 +77,8 @@ Image bg, gultiback, gultifront, map_block, map_mosaic, map_stone, woodblock, re
     menuBg, blueImg, redImg, yellowImg, bg1, woodHorizontal, woodVertical, realwoodSt, realiceSq, realiceRect,
     woodHorizontal2, woodVertical2, rock, blackImg, bgHard, settings, previous, realiceSt, nameshowingBar,
     menubutton, levelbutton, scorebutton, pigimage, credit2, creditBack, credit1, cross_button, mediumCleared,
-    sound1, sound2, about, faq, instruction, whiteCanvas, about1, about2, next_button, cross_button2, pause, pausebox;
+    sound1, sound2, about, faq, instruction, whiteCanvas, about1, about2, next_button, cross_button2, pause, pausebox,
+    monsterPig;
 Image redframes[4];
 Sprite redSprite, verticalSprite;
 
@@ -148,11 +149,11 @@ void loadResources()
     iLoadImage(&nameshowingBar, "assets/images/93.png");
     iLoadImage(&mediumCleared, "assets/images/93.png");
     iLoadImage(&realwoodRect, "assets/images/woodRectangle.jpg");
-    iLoadImage(&realiceSq, "assets/images/iceSquare.jpg");
+    iLoadImage(&realiceSq, "assets/images/iceSquarePlain.jpg");
     iLoadImage(&realiceRect, "assets/images/iceRectangle.jpg");
-    iLoadImage(&realiceSt, "assets/images/iceStick.jpg");
+    iLoadImage(&realiceSt, "assets/images/iceStickPlain.jpg");
     iLoadImage(&realwoodSt, "assets/images/woodStick.jpg");
-    
+    iLoadImage(&monsterPig, "assets/images/monsterPig.png");
 }
 // Rubber Position
 int leftArmX = 298, leftArmY = 374;
@@ -169,8 +170,7 @@ int groundY = 200;
 float pillarRotation[3] = {0}, pillarAngVelocity[3] = {0};
 bool pillarRotating[3] = {false};
 float beamPositionsX[3] = {1088 - 46, 1338 - 46, 1588 - 46}, beamPositionsY[3] = {398, 398, 398},
- beamVelocitiesX[3] = {0}, beamVelocitiesY[3] = {0};
-
+      beamVelocitiesX[3] = {0}, beamVelocitiesY[3] = {0};
 
 void drawMenu()
 {
@@ -242,7 +242,7 @@ int map1[ROWS][COLLUMS] = {
 
 void display_map1()
 {
-    int startX = 1220, startY = 500; 
+    int startX = 1220, startY = 500;
     int blockW = 30, blockH = 30;
 
     for (int r = 0; r < ROWS; r++)
@@ -266,9 +266,9 @@ void checkMap1Collision(int birdX, int birdY)
 {
     int blockW = 30, blockH = 30;
     int startX = 1220, startY = 500;
-   bool falling = false;
+    bool falling = false;
 
-    // 1. Collision: Bird hits block or pig
+    
     for (int r = 0; r < ROWS; r++)
     {
         for (int c = 0; c < COLLUMS; c++)
@@ -278,86 +278,172 @@ void checkMap1Collision(int birdX, int birdY)
 
             if (map1[r][c] == 1 || map1[r][c] == 2 || map1[r][c] == 3)
             {
-                // Bird hits block or pig
+                
                 if (birdX + birdRadius > x && birdX - birdRadius < x + blockW &&
                     birdY + birdRadius > y && birdY - birdRadius < y + blockH)
                 {
                     map1[r][c] = 0;
-                    falling = true; 
+                    falling = true;
                 }
             }
         }
     }
 
-    // 2. Gravity: Make blocks/pigs fall if empty below
-    
     while (falling)
     {
         falling = false;
-        for (int r = ROWS - 2; r >= 0; r--) // bottom-up
+        for (int r = ROWS - 2; r >= 0; r--)
         {
             for (int c = 0; c < COLLUMS; c++)
             {
-                if ((map1[r][c] == 1 || map1[r][c] == 2 || map1[r][c] == 3) && map1[r + 1][c] == 0 && r + 1 < ROWS )
+                if ((map1[r][c] == 1 || map1[r][c] == 2 || map1[r][c] == 3) && map1[r + 1][c] == 0 && r + 1 < ROWS)
                 {
                     map1[r + 1][c] = map1[r][c];
                     map1[r][c] = 0;
-                    falling = true; // keep checking until all have fallen
+                    falling = true; 
                 }
-                 else if ((map1[r][c] == 1 || map1[r][c] == 3) && map1[r + 1][c] == 2)
-            {
-                
-                map1[r + 1][c] = 0;
-                falling = true;
-            }
+                else if ((map1[r][c] == 1 || map1[r][c] == 3) && map1[r + 1][c] == 2)
+                {
+
+                    map1[r + 1][c] = 0;
+                    falling = true;
+                }
             }
         }
     }
 }
 
 int map3[20][20] = {
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-    {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-    {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-    {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-    {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-    {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-    {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-    {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 5, 0, 0, 0},
+    {0, 5, 0, 0, 7, 0, 0, 5, 0, 0, 7, 0, 0, 5, 0, 0, 7, 0, 0, 0},
+    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 5, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0},
+    {0, 0, 0, 4, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0},
+    {0, 0, 4, 0, 4, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 4, 0, 4, 0, 0},
+    {0, 4, 0, 0, 0, 4, 0, 0, 0, 1, 0, 0, 0, 0, 4, 0, 0, 0, 4, 0},
+    {4, 0, 0, 0, 0, 0, 4, 0, 0, 1, 0, 0, 0, 4, 0, 0, 0, 0, 0, 4},
+    {3, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {2, 6, 0, 0, 0, 0, 2, 0, 0, 1, 0, 0, 0, 2, 6, 0, 0, 0, 0, 2},
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};
 
 void display_map3()
 {
     int blockSize = 30;
-    int startX = 1000 - 50;
-    int startY = 600;
+    int startX = 1100;
+    int startY = 620;
 
     for (int row = 0; row < 20; row++)
     {
         for (int col = 0; col < 20; col++)
         {
-            if (map3[row][col] == 1)
+
+            if (map3[row][col] == 1) // real wood square
             {
                 int posX = startX + col * blockSize;
                 int posY = startY - row * blockSize;
-                iShowLoadedImage(posX, posY, &realwoodSq);
+                iShowLoadedImage2(posX, posY, &realwoodSq);
             }
-            if (map3[row][col] == 2)
+           
+            if (map3[row][col] == 2) // vertical pillar
             {
                 int posX = startX + col * blockSize;
                 int posY = startY - row * blockSize;
-                iShowLoadedImage2(posX, posY + 5, &pigimage, 50, 45);
+                iShowLoadedImage2(posX, posY, &woodVertical);
+            }
+            if (map3[row][col] == 3) // horizontal beam
+            {
+                int posX = startX + col * blockSize;
+                int posY = startY - row * blockSize;
+
+                iShowLoadedImage2(posX, posY, &woodHorizontal, 200, 30);
+            }
+            
+            if (map3[row][col] == 4) // ice square
+            {
+                int posX = startX + col * blockSize;
+                int posY = startY - row * blockSize;
+                iShowLoadedImage2(posX, posY - 7, &realiceSq);
+            }
+            if (map3[row][col] == 5) // pig image
+            {
+                int posX = startX + col * blockSize;
+                int posY = startY - row * blockSize;
+
+                iShowLoadedImage2(posX, posY, &pigimage, 50, 45);
+            }
+            if (map3[row][col] == 6) // monster pig
+            {
+                int posX = startX + col * blockSize;
+                int posY = startY - row * blockSize;
+                iShowLoadedImage2(posX, posY, &monsterPig);
+            }
+            if (map3[row][col] == 7) // small horizontal beam
+            {
+                int posX = startX + col * blockSize;
+                int posY = startY - row * blockSize;
+                iShowLoadedImage2(posX, posY, &woodHorizontal2, 60, 38);
+            }
+        }
+    }
+}
+
+void checkMap3Collision(int birdX, int birdY)
+{
+    int blockW = 30, blockH = 30;
+    int startX = 1100, startY = 620;
+    bool falling = false;
+
+    
+    for (int r = 0; r < 20; r++)
+    {
+        for (int c = 0; c < 20; c++)
+        {
+            int x = startX + c * blockW;
+            int y = startY - r * blockH;
+
+            
+            if (map3[r][c] >= 1 && map3[r][c] <= 7)
+            {
+                if (birdX + birdRadius > x && birdX - birdRadius < x + blockW &&
+                    birdY + birdRadius > y && birdY - birdRadius < y + blockH)
+                {
+                    map3[r][c] = 0;
+                    falling = true;
+                }
+            }
+        }
+    }
+
+    
+    while (falling)
+    {
+        falling = false;
+        for (int r = 18; r >= 0; r--)
+        {
+            for (int c = 0; c < 20; c++)
+            {
+               
+                if (map3[r][c] >= 1 && map3[r][c] <= 7 && map3[r + 1][c] == 0)
+                {
+                    map3[r + 1][c] = map3[r][c];
+                    map3[r][c] = 0;
+                    falling = true;
+                }
+                
+                else if ((map3[r][c] >= 1 && map3[r][c] <= 4) && (map3[r + 1][c] == 5 || map3[r + 1][c] == 6))
+                {
+                    map3[r + 1][c] = 0; 
+                    falling = true;
+                }
             }
         }
     }
@@ -611,7 +697,7 @@ void updatePigMotion(int i)
 void drawBirds_easy()
 {
 
-      for (int i = 0; i < 3; i++)
+    for (int i = 0; i < 3; i++)
         if (bluevisible_arr[i])
             iShowLoadedImage(bluebirdX[i], bluebirdY[i], &blueImg);
 
@@ -625,11 +711,10 @@ void drawBirds_easy()
 
 void drawBirds_medium()
 {
-     
-      for (int i = 0; i < 3; i++)
+
+    for (int i = 0; i < 3; i++)
         if (bluevisible_arr[i])
             iShowLoadedImage2(bluebirdX[i], bluebirdY[i], &blueImg, 50, 50);
-  
 
     if (redvisible)
         iShowLoadedImage2(redSpriteX, redSpriteY, &redImg, 50, 50);
@@ -665,34 +750,34 @@ void updatePhysics()
     {
         if (pillarRotating[i])
         {
-        //     if((iCheckImageCollision(24, 205, &blueImg, 1094, 208, &woodVertical ))>0)
-        // {
-        //     iRotate(1094, 208, 90);
-        //     iShowLoadedImage(1094, 208, &woodVertical);
-        //     iUnRotate();
-        // }
+            //     if((iCheckImageCollision(24, 205, &blueImg, 1094, 208, &woodVertical ))>0)
+            // {
+            //     iRotate(1094, 208, 90);
+            //     iShowLoadedImage(1094, 208, &woodVertical);
+            //     iUnRotate();
+            // }
             pillarRotation[i] += pillarAngVelocity[i];
             pillarAngVelocity[i] *= angularFriction;
-           if ((pillarAngVelocity[i] > 0 && pillarRotation[i] >= 90.0f) ||
-            (pillarAngVelocity[i] < 0 && pillarRotation[i] <= -90.0f))
-        {
-            pillarRotation[i] = (pillarAngVelocity[i] > 0) ? 90.0f : -90.0f;
-            pillarRotating[i] = false;
-            pillarAngVelocity[i] = 0;
-        }
+            if ((pillarAngVelocity[i] > 0 && pillarRotation[i] >= 90.0f) ||
+                (pillarAngVelocity[i] < 0 && pillarRotation[i] <= -90.0f))
+            {
+                pillarRotation[i] = (pillarAngVelocity[i] > 0) ? 90.0f : -90.0f;
+                pillarRotating[i] = false;
+                pillarAngVelocity[i] = 0;
+            }
         }
         // if(iCheckImageCollision(24, 205, &blueImg, 1094, 208, &woodVertical ))
         // {
         //     iRotate(1094, 208, 90);
         //     iShowLoadedImage(1094, 208, &woodVertical);
-            
+
         // }
     }
 
     // Update moving beams
     for (int i = 0; i < 3; i++)
     {
-        
+
         if (fabs(beamVelocitiesX[i]) > 0.1f || fabs(beamVelocitiesY[i]) > 0.1f)
         {
             beamVelocitiesY[i] += g * 0.5f;
@@ -715,19 +800,19 @@ void updatePhysics()
         {
             checkMap1Collision(bluebirdX[i], bluebirdY[i]);
         }
-        
+
         checkMap1Collision(redSpriteX, redSpriteY);
         checkMap1Collision(yellowbirdX, yellowbirdY);
     }
     if (screen == 4)
     {
-         for (int i = 0; i < 3; i++)
+        for (int i = 0; i < 3; i++)
         {
-            checkMap2Collision(bluebirdX[i], bluebirdY[i]-115);
+            checkMap3Collision(bluebirdX[i], bluebirdY[i] - 115);
         }
-        
-        checkMap2Collision(redSpriteX, redSpriteY - 115);
-        checkMap2Collision(yellowbirdX, yellowbirdY - 115);
+
+        checkMap3Collision(redSpriteX, redSpriteY - 115);
+        checkMap3Collision(yellowbirdX, yellowbirdY - 115);
     }
 }
 
@@ -781,13 +866,12 @@ void updateSingleBird(int &x, int &y, float &vx, float &vy, bool &flying, bool &
                 pillarAngVelocity[i] = -10.0f;
                 iPlaySound("assets/sounds/wood_damage_a1.wav");
             }
-        //     if(iCheckImageCollision(bluebirdX,bluebirdY,  &blueImg,baseX,pillarY[i], &woodVertical )>0)
-        // {
-        //     iRotate(baseX, pillarY[i], 90);
-        //     iShowLoadedImage(baseX, pillarY[i], &woodVertical);
-        //     iUnRotate();
-        // }
-        
+            //     if(iCheckImageCollision(bluebirdX,bluebirdY,  &blueImg,baseX,pillarY[i], &woodVertical )>0)
+            // {
+            //     iRotate(baseX, pillarY[i], 90);
+            //     iShowLoadedImage(baseX, pillarY[i], &woodVertical);
+            //     iUnRotate();
+            // }
 
             // horizontal
             if (checkCollision(x, y, birdwidth, birdheight,
@@ -799,7 +883,6 @@ void updateSingleBird(int &x, int &y, float &vx, float &vy, bool &flying, bool &
                 vx *= 0.9f;
                 iPlaySound("assets/sounds/wood_damage_a2.wav");
             }
-            
         }
 
         // Pig collision
@@ -811,35 +894,34 @@ void updateSingleBird(int &x, int &y, float &vx, float &vy, bool &flying, bool &
             {
 
                 bool onPillar = false;
-        for (int j = 0; j < pillarCount; j++)
-        {
-            int pillarTop = pillarY[j] + pillarheight;
-         
-            if (pigX[i] + pigwidth > pillarX[j] && pigX[i] < pillarX[j] + pillarwidth)
-            {
-              
-                if (fabs(pillarRotation[j]) < 45.0f) 
+                for (int j = 0; j < pillarCount; j++)
                 {
-                    
-                    if (abs((pigY[i]) - (pillarY[j] + pillarheight)) < 10)
+                    int pillarTop = pillarY[j] + pillarheight;
+
+                    if (pigX[i] + pigwidth > pillarX[j] && pigX[i] < pillarX[j] + pillarwidth)
                     {
-                        onPillar = true;
-                        break;
+
+                        if (fabs(pillarRotation[j]) < 45.0f)
+                        {
+
+                            if (abs((pigY[i]) - (pillarY[j] + pillarheight)) < 10)
+                            {
+                                onPillar = true;
+                                break;
+                            }
+                        }
                     }
                 }
-            }
-        }
 
-      
-        if (!onPillar)
-        {
-            pigFalling[i] = true;
-        }
+                if (!onPillar)
+                {
+                    pigFalling[i] = true;
+                }
 
-        pigVX[i] = cos(hittingAngle) * birdVelocity * 0.3f;
-        pigVY[i] = sin(hittingAngle) * birdVelocity * 0.3f;
-        score += 100;
-        iPlaySound("assets/sounds/pig_collision_a6.wav");
+                pigVX[i] = cos(hittingAngle) * birdVelocity * 0.3f;
+                pigVY[i] = sin(hittingAngle) * birdVelocity * 0.3f;
+                score += 100;
+                iPlaySound("assets/sounds/pig_collision_a6.wav");
             }
             updatePigMotion(i);
         }
@@ -875,9 +957,7 @@ void draweasy()
     iShowLoadedImage2(208, 177, &gultiback);
     iShowSprite(&redSprite);
     iShowSprite(&verticalSprite);
-    
-    
-    
+
     if (bluedragging)
         drawRubberLines(bluebirdX[0], bluebirdY[0]);
     if (reddragging)
@@ -887,15 +967,14 @@ void draweasy()
 
     drawBirds_easy();
 
-  for (int i = 0; i < 3; i++)
-  {
-    if (bluedragging)
+    for (int i = 0; i < 3; i++)
     {
-       drawPathway(bluebirdX[i], bluebirdY[i], blue_vx[i], blue_vy[i]);
+        if (bluedragging)
+        {
+            drawPathway(bluebirdX[i], bluebirdY[i], blue_vx[i], blue_vy[i]);
+        }
     }
-    
-  }
-  
+
     if (reddragging)
         drawPathway(redSpriteX, redSpriteY, red_vx, red_vy);
     if (yellowdragging)
@@ -915,8 +994,8 @@ void draweasy()
     for (int i = 0; i < pillarCount; i++)
     {
         int baseX = 1088 + i * 250;
-       
-        iRotate(baseX + pillarwidth/2, pillarY[i], pillarRotation[i]);
+
+        iRotate(baseX + pillarwidth / 2, pillarY[i], pillarRotation[i]);
         iShowLoadedImage(baseX, pillarY[i], &woodVertical);
         iUnRotate();
 
@@ -926,7 +1005,6 @@ void draweasy()
 
         // Small vertical pillar
         // iShowLoadedImage(baseX + 125, pillarY[i] - 4, &woodVertical2);
-
     }
 
     // Draw pigs
@@ -1142,12 +1220,13 @@ void iDraw()
 void updateBird()
 {
     updatePhysics();
-    for (int i = 0; i < 3; i++) {
-    if (blueflying[i] && bluevisible_arr[i]) {
-        updateSingleBird(bluebirdX[i], bluebirdY[i], blue_vx[i], blue_vy[i], blueflying[i], bluevisible_arr[i]);
+    for (int i = 0; i < 3; i++)
+    {
+        if (blueflying[i] && bluevisible_arr[i])
+        {
+            updateSingleBird(bluebirdX[i], bluebirdY[i], blue_vx[i], blue_vy[i], blueflying[i], bluevisible_arr[i]);
+        }
     }
-}
-
 
     updateSingleBird(redSpriteX, redSpriteY, red_vx, red_vy, redflying, redvisible);
 
@@ -1274,29 +1353,29 @@ void iMouse(int button, int state, int mx, int my)
     }
 
     // iMouse()-এ, এই অংশে যুক্ত করুন:
-else if ((screen == 1 || screen == 3 || screen == 4) && button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN)
-{
-    // Blue bird split
-    if (blueflying[0] && !blueSplit)
+    else if ((screen == 1 || screen == 3 || screen == 4) && button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN)
     {
-        blueSplit = true;
-        float angle = atan2(blue_vy[0], blue_vx[0]);
-        float speed = sqrt(blue_vx[0]*blue_vx[0] + blue_vy[0]*blue_vy[0]);
-        for (int i = 0; i < 3; i++) {
-            bluebirdX[i] = bluebirdX[0];
-            bluebirdY[i] = bluebirdY[0];
-            blueflying[i] = true;
-            bluevisible_arr[i] = true;
+        // Blue bird split
+        if (blueflying[0] && !blueSplit)
+        {
+            blueSplit = true;
+            float angle = atan2(blue_vy[0], blue_vx[0]);
+            float speed = sqrt(blue_vx[0] * blue_vx[0] + blue_vy[0] * blue_vy[0]);
+            for (int i = 0; i < 3; i++)
+            {
+                bluebirdX[i] = bluebirdX[0];
+                bluebirdY[i] = bluebirdY[0];
+                blueflying[i] = true;
+                bluevisible_arr[i] = true;
+            }
+            blue_vx[0] = speed * cos(angle);
+            blue_vy[0] = speed * sin(angle);
+            blue_vx[1] = speed * cos(angle + 0.15f);
+            blue_vy[1] = speed * sin(angle + 0.15f);
+            blue_vx[2] = speed * cos(angle - 0.15f);
+            blue_vy[2] = speed * sin(angle - 0.15f);
         }
-        blue_vx[0] = speed * cos(angle);
-        blue_vy[0] = speed * sin(angle);
-        blue_vx[1] = speed * cos(angle + 0.15f); 
-        blue_vy[1] = speed * sin(angle + 0.15f);
-        blue_vx[2] = speed * cos(angle - 0.15f); 
-        blue_vy[2] = speed * sin(angle - 0.15f);
     }
-   
-}
 
     else if ((screen == 1 || screen == 3) && button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
     {
@@ -1470,9 +1549,9 @@ void iKeyboard(unsigned char key, int state)
             pigX[i] = 1070 + (i / 2) * 250; // adjust position if needed
             pigY[i] = (i % 2 == 0) ? 420 : 316;
             pigVX[i] = pigVY[i] = 0;
-              pillarRotation[i] = 0;
-    pillarAngVelocity[i] = 0;
-    pillarRotating[i] = false;
+            pillarRotation[i] = 0;
+            pillarAngVelocity[i] = 0;
+            pillarRotating[i] = false;
         }
         resetBeams();
     }
@@ -1530,7 +1609,6 @@ void iSpecialKeyboard(unsigned char key, int state)
 
 void iMouseDrag(int mx, int my) {}
 void iMouseWheel(int dir, int mx, int my) {}
-
 
 int main(int argc, char *argv[])
 {
