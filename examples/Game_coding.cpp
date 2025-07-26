@@ -54,12 +54,12 @@ int birdRadius = 30;
 int birdheight = 63, birdwidth = 65;
 
 // pig info's:
-const int pigCount = 6;
-int pigX[pigCount] = {1070, 1195, 1320, 1445, 1570, 1695};
-int pigY[pigCount] = {420, 316, 420, 316, 420, 316};
+const int pigCount = 3;
+int pigX[pigCount] = {1070,  1320,  1570 };
+int pigY[pigCount] = {420, 420,  420};
 float pigVX[pigCount] = {}, pigVY[pigCount] = {};
-bool pigVisible[pigCount] = {true, true, true, true, true, true};
-bool pigFalling[pigCount] = {false, false, false, false, false, false};
+bool pigVisible[pigCount] = {true, true, true};
+bool pigFalling[pigCount] = {false, false, false};
 int pigheight = 60, pigwidth = 60;
 
 // Cursor
@@ -165,7 +165,9 @@ int pillarwidth = 30, pillarheight = 200;
 int groundY = 205;
 float pillarRotation[3] = {0}, pillarAngVelocity[3] = {0};
 bool pillarRotating[3] = {false};
-float beamPositionsX[3] = {1088 - 46, 1338 - 46, 1588 - 46}, beamVelocitiesX[3] = {0};
+float beamPositionsX[3] = {1088 - 46, 1338 - 46, 1588 - 46}, beamPositionsY[3] = {398, 398, 398},
+ beamVelocitiesX[3] = {0}, beamVelocitiesY[3] = {0};
+
 
 void drawMenu()
 {
@@ -677,29 +679,40 @@ void updatePhysics()
         // }
             pillarRotation[i] += pillarAngVelocity[i];
             pillarAngVelocity[i] *= angularFriction;
-
-            if (fabs(pillarAngVelocity[i]) < 0.5f)
-            {
-                pillarRotating[i] = false;
-            }
-        }
-        if((iCheckImageCollision(24, 205, &blueImg, 1094, 208, &woodVertical ))>0)
+           if ((pillarAngVelocity[i] > 0 && pillarRotation[i] >= 90.0f) ||
+            (pillarAngVelocity[i] < 0 && pillarRotation[i] <= -90.0f))
         {
-            iRotate(1094, 208, 90);
-            iShowLoadedImage(1094, 208, &woodVertical);
-            iUnRotate();
+            pillarRotation[i] = (pillarAngVelocity[i] > 0) ? 90.0f : -90.0f;
+            pillarRotating[i] = false;
+            pillarAngVelocity[i] = 0;
         }
+        }
+        // if(iCheckImageCollision(24, 205, &blueImg, 1094, 208, &woodVertical ))
+        // {
+        //     iRotate(1094, 208, 90);
+        //     iShowLoadedImage(1094, 208, &woodVertical);
+            
+        // }
     }
 
     // Update moving beams
     for (int i = 0; i < 3; i++)
     {
-        if (fabs(beamVelocitiesX[i]) > 0.1f)
+        
+        if (fabs(beamVelocitiesX[i]) > 0.1f || fabs(beamVelocitiesY[i]) > 0.1f)
         {
+            beamVelocitiesY[i] += g * 0.5f;
             beamPositionsX[i] += beamVelocitiesX[i];
+            beamPositionsY[i] += beamVelocitiesY[i];
             // float beamVelocitiesY[i];
             // beamVelocitiesY[i] +=g*0.5;
             beamVelocitiesX[i] *= friction;
+            if (beamPositionsY[i] <= groundY)
+            {
+                beamPositionsY[i] = groundY;
+                beamVelocitiesY[i] = 0;
+                beamVelocitiesX[i] = 0;
+            }
         }
     }
     if (screen == 3)
@@ -753,32 +766,38 @@ void updateSingleBird(int &x, int &y, float &vx, float &vy, bool &flying, bool &
             int baseX = 1088 + i * 250;
 
             // vertical
-            // if (checkCollision(x, y, birdwidth, birdheight, baseX, pillarY[i], pillarwidth, pillarheight))
-            // {
-
-            //     vx = -vx * 0.5;
-            //     vy *= 0.8;
-            //     pillarHit[i] = true;
-            //     iPlaySound("assets/sounds/wood_damage_a1.wav");
-            // }
-             if(iCheckImageCollision(bluebirdX,bluebirdY,  &blueImg,baseX,pillarY[i], &woodVertical )>0)
-        {
-            iRotate(baseX, pillarY[i], 90);
-            iShowLoadedImage(baseX, pillarY[i], &woodVertical);
-            iUnRotate();
-        }
+            if (checkCollision(x, y, birdwidth, birdheight, baseX, pillarY[i], pillarwidth, pillarheight))
+            {
+                // iRotate(baseX, pillarY[i], 30);
+                // iShowLoadedImage(baseX, pillarY[i], &woodVertical);
+                // iUnRotate();
+                vx = -vx * 0.5;
+                vy *= 0.8;
+                pillarHit[i] = true;
+                pillarRotating[i] = true;
+                // pillarAngVelocity[i] =-fabs(0.5f * (birdVelocity / 10.0f));
+                pillarAngVelocity[i] = -10.0f;
+                iPlaySound("assets/sounds/wood_damage_a1.wav");
+            }
+        //     if(iCheckImageCollision(bluebirdX,bluebirdY,  &blueImg,baseX,pillarY[i], &woodVertical )>0)
+        // {
+        //     iRotate(baseX, pillarY[i], 90);
+        //     iShowLoadedImage(baseX, pillarY[i], &woodVertical);
+        //     iUnRotate();
+        // }
         
 
             // horizontal
             if (checkCollision(x, y, birdwidth, birdheight,
-                               beamPositionsX[i], 398, 120, 30))
+                               beamPositionsX[i], beamPositionsY[i], 120, 30))
             {
                 beamVelocitiesX[i] += vx * 0.2f;
-
+                beamVelocitiesY[i] += vy * 0.2f;
                 vy = -vy * restitution;
                 vx *= 0.9f;
                 iPlaySound("assets/sounds/wood_damage_a2.wav");
             }
+            
         }
 
         // Pig collision
@@ -789,11 +808,36 @@ void updateSingleBird(int &x, int &y, float &vx, float &vy, bool &flying, bool &
                                pigX[i], pigY[i], pigwidth, pigheight))
             {
 
-                pigVX[i] = cos(hittingAngle) * birdVelocity * 0.3f;
-                pigVY[i] = sin(hittingAngle) * birdVelocity * 0.3f;
-                pigFalling[i] = true;
-                score += 100;
-                iPlaySound("assets/sounds/pig_collision_a6.wav");
+                bool onPillar = false;
+        for (int j = 0; j < pillarCount; j++)
+        {
+            int pillarTop = pillarY[j] + pillarheight;
+         
+            if (pigX[i] + pigwidth > pillarX[j] && pigX[i] < pillarX[j] + pillarwidth)
+            {
+              
+                if (fabs(pillarRotation[j]) < 45.0f) 
+                {
+                    
+                    if (abs((pigY[i]) - (pillarY[j] + pillarheight)) < 10)
+                    {
+                        onPillar = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+      
+        if (!onPillar)
+        {
+            pigFalling[i] = true;
+        }
+
+        pigVX[i] = cos(hittingAngle) * birdVelocity * 0.3f;
+        pigVY[i] = sin(hittingAngle) * birdVelocity * 0.3f;
+        score += 100;
+        iPlaySound("assets/sounds/pig_collision_a6.wav");
             }
             updatePigMotion(i);
         }
@@ -808,6 +852,17 @@ bool Correct_username()
             return true; // sob input space hole false return korbe
     }
     return false;
+}
+
+void resetBeams()
+{
+    for (int i = 0; i < 3; i++)
+    {
+        beamPositionsX[i] = 1088 - 46 + i * 250;
+        beamPositionsY[i] = 398;
+        beamVelocitiesX[i] = 0;
+        beamVelocitiesY[i] = 0;
+    }
 }
 
 void draweasy()
@@ -850,16 +905,17 @@ void draweasy()
     {
         int baseX = 1088 + i * 250;
        
-        // iRotate(baseX, pillarY[i], 30);
+        iRotate(baseX + pillarwidth/2, pillarY[i], pillarRotation[i]);
         iShowLoadedImage(baseX, pillarY[i], &woodVertical);
-        // iUnRotate();
+        iUnRotate();
 
         // Horizontal beams (movable)
-        iShowLoadedImage(beamPositionsX[i], 398, &woodHorizontal);
-        iShowLoadedImage(baseX + 111, 294, &woodHorizontal2);
+        iShowLoadedImage(beamPositionsX[i], beamPositionsY[i], &woodHorizontal);
+        // iShowLoadedImage(baseX + 111, 294, &woodHorizontal2);
 
         // Small vertical pillar
-        iShowLoadedImage(baseX + 125, pillarY[i] - 4, &woodVertical2);
+        // iShowLoadedImage(baseX + 125, pillarY[i] - 4, &woodVertical2);
+
     }
 
     // Draw pigs
@@ -1176,6 +1232,7 @@ void iMouse(int button, int state, int mx, int my)
 
             difficultylevel = 1;
             screen = 1;
+            resetBeams();
             iStopAllSounds();
             iPlaySound("assets/sounds/angry_birds_intro_music.wav", true);
         }
@@ -1370,7 +1427,11 @@ void iKeyboard(unsigned char key, int state)
             pigX[i] = 1070 + (i / 2) * 250; // adjust position if needed
             pigY[i] = (i % 2 == 0) ? 420 : 316;
             pigVX[i] = pigVY[i] = 0;
+              pillarRotation[i] = 0;
+    pillarAngVelocity[i] = 0;
+    pillarRotating[i] = false;
         }
+        resetBeams();
     }
     if (key == 'q')
         iCloseWindow();
@@ -1426,10 +1487,7 @@ void iSpecialKeyboard(unsigned char key, int state)
 
 void iMouseDrag(int mx, int my) {}
 void iMouseWheel(int dir, int mx, int my) {}
-// void animate() {
-//     iAnimateSprite(&redSprite);
-//     iAnimateSprite(&verticalSprite);
-// }
+
 
 int main(int argc, char *argv[])
 {
@@ -1437,7 +1495,7 @@ int main(int argc, char *argv[])
     loadResources();
     iInitializeSound();
     iPlaySound("assets/sounds/angry_birds_2.wav", true, 20);
-    iSetTimer(100, updateBird);
+    iSetTimer(50, updateBird);
     // iSetTimer(200, animate);
     iOpenWindow(1920, 1080, "Angry Birds - BUET PROJECT");
     return 0;
