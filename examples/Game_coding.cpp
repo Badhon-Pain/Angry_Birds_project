@@ -56,6 +56,7 @@ bool blueSplit = false;
 int redSpriteX = 100, redSpriteY = 194;
 int yellowbirdX = 180, yellowbirdY = 200;
 
+
 float red_vx = 0, red_vy = 0;
 float yellow_vx = 0, yellow_vy = 0;
 bool redflying = false, yellowflying = false, discoflying = false, pinkflying = false, greenflying = false,
@@ -88,7 +89,7 @@ Image bg, gultiback, gultifront, map_block, map_mosaic, map_stone, woodblock, re
     woodHorizontal2, woodVertical2, rock, blackImg, bgHard, settings, previous, realiceSt, nameshowingBar,
     menubutton, levelbutton, scorebutton, pigimage, credit2, creditBack, credit1, cross_button, mediumCleared,
     sound1, sound2, about, faq, instruction, whiteCanvas, about1, about2, next_button, cross_button2, pause, pausebox,
-    monsterPig, leaderboardimg, win, gameover, restart, nextlevel, mainmenu, rosco, stella, hall;
+    monsterPig, leaderboardimg, win, gameover, restart, nextlevel, mainmenu, rosco, stella, hall, bluePair;
     
 Sprite redSprite, verticalSprite;
 
@@ -175,6 +176,7 @@ void loadResources()
     iLoadImage(&rosco, "assets/images/Rosco.png");
     iLoadImage(&stella, "assets/images/Stella.png");
     iLoadImage(&hall, "assets/images/Hal.png");
+    iLoadImage(&bluePair, "assets/images/BluesSVG.png");
 }
 // Rubber Position
 int leftArmX = 298, leftArmY = 374;
@@ -707,6 +709,8 @@ void updateSingleBird(int &x, int &y, float &vx, float &vy, bool &flying, bool &
             visible = false;
             return;
         }
+      
+        
 
         // Collision with pillars
         for (int i = 0; i < pillarCount; i++)
@@ -1066,13 +1070,40 @@ void iDraw()
         iText(755, 470, "(iii)ABOUT:", GLUT_BITMAP_HELVETICA_18);
         iShowLoadedImage2(1115, 460, &about, 50, 50);
     }
-    else if (screen == 7)
+    else if (screen == 7) // instructions
     {
         iShowLoadedImage2(0, 0, &menuBg);
         iSetTransparentColor(0, 0, 0, 0.5);
         iFilledRectangle(0, 0, 1920, 1080);
         iShowLoadedImage2(56, 56, &previous, 50, 50);
         iShowLoadedImage2(677 - 152, 360 - 73, &whiteCanvas);
+        
+        iTextBold(600, 711, "Press 'm' for going to Main-menu", GLUT_BITMAP_TIMES_ROMAN_24);
+        iTextBold(600, 675, "Press 'q' to close the Application", GLUT_BITMAP_TIMES_ROMAN_24);
+        iTextBold(600, 639, "Press 'r' to reset the Game state", GLUT_BITMAP_TIMES_ROMAN_24);
+        iShowLoadedImage2(600, 550, &bluePair, 80, 80);
+        iSetColor(0,0,255);
+        iTextBold(700, 605, "(Jay,Jake & Jim) ->Availabe in medium and hard level", GLUT_BITMAP_TIMES_ROMAN_24);
+        iTextBold(700, 575, "Initially, Jay will be with us but after right-clicking,", GLUT_BITMAP_TIMES_ROMAN_24);
+        iTextBold(700, 545, "Jake & Jim will also join us", GLUT_BITMAP_TIMES_ROMAN_24);
+        iShowLoadedImage2(600, 475, &redImg, 60, 60);
+        iSetColor(255, 0 ,0);
+        iTextBold(700, 498, "(Red) ->The main protagonist", GLUT_BITMAP_TIMES_ROMAN_24);
+        iShowLoadedImage2(600, 405, &rosco, 60, 60);
+        iSetColor(153,51,102);
+        iTextBold(700, 430, "(Rosco) ->The KHILADI 786 ", GLUT_BITMAP_TIMES_ROMAN_24);
+        iShowLoadedImage2(600, 335, &stella, 60, 60);
+        iSetColor(255,153,204);
+        iTextBold(700, 362, "(Stella) ->The Pookie ", GLUT_BITMAP_TIMES_ROMAN_24);
+        iShowLoadedImage2(1015, 476, &hall, 60, 60);
+        iSetColor(0,255,0);
+        iTextBold(1083, 500, "(Hal) ->Boomerang Guy ", GLUT_BITMAP_TIMES_ROMAN_24);
+        iShowLoadedImage2(1015, 408, &yellowImg, 60, 60);
+        iSetColor(255,255,0);
+        iTextBold(1083, 430, "(Chuck) ->Speedy Guy ", GLUT_BITMAP_TIMES_ROMAN_24);
+        iShowLoadedImage2(1015, 340, &blackImg, 60, 60);
+        iSetColor(0,0,0);
+        iTextBold(1083, 360, "(Bomb) ->The Exploder ", GLUT_BITMAP_TIMES_ROMAN_24);
     }
     else if (screen == 8)
     {
@@ -1558,12 +1589,17 @@ void iMouse(int button, int state, int mx, int my)
         }
     }
 
+   
+   
+    
+
     else if ((screen == 1) && button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
     {
         if (selectedBird == -1 && mx >= bluebirdX[0] && mx <= bluebirdX[0] + 70 && my >= bluebirdY[0] && my <= bluebirdY[0] + 70)
         {
             discodragging = true;
             selectedBird = 0; // rosco
+      
             iPlaySound("assets/sounds/bird_01_select.wav", false);
         }
         else if (selectedBird == -1 && mx >= redSpriteX && mx <= redSpriteX + 70 && my >= redSpriteY && my <= redSpriteY + 70)
@@ -1715,7 +1751,7 @@ void iMouse(int button, int state, int mx, int my)
         }
         else if (mx >= 1118 && mx <= 1160 && my >= 593 && my <= 635) // instruction button
         {
-            iStopAllSounds();
+            
             iPlaySound("assets/sounds/menu_sound.wav", false);
             screen = 7;
             showWin = false;
@@ -1723,7 +1759,7 @@ void iMouse(int button, int state, int mx, int my)
         }
         else if (mx >= 1118 && mx <= 1160 && my >= 465 && my <= 500) // instruction button
         {
-            iStopAllSounds();
+            
             iPlaySound("assets/sounds/menu_sound.wav", false);
             screen = 8;
             showWin = false;
@@ -1734,7 +1770,7 @@ void iMouse(int button, int state, int mx, int my)
     {
         if (mx >= 58 && mx <= 101 && my >= 65 && my <= 103) // about & instruction- previous
         {
-            iStopAllSounds();
+            
             iPlaySound("assets/sounds/menu_sound.wav", false);
             screen = 6;
             showWin = false;
@@ -1742,7 +1778,7 @@ void iMouse(int button, int state, int mx, int my)
         }
         else if (mx >= 1264 && mx <= 1307 && my >= 367 && my <= 408) // for going about_2
         {
-            iStopAllSounds();
+            
             iPlaySound("assets/sounds/menu_sound.wav", false);
             screen = 9;
             showWin = false;
@@ -1753,7 +1789,7 @@ void iMouse(int button, int state, int mx, int my)
     {
         if (mx >= 585 && mx <= 626 && my >= 374 && my <= 413) // about_2 previous
         {
-            iStopAllSounds();
+            
             iPlaySound("assets/sounds/menu_sound.wav", false);
             screen = 8;
             showWin = false;
@@ -1761,7 +1797,7 @@ void iMouse(int button, int state, int mx, int my)
         }
         else if (mx >= 1353 && mx <= 1387 && my >= 790 && my <= 830) // about_2 previous
         {
-            iStopAllSounds();
+            
             iPlaySound("assets/sounds/menu_sound.wav", false);
             screen = 6;
             showWin = false;
