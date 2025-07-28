@@ -11,7 +11,7 @@ struct PlayerScore {
 
 vector<PlayerScore> leaderboard;
 
-// Load leaderboard from file
+
 void loadLeaderboard(const string& filename) {
     leaderboard.clear();
     ifstream fin(filename);
@@ -23,7 +23,7 @@ void loadLeaderboard(const string& filename) {
     fin.close();
 }
 
-// Save leaderboard to file
+
 void saveLeaderboard(const string& filename) {
     ofstream fout(filename);
     for (const auto& entry : leaderboard) {
@@ -32,16 +32,16 @@ void saveLeaderboard(const string& filename) {
     fout.close();
 }
 
-// Add a new score
+
 void addScore(const string& name, int score) {
     leaderboard.push_back({name, score});
     sort(leaderboard.begin(), leaderboard.end(), [](const PlayerScore& a, const PlayerScore& b) {
-        return b.score < a.score; // Descending order
+        return b.score < a.score; 
     });
     if (leaderboard.size() > 10) leaderboard.resize(10); // Keep top 10
 }
 
-// Display leaderboard
+
 void displayLeaderboard() {
     cout << "Leaderboard:" << endl;
     int rank = 1;

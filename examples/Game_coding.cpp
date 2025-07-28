@@ -23,8 +23,8 @@ screen =11 -> Pause
 */
 void loadResources();
 void updateBird();
-void loadLeaderboard(const std::string& filename);
-void saveLeaderboard(const std::string& filename);
+void loadLeaderboard(const std::string &filename);
+void saveLeaderboard(const std::string &filename);
 
 #define ROWS 15
 #define COLLUMS 20
@@ -86,7 +86,7 @@ Image bg, gultiback, gultifront, map_block, map_mosaic, map_stone, woodblock, re
     woodHorizontal2, woodVertical2, rock, blackImg, bgHard, settings, previous, realiceSt, nameshowingBar,
     menubutton, levelbutton, scorebutton, pigimage, credit2, creditBack, credit1, cross_button, mediumCleared,
     sound1, sound2, about, faq, instruction, whiteCanvas, about1, about2, next_button, cross_button2, pause, pausebox,
-    monsterPig,leaderboardimg,win,gameover,restart,nextlevel,mainmenu;
+    monsterPig, leaderboardimg, win, gameover, restart, nextlevel, mainmenu;
 Image redframes[4];
 Sprite redSprite, verticalSprite;
 
@@ -99,12 +99,13 @@ bool showWin = false;
 bool showGameOver = false;
 
 void loadResources()
-{   iLoadImage(&leaderboardimg, "assets/images/prize.png");
+{
+    iLoadImage(&leaderboardimg, "assets/images/prize.png");
     iLoadImage(&mainmenu, "assets/images/menu.png");
     iLoadImage(&restart, "assets/images/restart.png");
     iLoadImage(&nextlevel, "assets/images/next.png");
-     iLoadImage(&win, "assets/images/winbox.png");
-      iLoadImage(&gameover, "assets/images/gameover.png");
+    iLoadImage(&win, "assets/images/winbox.png");
+    iLoadImage(&gameover, "assets/images/gameover.png");
     iLoadImage(&bg, "assets/images/Angry Bird3.jpg");
     iLoadImage(&pausebox, "assets/images/pausebox.png");
     iLoadImage(&pause, "assets/images/pause.png");
@@ -203,13 +204,12 @@ void drawMenu()
 
     iShowLoadedImage(110, 110, &menubutton);
     iText(132, 162, "CREDIT", GLUT_BITMAP_TIMES_ROMAN_24);
-    iShowLoadedImage2(1830,130,&leaderboardimg,70,70);
-    
+    iShowLoadedImage2(1830, 130, &leaderboardimg, 70, 70);
 }
 
 void drawLevelSelect()
 {
-        showGameOver = false;
+    showGameOver = false;
     showWin = false;
     iShowLoadedImage(0, 0, &menuBg);
 
@@ -289,7 +289,6 @@ void checkMap1Collision(int birdX, int birdY)
     int startX = 1220, startY = 500;
     bool falling = false;
 
-    
     for (int r = 0; r < ROWS; r++)
     {
         for (int c = 0; c < COLLUMS; c++)
@@ -299,7 +298,7 @@ void checkMap1Collision(int birdX, int birdY)
 
             if (map1[r][c] == 1 || map1[r][c] == 2 || map1[r][c] == 3)
             {
-                
+
                 if (birdX + birdRadius > x && birdX - birdRadius < x + blockW &&
                     birdY + birdRadius > y && birdY - birdRadius < y + blockH)
                 {
@@ -321,7 +320,7 @@ void checkMap1Collision(int birdX, int birdY)
                 {
                     map1[r + 1][c] = map1[r][c];
                     map1[r][c] = 0;
-                    falling = true; 
+                    falling = true;
                 }
                 else if ((map1[r][c] == 1 || map1[r][c] == 3) && map1[r + 1][c] == 2)
                 {
@@ -373,7 +372,7 @@ void display_map3()
                 int posY = startY - row * blockSize;
                 iShowLoadedImage2(posX, posY, &realwoodSq);
             }
-           
+
             if (map3[row][col] == 2) // vertical pillar
             {
                 int posX = startX + col * blockSize;
@@ -387,7 +386,7 @@ void display_map3()
 
                 iShowLoadedImage2(posX, posY, &woodHorizontal, 200, 30);
             }
-            
+
             if (map3[row][col] == 4) // ice square
             {
                 int posX = startX + col * blockSize;
@@ -423,7 +422,6 @@ void checkMap3Collision(int birdX, int birdY)
     int startX = 1100, startY = 620;
     bool falling = false;
 
-    
     for (int r = 0; r < 20; r++)
     {
         for (int c = 0; c < 20; c++)
@@ -431,7 +429,6 @@ void checkMap3Collision(int birdX, int birdY)
             int x = startX + c * blockW;
             int y = startY - r * blockH;
 
-            
             if (map3[r][c] >= 1 && map3[r][c] <= 7)
             {
                 if (birdX + birdRadius > x && birdX - birdRadius < x + blockW &&
@@ -444,7 +441,6 @@ void checkMap3Collision(int birdX, int birdY)
         }
     }
 
-    
     while (falling)
     {
         falling = false;
@@ -452,173 +448,24 @@ void checkMap3Collision(int birdX, int birdY)
         {
             for (int c = 0; c < 20; c++)
             {
-               
-                if (map3[r][c] >= 1 && map3[r][c] <= 7 && map3[r + 1][c] == 0)
+
+                if (map3[r][c] >= 1 && map3[r][c] <= 7 && map3[r + 1][c] == 0 && map3[r + 1][c] !=3 )
                 {
                     map3[r + 1][c] = map3[r][c];
                     map3[r][c] = 0;
                     falling = true;
                 }
-                
+
                 else if ((map3[r][c] >= 1 && map3[r][c] <= 4) && (map3[r + 1][c] == 5 || map3[r + 1][c] == 6))
                 {
-                    map3[r + 1][c] = 0; 
+                    map3[r + 1][c] = 0;
                     falling = true;
                 }
-            }
-        }
-    }
-}
-
-int map2[BUET_ROWS][BUET_COLS] = {
-
-    {1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0},
-    {1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0},
-    {1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0},
-    {1, 0, 0, 1, 0, 1, 2, 0, 1, 0, 1, 0, 0, 0, 0, 2, 0, 1, 0, 0, 0, 0, 0, 0, 0},
-    {1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 1, 1, 1, 2, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
-
-void display_map2()
-{
-    int blockSize = 32;
-    int startX = 1100;
-    int startY = 305 - 115;
-
-    for (int row = 0; row < BUET_ROWS; row++)
-    {
-        for (int col = 0; col < BUET_COLS; col++)
-        {
-            if (map2[row][col] == 1)
-            {
-                int posX = startX + col * blockSize;
-                int posY = startY - row * blockSize;
-                iShowLoadedImage(posX, posY, &realwoodSq);
-            }
-            if (map2[row][col] == 2)
-            {
-                int posX = startX + col * blockSize;
-                int posY = startY - row * blockSize;
-                iShowLoadedImage2(posX, posY, &pigimage, 50, 45);
-            }
-        }
-    }
-}
-
-// void checkMap2Collision(int birdX, int birdY)
-// {
-//     int blockW = 30, blockH = 30;
-//     int startX = 1100;
-//     int startY = 305 - 115;
-
-//     for (int r = 0; r < BUET_ROWS; r++)
-//     {
-//         for (int c = 0; c < BUET_COLS; c++)
-//         {
-//             int x = startX + c * blockW;
-//             int y = startY - r * blockH;
-
-//             if (map2[r][c] == 1 || map2[r][c] == 2)
-//             {
-//                 if (birdX + birdRadius > x && birdX - birdRadius < x + blockW &&
-//                     birdY + birdRadius > y && birdY - birdRadius < y + blockH)
-//                 {
-//                     map2[r][c] = 0;
-
-//                     for (int rr = BUET_ROWS - 2; rr >= 0; rr--)
-//                     {
-//                         for (int cc = 0; cc < BUET_COLS; cc++)
-//                         {
-//                             if ((map2[rr][cc] == 1 || map2[rr][cc] == 2) && map2[rr + 1][cc] == 0)
-//                             {
-//                                 map2[rr + 1][cc] = map2[rr][cc];
-//                                 map2[rr][cc] = 0;
-//                             }
-
-//                             if ((map2[rr][cc] == 1 || map2[rr][cc] == 2) && map2[rr + 1][cc] == 2)
-//                             {
-//                                 if (map2[rr][cc] == 1)
-//                                 {
-//                                     map2[rr + 1][cc] = 1;
-//                                     map2[rr][cc] = 0;
-//                                 }
-//                                 else if (map2[rr][cc] == 2)
-//                                 {
-//                                     map2[rr + 1][cc] = 0;
-//                                     map2[rr][cc] = 0;
-//                                 }
-//                             }
-//                         }
-//                     }
-//                 }
-//             }
-//         }
-//     }
-// }
-
-void checkMap2Collision(int birdX, int birdY)
-{
-    int blockW = 30, blockH = 30;
-    int startX = 1100, startY = 315 - 115;
-
-    for (int r = 0; r < ROWS; r++)
-    {
-        for (int c = 0; c < COLLUMS; c++)
-        {
-            int x = startX + c * blockW;
-            int y = startY - r * blockH;
-
-            if (map2[r][c] == 1 || map2[r][c] == 2 || map2[r][c] == 3)
-            {
-
-                if (birdX + birdRadius > x && birdX - birdRadius < x + blockW &&
-                    birdY + birdRadius > y && birdY - birdRadius < y + blockH)
+                else if (map3[r][c] >= 1 && map3[r][c] <= 7 && map3[r + 1][c] == 2)
                 {
-
-                    map2[r][c] = 0;
-                    for (int r = ROWS - 2; r >= 0; r--)
-                    {
-                        for (int c = 0; c < COLLUMS; c++)
-                        {
-                            if ((map2[r][c] == 1 || map2[r][c] == 2 || map2[r][c] == 3) && map2[r + 1][c] == 0)
-                            {
-                                if (map2[r][c] == 1)
-                                {
-                                    map2[r + 1][c] = 1;
-                                    map2[r][c] = 0;
-                                }
-                                if (map2[r][c] == 2)
-                                {
-                                    map2[r + 1][c] = 2;
-                                    map2[r][c] = 0;
-                                }
-                                if (map2[r][c] == 3)
-                                {
-                                    map2[r + 1][c] = 3;
-                                    map2[r][c] = 0;
-                                }
-                            }
-                            if ((map2[r][c] == 1 || map2[r][c] == 2 || map2[r][c] == 3) && map2[r + 1][c] == 2)
-                            {
-                                if (map2[r][c] == 1)
-                                {
-                                    map2[r + 1][c] = 1;
-                                    map2[r][c] = 0;
-                                }
-                                if (map2[r][c] == 2)
-                                {
-                                    map2[r + 1][c] = 0;
-                                    map2[r][c] = 0;
-                                }
-                                if (map2[r][c] == 3)
-                                {
-                                    map2[r + 1][c] = 3;
-                                    map2[r][c] = 0;
-                                }
-                            }
-                        }
-                    }
+                    map3[r + 1][c] = 0;
+                    map3[r][c] = 0;
+                    falling = true;
                 }
             }
         }
@@ -771,12 +618,7 @@ void updatePhysics()
     {
         if (pillarRotating[i])
         {
-            //     if((iCheckImageCollision(24, 205, &blueImg, 1094, 208, &woodVertical ))>0)
-            // {
-            //     iRotate(1094, 208, 90);
-            //     iShowLoadedImage(1094, 208, &woodVertical);
-            //     iUnRotate();
-            // }
+
             pillarRotation[i] += pillarAngVelocity[i];
             pillarAngVelocity[i] *= angularFriction;
             if ((pillarAngVelocity[i] > 0 && pillarRotation[i] >= 90.0f) ||
@@ -787,12 +629,6 @@ void updatePhysics()
                 pillarAngVelocity[i] = 0;
             }
         }
-        // if(iCheckImageCollision(24, 205, &blueImg, 1094, 208, &woodVertical ))
-        // {
-        //     iRotate(1094, 208, 90);
-        //     iShowLoadedImage(1094, 208, &woodVertical);
-
-        // }
     }
 
     // Update moving beams
@@ -906,7 +742,7 @@ void updateSingleBird(int &x, int &y, float &vx, float &vy, bool &flying, bool &
             }
         }
 
-        // Pig collision
+        
         for (int i = 0; i < pigCount; i++)
         {
             if (pigVisible[i] &&
@@ -945,6 +781,69 @@ void updateSingleBird(int &x, int &y, float &vx, float &vy, bool &flying, bool &
                 iPlaySound("assets/sounds/pig_collision_a6.wav");
             }
             updatePigMotion(i);
+        }
+    }
+}
+void updateSingleBird_medium(int &x, int &y, float &vx, float &vy, bool &flying, bool &visible)
+{
+    if (flying)
+    {
+        vy += g * 0.8;
+        x += vx;
+        y += vy;
+
+
+
+        if (y <= groundY)
+        {
+            y = groundY;
+            vy = -vy * restitution * 0.6;
+            vx *= friction;
+
+            if (fabs(vx) < 0.8)
+            {
+                flying = false;
+                visible = false;
+            }
+            iPlaySound("assets/sounds/ball_bounce.wav");
+        }
+        if (x < 0 || x > 1919 || y > 1080)
+        {
+            flying = false;
+            visible = false;
+            return;
+        }
+    }
+}
+void updateSingleBird_hard(int &x, int &y, float &vx, float &vy, bool &flying, bool &visible)
+{
+    if (flying)
+    {
+        vy += g * 0.8;
+        x += vx;
+        y += vy;
+
+        float birdVelocity = sqrt(vx * vx + vy * vy);
+        float hittingAngle = atan2(vy, vx);
+
+        if (y <= groundY)
+        {
+            y = groundY;
+            vy = -vy * restitution * 0.6;
+            vx *= friction;
+
+            if (fabs(vx) < 0.8)
+            {
+                flying = false;
+                visible = false;
+            }
+            iPlaySound("assets/sounds/ball_bounce.wav");
+        }
+        if (x < 0 || x > 1919 || y > 1080)
+        {
+            flying = false;
+            visible = false;
+            return;
         }
     }
 }
@@ -1003,15 +902,6 @@ void draweasy()
 
     iShowLoadedImage2(208, 177, &gultifront);
 
-    // for (int i = 0; i < pillarCount; i++)
-    // {
-    //     int baseX = 1088 + i * 250;
-    //     iShowLoadedImage(baseX, pillarY[i], &woodVertical);
-    //     iShowLoadedImage(baseX - 46, 398, &woodHorizontal);
-    //     iShowLoadedImage(baseX + 111, 294, &woodHorizontal2);
-    //     iShowLoadedImage(baseX + 125, pillarY[i] - 4, &woodVertical2);
-    // }
-
     for (int i = 0; i < pillarCount; i++)
     {
         int baseX = 1088 + i * 250;
@@ -1022,10 +912,6 @@ void draweasy()
 
         // Horizontal beams (movable)
         iShowLoadedImage(beamPositionsX[i], beamPositionsY[i], &woodHorizontal);
-        // iShowLoadedImage(baseX + 111, 294, &woodHorizontal2);
-
-        // Small vertical pillar
-        // iShowLoadedImage(baseX + 125, pillarY[i] - 4, &woodVertical2);
     }
 
     // Draw pigs
@@ -1108,6 +994,7 @@ void iDraw()
 {
 
     iClear();
+  
     if (!soundOn)
     {
         iStopAllSounds();
@@ -1233,65 +1120,67 @@ void iDraw()
     {
         drawpause();
     }
-   else if (screen == SCREEN_LEADERBOARD)
-{
-    iShowLoadedImage(0, 0, &menuBg);
-    iSetColor(0, 0, 0);
-    iText(800, 900, "LEADERBOARD", GLUT_BITMAP_TIMES_ROMAN_24);
-
-    // Display leaderboard entries
-    int y = 850;
-    for (int i = 0; i < leaderboard.size(); i++)
+    else if (screen == SCREEN_LEADERBOARD)
     {
-        char entry[100];
-        sprintf(entry, "%d. %s - %d", i + 1, leaderboard[i].name.c_str(), leaderboard[i].score);
-        iText(800, y, entry, GLUT_BITMAP_HELVETICA_18);
-        y -= 40;
+        iShowLoadedImage(0, 0, &menuBg);
+        iSetColor(0, 0, 0);
+        iText(800, 900, "LEADERBOARD", GLUT_BITMAP_TIMES_ROMAN_24);
+
+        // Display leaderboard entries
+        int y = 850;
+        for (int i = 0; i < leaderboard.size(); i++)
+        {
+            char entry[100];
+            sprintf(entry, "%d. %s - %d", i + 1, leaderboard[i].name.c_str(), leaderboard[i].score);
+            iText(800, y, entry, GLUT_BITMAP_HELVETICA_18);
+            y -= 40;
+        }
+        // Back button
+        iShowLoadedImage2(56, 56, &previous, 50, 50);
     }
-    // Back button
-    iShowLoadedImage2(56, 56, &previous, 50, 50);
-}
-    if ((screen == 1 || screen == 3 || screen == 4) && showWin) {
-    iShowLoadedImage2(530, 320, &win, 950, 650); 
-    iShowLoadedImage2(683, 491, &restart, 70, 70);
-    iShowLoadedImage2(945, 491, &nextlevel, 70, 70);
-    iShowLoadedImage2(1180, 491, &mainmenu, 70, 70);
-    // Adjust position/size as needed
-    iSetColor(0, 0, 0); // Gold color
+    if ((screen == 1 || screen == 3 || screen == 4) && showWin)
+    {
+        iShowLoadedImage2(530, 320, &win, 950, 650);
+        iShowLoadedImage2(683, 491, &restart, 70, 70);
+        iShowLoadedImage2(945, 491, &nextlevel, 70, 70);
+        iShowLoadedImage2(1180, 491, &mainmenu, 70, 70);
+        // Adjust position/size as needed
+        iSetColor(0, 0, 0); // Gold color
         char scoreText[50];
         sprintf(scoreText, "Your Score: %d", score);
         iText(900, 650, scoreText, GLUT_BITMAP_TIMES_ROMAN_24);
-        
+
         // Add "Continue" button
         iSetColor(100, 200, 100);
         iFilledRectangle(800, 400, 200, 50);
         iSetColor(255, 255, 255);
         iText(850, 425, "CONTINUE", GLUT_BITMAP_HELVETICA_18);
-}
-if ((screen == 1 || screen == 3 || screen == 4) && showGameOver) {
-    iShowLoadedImage2(530, 320, &gameover, 950, 650);
-    iShowLoadedImage2(683, 491, &restart, 70, 70);
-    iShowLoadedImage2(945, 491, &nextlevel, 70, 70);
-    iShowLoadedImage2(1180, 491, &mainmenu, 70, 70);
+    }
+    if ((screen == 1 || screen == 3 || screen == 4) && showGameOver)
+    {
+        iShowLoadedImage2(530, 320, &gameover, 950, 650);
+        iShowLoadedImage2(683, 491, &restart, 70, 70);
+        iShowLoadedImage2(945, 491, &nextlevel, 70, 70);
+        iShowLoadedImage2(1180, 491, &mainmenu, 70, 70);
 
-    iSetColor(255, 0, 0); // Red color
+        iSetColor(255, 0, 0); // Red color
         char scoreText[50];
         sprintf(scoreText, "Your Score: %d", score);
         iText(900, 500, scoreText, GLUT_BITMAP_TIMES_ROMAN_24);
-        
+
         // Add "Try Again" button
         iSetColor(200, 100, 100);
         iFilledRectangle(800, 400, 200, 50);
         iSetColor(255, 255, 255);
         iText(850, 425, "TRY AGAIN", GLUT_BITMAP_HELVETICA_18);
-        
+
         // Add "Menu" button
         iSetColor(100, 100, 200);
         iFilledRectangle(800, 330, 200, 50);
         iSetColor(255, 255, 255);
         iText(850, 355, "MAIN MENU", GLUT_BITMAP_HELVETICA_18);
     }
- // Adjust position/size as needed
+    // Adjust position/size as needed
 
     iSetColor(0, 0, 0);
     iText(1700, 1035, cursorStr, GLUT_BITMAP_HELVETICA_18);
@@ -1360,29 +1249,64 @@ if ((screen == 1 || screen == 3 || screen == 4) && showGameOver) {
 void updateBird()
 {
     updatePhysics();
-    
+
     // Update all birds
-    for (int i = 0; i < 3; i++) {
-        if (blueflying[i] && bluevisible_arr[i]) {
+   
+    if (screen == 1)
+    {
+         for (int i = 0; i < 3; i++)
+    {
+        if (blueflying[i] && bluevisible_arr[i])
+        {
             updateSingleBird(bluebirdX[i], bluebirdY[i], blue_vx[i], blue_vy[i], blueflying[i], bluevisible_arr[i]);
         }
     }
-    updateSingleBird(redSpriteX, redSpriteY, red_vx, red_vy, redflying, redvisible);
-    updateSingleBird(yellowbirdX, yellowbirdY, yellow_vx, yellow_vy, yellowflying, yellowvisible);
-    updateSingleBird(yellowbirdX, yellowbirdY, yellow_vx, yellow_vy, yellowflying, blackvisible);
+        
+        updateSingleBird(redSpriteX, redSpriteY, red_vx, red_vy, redflying, redvisible);
+        updateSingleBird(yellowbirdX, yellowbirdY, yellow_vx, yellow_vy, yellowflying, yellowvisible);
+    }
+    if (screen == 4)
+    {
+             for (int i = 0; i < 3; i++)
+    {
+        if (blueflying[i] && bluevisible_arr[i])
+        {
+            updateSingleBird_hard(bluebirdX[i], bluebirdY[i], blue_vx[i], blue_vy[i], blueflying[i], bluevisible_arr[i]);
+        }
+    }
+
+        updateSingleBird_hard(redSpriteX, redSpriteY, red_vx, red_vy, redflying, redvisible);
+        updateSingleBird_hard(yellowbirdX, yellowbirdY, yellow_vx, yellow_vy, yellowflying, blackvisible);
+    }
+    if (screen == 3)
+    {
+             for (int i = 0; i < 3; i++)
+    {
+        if (blueflying[i] && bluevisible_arr[i])
+        {
+            updateSingleBird_medium(bluebirdX[i], bluebirdY[i], blue_vx[i], blue_vy[i], blueflying[i], bluevisible_arr[i]);
+        }
+    }
+
+        updateSingleBird_medium(redSpriteX, redSpriteY, red_vx, red_vy, redflying, redvisible);
+        updateSingleBird_medium(yellowbirdX, yellowbirdY, yellow_vx, yellow_vy, yellowflying, blackvisible);
+    }
 
     // Update pig motion and check if any pigs remain
     pigsRemain = false; // Reset flag each frame
-    for (int i = 0; i < pigCount; i++) {
+    for (int i = 0; i < pigCount; i++)
+    {
         updatePigMotion(i);
-        if (pigVisible[i]) {
+        if (pigVisible[i])
+        {
             pigsRemain = true; // At least one pig is still visible
         }
     }
 
     // Check if all pigs are gone (win condition)
     bool allGone = !pigsRemain;
-    if (allGone && !showWin && (screen == 1 || screen == 3 || screen == 4)) {
+    if (allGone && !showWin && (screen == 1 || screen == 3 || screen == 4))
+    {
         showWin = true;
         showGameOver = false;
         // Optionally add score to leaderboard
@@ -1392,13 +1316,18 @@ void updateBird()
 
     // Check if all birds are used but pigs remain (game over)
     bool birdsFinished = true;
-    for (int i = 0; i < 3; i++) {
-        if (bluevisible_arr[i] || blueflying[i]) birdsFinished = false;
+    for (int i = 0; i < 3; i++)
+    {
+        if (bluevisible_arr[i] || blueflying[i])
+            birdsFinished = false;
     }
-    if (redvisible || redflying) birdsFinished = false;
-    if (yellowvisible || yellowflying) birdsFinished = false;
+    if (redvisible || redflying)
+        birdsFinished = false;
+    if (yellowvisible || yellowflying)
+        birdsFinished = false;
 
-    if (birdsFinished && pigsRemain && !showGameOver && !showWin && (screen == 1 || screen == 3 || screen == 4)) {
+    if (birdsFinished && pigsRemain && !showGameOver && !showWin && (screen == 1 || screen == 3 || screen == 4))
+    {
         showGameOver = true;
         showWin = false;
     }
@@ -1453,22 +1382,23 @@ void iMouse(int button, int state, int mx, int my)
 {
     if (screen == 0 && button == GLUT_LEFT_BUTTON && state == GLUT_UP)
     {
-    
+
         if (mx >= 123 && mx <= 224 && my >= 282 && my <= 318) // play button
         {
-                   showWin = false;
-                   showGameOver = false;
+            showWin = false;
+            showGameOver = false;
             iPlaySound("assets/sounds/menu_sound.wav", false);
             screen = 10;
             userName[0] = '\0';
             userNameLen = 0;
         }
         else if (mx >= 1830 && mx <= 1830 + 70 && my >= 130 && my <= 130 + 70) // leaderboard image
-{                   showWin = false;
-    showGameOver = false;
-         iPlaySound("assets/sounds/menu_sound.wav", false);
-          screen = SCREEN_LEADERBOARD; // or screen = 20;
-}
+        {
+            showWin = false;
+            showGameOver = false;
+            iPlaySound("assets/sounds/menu_sound.wav", false);
+            screen = SCREEN_LEADERBOARD; // or screen = 20;
+        }
 
         else if (mx >= 123 && mx <= 224 && my >= 219 && my <= 258) // exit button
         {
@@ -1479,15 +1409,15 @@ void iMouse(int button, int state, int mx, int my)
 
         else if (mx >= 123 && mx <= 224 && my >= 156 && my <= 191) // credit button
         {
-                   showWin = false;
-    showGameOver = false;
+            showWin = false;
+            showGameOver = false;
             iPlaySound("assets/sounds/menu_sound.wav", false);
             screen = 5;
         }
         else if (mx >= 58 && mx <= 101 && my >= 65 && my <= 103) //  settings button
         {
-                   showWin = false;
-    showGameOver = false;
+            showWin = false;
+            showGameOver = false;
             iPlaySound("assets/sounds/menu_sound.wav", false);
             screen = 6;
         }
@@ -1495,7 +1425,6 @@ void iMouse(int button, int state, int mx, int my)
         {
             iPlaySound("assets/sounds/menu_sound.wav", false);
             iCloseWindow();
-            
         }
     }
 
@@ -1504,8 +1433,8 @@ void iMouse(int button, int state, int mx, int my)
 
         if (mx >= 97 && mx <= 211 && my >= 258 && my <= 294) // easy level
         {
-showWin = false;
-showGameOver = false;
+            showWin = false;
+            showGameOver = false;
             difficultylevel = 1;
             screen = 1;
             resetBeams();
@@ -1515,8 +1444,8 @@ showGameOver = false;
 
         else if (mx >= 97 && mx <= 211 && my >= 206 && my <= 241) // medium level
         {
-showWin = false;
-showGameOver = false;
+            showWin = false;
+            showGameOver = false;
             difficultylevel = 2;
             screen = 3;
             iStopAllSounds();
@@ -1524,8 +1453,9 @@ showGameOver = false;
         }
 
         else if (mx >= 97 && mx <= 211 && my >= 144 && my <= 178) // hard button button
-        {showWin = false;
-showGameOver = false;
+        {
+            showWin = false;
+            showGameOver = false;
             difficultylevel = 3;
             screen = 4;
             iStopAllSounds();
@@ -1533,7 +1463,6 @@ showGameOver = false;
         }
     }
 
-    
     else if ((screen == 1 || screen == 3 || screen == 4) && button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN)
     {
         // Blue bird split
@@ -1639,8 +1568,8 @@ showGameOver = false;
             iStopAllSounds();
             iPlaySound("assets/sounds/menu_sound.wav", false);
             screen = 0;
-                    showWin = false;
-        showGameOver = false;
+            showWin = false;
+            showGameOver = false;
             // iStopAllSounds();
             iPlaySound("assets/sounds/angry_birds_2.wav", true, 20);
         }
@@ -1649,12 +1578,13 @@ showGameOver = false;
     {
 
         if (mx >= 58 && mx <= 101 && my >= 65 && my <= 103) // settings- previous
-        {showWin = false;
-showGameOver = false;
+        {
+            showWin = false;
+            showGameOver = false;
             iStopAllSounds();
             iPlaySound("assets/sounds/menu_sound.wav", false);
             screen = 0;
-            // iStopAllSounds();
+            
             iPlaySound("assets/sounds/angry_birds_2.wav", true, 20);
         }
         else if (mx >= 1111 && mx <= 1283 && my >= 718 && my <= 767) // sound button
@@ -1666,8 +1596,8 @@ showGameOver = false;
                 iPlaySound("assets/sounds/angry_birds_2.wav", true, 20);
             else
                 iPlaySound(0, 0, 0);
-                showWin = false;
-showGameOver = false;
+            showWin = false;
+            showGameOver = false;
         }
         else if (mx >= 1118 && mx <= 1160 && my >= 593 && my <= 635) // instruction button
         {
@@ -1675,7 +1605,7 @@ showGameOver = false;
             iPlaySound("assets/sounds/menu_sound.wav", false);
             screen = 7;
             showWin = false;
-showGameOver = false;
+            showGameOver = false;
         }
         else if (mx >= 1118 && mx <= 1160 && my >= 465 && my <= 500) // instruction button
         {
@@ -1683,7 +1613,7 @@ showGameOver = false;
             iPlaySound("assets/sounds/menu_sound.wav", false);
             screen = 8;
             showWin = false;
-showGameOver = false;
+            showGameOver = false;
         }
     }
     else if ((screen == 7 || screen == 8) && button == GLUT_LEFT_BUTTON && state == GLUT_UP)
@@ -1693,8 +1623,8 @@ showGameOver = false;
             iStopAllSounds();
             iPlaySound("assets/sounds/menu_sound.wav", false);
             screen = 6;
-             showWin = false;
-    showGameOver = false;
+            showWin = false;
+            showGameOver = false;
         }
         else if (mx >= 1264 && mx <= 1307 && my >= 367 && my <= 408) // for going about_2
         {
@@ -1702,7 +1632,7 @@ showGameOver = false;
             iPlaySound("assets/sounds/menu_sound.wav", false);
             screen = 9;
             showWin = false;
-showGameOver = false;
+            showGameOver = false;
         }
     }
     else if ((screen == 9) && button == GLUT_LEFT_BUTTON && state == GLUT_UP)
@@ -1713,7 +1643,7 @@ showGameOver = false;
             iPlaySound("assets/sounds/menu_sound.wav", false);
             screen = 8;
             showWin = false;
-showGameOver = false;
+            showGameOver = false;
         }
         else if (mx >= 1353 && mx <= 1387 && my >= 790 && my <= 830) // about_2 previous
         {
@@ -1721,7 +1651,7 @@ showGameOver = false;
             iPlaySound("assets/sounds/menu_sound.wav", false);
             screen = 6;
             showWin = false;
-showGameOver = false;
+            showGameOver = false;
         }
     }
     else if (screen == 11 && button == GLUT_LEFT_BUTTON && state == GLUT_UP)
@@ -1730,40 +1660,40 @@ showGameOver = false;
         {
             screen = 1;
             showWin = false;
-showGameOver = false;
+            showGameOver = false;
         }
     }
     else if (screen == SCREEN_LEADERBOARD && button == GLUT_LEFT_BUTTON && state == GLUT_UP)
-{
-    if (mx >= 56 && mx <= 106 && my >= 56 && my <= 106) // back button
     {
-        iPlaySound("assets/sounds/menu_sound.wav", false);
-        screen = 0; // back to menu
+        if (mx >= 56 && mx <= 106 && my >= 56 && my <= 106) // back button
+        {
+            iPlaySound("assets/sounds/menu_sound.wav", false);
+            screen = 0; // back to menu
+            showWin = false;
+            showGameOver = false;
+        }
+    }
+    else if (showWin && mx >= 1180 && mx <= 1180 + 70 && my >= 491 && my <= 491 + 70 && button == GLUT_LEFT_BUTTON && state == GLUT_UP)
+    {
+        screen = 0; // Go to Menu Page
+        showWin = false;
+        showGameOver = false;
+        iStopAllSounds();
+        iPlaySound("assets/sounds/angry_birds_2.wav", true, 20);
+    }
+    else if (showGameOver && mx >= 800 && mx <= 1000 && my >= 330 && my <= 380 && button == GLUT_LEFT_BUTTON && state == GLUT_UP)
+    {
+        screen = 0; // Go to Menu Page
+        showWin = false;
+        showGameOver = false;
+        iStopAllSounds();
+        iPlaySound("assets/sounds/angry_birds_2.wav", true, 20);
+    }
+    else if (!(screen == 0 || screen == 2 || screen == 5 || screen == 6 || screen == 7 || screen == 8 || screen == 9 || screen == 10 || screen == 11))
+    {
         showWin = false;
         showGameOver = false;
     }
-}
-   else if (showWin && mx >= 1180 && mx <= 1180 + 70 && my >= 491 && my <= 491 + 70 && button == GLUT_LEFT_BUTTON && state == GLUT_UP)
-        {
-            screen = 0; // Go to Menu Page
-            showWin = false;
-            showGameOver = false;
-            iStopAllSounds();
-            iPlaySound("assets/sounds/angry_birds_2.wav", true, 20);
-        }
-       else if (showGameOver && mx >= 800 && mx <= 1000 && my >= 330 && my <= 380 && button == GLUT_LEFT_BUTTON && state == GLUT_UP)
-        {
-            screen = 0; // Go to Menu Page
-            showWin = false;
-            showGameOver = false;
-            iStopAllSounds();
-            iPlaySound("assets/sounds/angry_birds_2.wav", true, 20);
-        }
-        else if (!(screen ==0 || screen ==2 || screen ==5 || screen ==6 || screen ==7 || screen ==8 || screen ==9 || screen ==10 || screen ==11 ))
-          {
-            showWin = false;
-            showGameOver = false;
-          }
 }
 
 void iKeyboard(unsigned char key, int state)
@@ -1847,8 +1777,8 @@ int main(int argc, char *argv[])
 {
     glutInit(&argc, argv);
     loadResources();
-    
-loadLeaderboard("leaderboard.txt"); // <-- Move it here
+
+    loadLeaderboard("leaderboard.txt"); // <-- Move it here
 
     iInitializeSound();
     iPlaySound("assets/sounds/angry_birds_2.wav", true, 20);
