@@ -7,13 +7,17 @@
 #include <vector>
 #include <fstream>
 #include <algorithm>
-// #include "leaderboard.h"
-//  Leaderboard structure
-struct PlayerScore
-{
-    std::string name;
-    int score;
-    std::string level; // New field to track which level the score was achieved on
+//#include "leaderboard.h"
+// Leaderboard structure
+struct PlayerScore {
+    std::string name = "";
+    int score = 0;
+    std::string level = "Unknown";
+    
+    // Constructor for easy initialization
+    PlayerScore() = default;
+    PlayerScore(const std::string& n, int s, const std::string& l) 
+        : name(n), score(s), level(l) {}
 };
 
 std::vector<PlayerScore> leaderboard;
@@ -37,10 +41,10 @@ screen =13 -> hard pause
 */
 void loadResources();
 void updateBird();
-void loadLeaderboard(const std::string &filename);
-void saveLeaderboard(const std::string &filename);
-void addScore(const std::string &name, int score);
-int getPlayerRank(const std::string &playerName, int playerScore);
+void loadLeaderboard(const std::string& filename);
+void saveLeaderboard(const std::string& filename);
+void addScore(const std::string& name, int score);
+int getPlayerRank(const std::string& playerName, int playerScore);
 void drawScoreDisplay();
 void resetGameState();
 void resetBeams();
@@ -72,14 +76,13 @@ bool writtingName = false, nameWarning = false;
 bool medium_clear = false, easy_clear = false, hard_clear = false;
 int pigCounter = 0;
 bool pigsRemain = false;
-bool enterKeyPressed = false;
+bool enterKeyPressed = false; 
 bool scoreSaved = false; // Tracks if score was already saved
-bool discovisible = true, pinkvisible = true, greenvisible = true;
-bool discodragging = false, greendragging = false, pinkdragging = false;
-bool discoflying = false, pinkflying = false, greenflying = false;
-
+bool hoverPlay = false, hoverExit = false, hoverCredit = false;
+bool hoverEasy = false, hoverMedium = false, hoverHard = false;
 // Bird Physics and States
 bool bluevisible = true, redvisible = true, yellowvisible = true, blackvisible = true;
+bool discovisible= true, pinkvisible = true, greenvisible = true;
 int bluebirdX[3] = {20, 20, 20};
 int bluebirdY[3] = {194, 194, 194};
 float blue_vx[3] = {0, 0, 0};
@@ -90,9 +93,11 @@ bool blueSplit = false;
 int redSpriteX = 100, redSpriteY = 194;
 int yellowbirdX = 180, yellowbirdY = 200;
 
+
 float red_vx = 0, red_vy = 0;
 float yellow_vx = 0, yellow_vy = 0;
-bool redflying = false, yellowflying = false;
+bool redflying = false, yellowflying = false, discoflying = false, pinkflying = false, greenflying = false,
+discodragging = false, pinkdragging = false, greendragging = false;
 bool bluedragging = false, reddragging = false, yellowdragging = false;
 float restitution = 0.6f, friction = 0.8f, angularFriction = 0.97f;
 
@@ -118,10 +123,13 @@ char cursorStr[30];
 // Assets
 Image bg, gultiback, gultifront, map_block, map_mosaic, map_stone, woodblock, realwoodSq, realwoodRect,
     menuBg, blueImg, redImg, yellowImg, bg1, woodHorizontal, woodVertical, realwoodSt, realiceSq, realiceRect,
-    woodHorizontal2, woodVertical2, rock, blackImg, bgHard, settings, previous, realiceSt, nameshowingBar, hall, rosco, stella, bluePair,
+    woodHorizontal2, woodVertical2, rock, blackImg, bgHard, settings, previous, realiceSt, nameshowingBar,
     menubutton, levelbutton, scorebutton, pigimage, credit2, creditBack, credit1, cross_button, mediumCleared,
-    sound1, sound2, about, faq, instruction, whiteCanvas, about1, about2, next_button, cross_button2, pause, pausebox, play, restart, namec, monsterPig, leaderboardimg, win, gameover, nextlevel, mainmenu;
-Image redframes[4];
+    sound1, sound2, about, faq, instruction, whiteCanvas, about1, about2, next_button, cross_button2, pause, pausebox,play,restart,namec,monsterPig,leaderboardimg,win,gameover,nextlevel,mainmenu;
+Image redframes[4],
+    
+     rosco, stella, hall, bluePair;
+    
 Sprite redSprite, verticalSprite;
 
 // for medium levels collision
@@ -204,7 +212,7 @@ void loadResources()
     iLoadImage(&realiceSt, "assets/images/iceStickPlain.jpg");
     iLoadImage(&realwoodSt, "assets/images/woodStick.jpg");
     iLoadImage(&monsterPig, "assets/images/monsterPig.png");
-     iLoadImage(&rosco, "assets/images/Rosco.png");
+    iLoadImage(&rosco, "assets/images/Rosco.png");
     iLoadImage(&stella, "assets/images/Stella.png");
     iLoadImage(&hall, "assets/images/Hal.png");
     iLoadImage(&bluePair, "assets/images/BluesSVG.png");
@@ -226,24 +234,55 @@ bool pillarRotating[3] = {false};
 float beamPositionsX[3] = {1088 - 46, 1338 - 46, 1588 - 46}, beamPositionsY[3] = {398, 398, 398},
       beamVelocitiesX[3] = {0}, beamVelocitiesY[3] = {0};
 
+// void drawMenu()
+// {   
+//     showGameOver = false;
+//     showWin = false;
+//     iShowLoadedImage(0, 0, &menuBg);
+
+//     iShowLoadedImage(110, 237, &menubutton);
+
+//     iSetColor(255, 255, 255);
+//     iText(140, 288, "PLAY", GLUT_BITMAP_TIMES_ROMAN_24);
+
+//     iShowLoadedImage(110, 177, &menubutton);
+//     iText(140, 228, "EXIT", GLUT_BITMAP_TIMES_ROMAN_24);
+
+//     iShowLoadedImage(110, 110, &menubutton);
+//     iText(132, 162, "CREDIT", GLUT_BITMAP_TIMES_ROMAN_24);
+//     iShowLoadedImage2(1830, 130, &leaderboardimg, 70, 70);
+// }
 void drawMenu()
 {
     showGameOver = false;
     showWin = false;
     iShowLoadedImage(0, 0, &menuBg);
 
-    iShowLoadedImage(110, 237, &menubutton);
-
+    // PLAY
+    if (hoverPlay)
+        iShowLoadedImage2(105, 232, &menubutton, 140, 130); // slightly larger
+    else
+        iShowLoadedImage(110, 237, &menubutton);
     iSetColor(255, 255, 255);
     iText(140, 288, "PLAY", GLUT_BITMAP_TIMES_ROMAN_24);
 
-    iShowLoadedImage(110, 177, &menubutton);
+    // EXIT
+    if (hoverExit)
+        iShowLoadedImage2(105, 172, &menubutton, 140, 130);
+    else
+        iShowLoadedImage(110, 177, &menubutton);
     iText(140, 228, "EXIT", GLUT_BITMAP_TIMES_ROMAN_24);
 
-    iShowLoadedImage(110, 110, &menubutton);
+    // CREDIT
+    if (hoverCredit)
+        iShowLoadedImage2(105, 105, &menubutton, 140, 130);
+    else
+        iShowLoadedImage(110, 110, &menubutton);
     iText(132, 162, "CREDIT", GLUT_BITMAP_TIMES_ROMAN_24);
+
     iShowLoadedImage2(1830, 130, &leaderboardimg, 70, 70);
 }
+
 
 void drawLevelSelect()
 {
@@ -251,16 +290,29 @@ void drawLevelSelect()
     showWin = false;
     iShowLoadedImage(0, 0, &menuBg);
 
-    iShowLoadedImage(85, 210, &levelbutton);
+    // EASY Button
+    if (hoverEasy)
+        iShowLoadedImage2(80, 205, &levelbutton, 150, 140);
+    else
+        iShowLoadedImage(85, 210, &levelbutton);
     iSetColor(255, 255, 255);
     iText(120, 265, "EASY", GLUT_BITMAP_TIMES_ROMAN_24);
 
-    iShowLoadedImage(85, 155, &levelbutton);
+    // MEDIUM Button
+    if (hoverMedium)
+        iShowLoadedImage2(80, 150, &levelbutton, 150, 140);
+    else
+        iShowLoadedImage(85, 155, &levelbutton);
     iText(105, 210, "MEDIUM", GLUT_BITMAP_TIMES_ROMAN_24);
 
-    iShowLoadedImage(85, 95, &levelbutton);
+    // HARD Button
+    if (hoverHard)
+        iShowLoadedImage2(80, 90, &levelbutton, 150, 140);
+    else
+        iShowLoadedImage(85, 95, &levelbutton);
     iText(120, 150, "HARD", GLUT_BITMAP_TIMES_ROMAN_24);
 }
+
 
 void drawSettings()
 {
@@ -277,7 +329,7 @@ void drawSettings()
 void drawpause()
 {
     // iSetTransparentColor(0, 0, 0, 0.5);
-    if (currentScreen == 1)
+     if (currentScreen == 1)
         iShowLoadedImage2(0, 0, &bg);
     else if (currentScreen == 3)
         iShowLoadedImage(0, 0, &bg1);
@@ -289,6 +341,7 @@ void drawpause()
     iShowLoadedImage2(699, 555, &play, 70, 70);
     iShowLoadedImage2(911, 555, &restart, 70, 70);
     iShowLoadedImage2(1121, 555, &mainmenu, 70, 70);
+
 }
 
 int map1[ROWS][COLLUMS] = {
@@ -349,6 +402,12 @@ void checkMap1Collision(int birdX, int birdY)
                 if (birdX + birdRadius > x && birdX - birdRadius < x + blockW &&
                     birdY + birdRadius > y && birdY - birdRadius < y + blockH)
                 {
+                    // Add score based on what was destroyed
+                    if (map1[r][c] == 2) { // Pig
+                        score += 500;
+                    } else if (map1[r][c] == 1 || map1[r][c] == 3) { // Block or rock
+                        score += 100;
+                    }
                     map1[r][c] = 0;
                     falling = true;
                 }
@@ -356,6 +415,7 @@ void checkMap1Collision(int birdX, int birdY)
         }
     }
 
+    // Handle falling blocks
     while (falling)
     {
         falling = false;
@@ -363,7 +423,8 @@ void checkMap1Collision(int birdX, int birdY)
         {
             for (int c = 0; c < COLLUMS; c++)
             {
-                if ((map1[r][c] == 1 || map1[r][c] == 2 || map1[r][c] == 3) && map1[r + 1][c] == 0 && r + 1 < ROWS)
+                if ((map1[r][c] == 1 || map1[r][c] == 2 || map1[r][c] == 3) && 
+                    map1[r + 1][c] == 0 && r + 1 < ROWS)
                 {
                     map1[r + 1][c] = map1[r][c];
                     map1[r][c] = 0;
@@ -371,7 +432,8 @@ void checkMap1Collision(int birdX, int birdY)
                 }
                 else if ((map1[r][c] == 1 || map1[r][c] == 3) && map1[r + 1][c] == 2)
                 {
-
+                    // Block falling on pig
+                    score += 500;
                     map1[r + 1][c] = 0;
                     falling = true;
                 }
@@ -462,7 +524,6 @@ void display_map3()
         }
     }
 }
-
 void checkMap3Collision(int birdX, int birdY)
 {
     int blockW = 30, blockH = 30;
@@ -519,65 +580,169 @@ void checkMap3Collision(int birdX, int birdY)
     }
 }
 
-void initEasyLevel()
-{
-    // Reset easy level specific elements
-    for (int i = 0; i < pigCount; i++)
-    {
+
+
+
+
+void initEasyLevel() {
+    // Reset pigs
+    pigX[0] = 1070; pigY[0] = 420;
+    pigX[1] = 1320; pigY[1] = 420;
+    pigX[2] = 1570; pigY[2] = 420;
+    
+    for (int i = 0; i < pigCount; i++) {
         pigVisible[i] = true;
         pigFalling[i] = false;
-        pigX[i] = 1070 + i * 250;
-        pigY[i] = 420;
         pigVX[i] = pigVY[i] = 0;
     }
-    resetBeams();
+    
+    // Reset pillars and beams
+    for (int i = 0; i < pillarCount; i++) {
+        pillarX[i] = 1088 + i * 250;
+        pillarY[i] = 205;
+        pillarRotation[i] = 0;
+        pillarAngVelocity[i] = 0;
+        pillarRotating[i] = false;
+        
+        beamPositionsX[i] = 1088 - 46 + i * 250;
+        beamPositionsY[i] = 398;
+        beamVelocitiesX[i] = beamVelocitiesY[i] = 0;
+    }
+    
+    // Reset birds
+    bluebirdX[0] = 20; bluebirdY[0] = 194;
+    redSpriteX = 100; redSpriteY = 194;
+    yellowbirdX = 180; yellowbirdY = 200;
+    
+    for (int i = 0; i < 3; i++) {
+        blue_vx[i] = blue_vy[i] = 0;
+        blueflying[i] = false;
+        bluevisible_arr[i] = (i == 0);
+    }
+    red_vx = red_vy = 0; redflying = false;
+    yellow_vx = yellow_vy = 0; yellowflying = false;
+    
+    discovisible = redvisible = yellowvisible = true;
+    bluedragging = reddragging = yellowdragging = false;
+    selectedBird = -1;
 }
 
-void initMediumLevel()
-{
-    // Reset medium level map
+
+void initMediumLevel() {
+    // Full medium level map (15x20)
     int initialMap1[ROWS][COLLUMS] = {
-        // Your original map1 initialization data
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0},
+        {0, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 0},
+        {1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1},
+        {1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 1, 0, 0, 1},
+        {1, 0, 2, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 2, 1},
+        {1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1},
+        {1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 1},
+        {1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1},
+        {1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 1},
+        {1, 1, 1, 1, 1, 0, 0, 2, 0, 0, 1, 0, 0, 2, 0, 1, 1, 1, 1, 1},
+        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
     };
     memcpy(map1, initialMap1, sizeof(map1));
+    
+    // Reset birds
+    bluebirdX[0] = 20; bluebirdY[0] = 194;
+    redSpriteX = 100; redSpriteY = 194;
+    yellowbirdX = 180; yellowbirdY = 200;
+    
+    for (int i = 0; i < 3; i++) {
+        blue_vx[i] = blue_vy[i] = 0;
+        blueflying[i] = false;
+        bluevisible_arr[i] = (i == 0);
+    }
+    red_vx = red_vy = 0; redflying = false;
+    yellow_vx = yellow_vy = 0; yellowflying = false;
+    
+    greenvisible = blackvisible = true;
+    bluedragging = greendragging = yellowdragging = false;
+    selectedBird = -1;
 }
 
-void initHardLevel()
-{
-    // Reset hard level map
+// void initHardLevel() {
+//     // Reset hard level map
+//     int initialMap3[20][20] = {
+//         // Your original map3 initialization data
+//     };
+//     memcpy(map3, initialMap3, sizeof(map3));
+// }
+void initHardLevel() {
+    // Full hard level map (20x20)
     int initialMap3[20][20] = {
-        // Your original map3 initialization data
+        {0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 5, 0, 0, 0},
+        {0, 5, 0, 0, 7, 0, 0, 5, 0, 0, 7, 0, 0, 5, 0, 0, 7, 0, 0, 0},
+        {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 5, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0},
+        {0, 0, 0, 4, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0},
+        {0, 0, 4, 0, 4, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 4, 0, 4, 0, 0},
+        {0, 4, 0, 0, 0, 4, 0, 0, 0, 1, 0, 0, 0, 0, 4, 0, 0, 0, 4, 0},
+        {4, 0, 0, 0, 0, 0, 4, 0, 0, 1, 0, 0, 0, 4, 0, 0, 0, 0, 0, 4},
+        {3, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {2, 6, 0, 0, 0, 0, 2, 0, 0, 1, 0, 0, 0, 2, 6, 0, 0, 0, 0, 2},
+        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
     };
     memcpy(map3, initialMap3, sizeof(map3));
+    
+    // Reset birds
+    bluebirdX[0] = 20; bluebirdY[0] = 194;
+    redSpriteX = 100; redSpriteY = 194;
+    yellowbirdX = 180; yellowbirdY = 200;
+    
+    for (int i = 0; i < 3; i++) {
+        blue_vx[i] = blue_vy[i] = 0;
+        blueflying[i] = false;
+        bluevisible_arr[i] = (i == 0);
+    }
+    red_vx = red_vy = 0; redflying = false;
+    yellow_vx = yellow_vy = 0; pinkflying = false;
+    
+    redvisible = pinkvisible = true;
+    bluedragging = reddragging = pinkdragging = false;
+    selectedBird = -1;
 }
 
-void resetEasyLevel(void)
-{
-    score = 0;
-    scoreSaved = false;
+
+void resetLevel() {
+    // Reset game state flags
     showWin = false;
     showGameOver = false;
+    score = 0;
+    scoreSaved = false;
     blueSplit = false;
     selectedBird = -1;
 
-    // Reset all blue birds
-    for (int i = 0; i < 3; i++)
-    {
+    // Reset all birds
+    for (int i = 0; i < 3; i++) {
         bluebirdX[i] = 20;
         bluebirdY[i] = 194;
         blue_vx[i] = blue_vy[i] = 0;
         blueflying[i] = false;
-        bluevisible_arr[i] = (i == 0); // Only first bird visible
+        bluevisible_arr[i] = (i == 0); // Only first bird visible initially
     }
-
-    // Reset red bird
+    
     redSpriteX = 100;
     redSpriteY = 194;
     red_vx = red_vy = 0;
     redflying = false;
-    redvisible = true; // Make sure this is set to true
-
-    // Reset yellow bird
+    redvisible = true;
+    
     yellowbirdX = 180;
     yellowbirdY = 200;
     yellow_vx = yellow_vy = 0;
@@ -585,35 +750,87 @@ void resetEasyLevel(void)
     yellowvisible = true;
 
     // Reset dragging states
-    discodragging = reddragging = yellowdragging = false;
-     bluebirdX[0] = 20;
-        bluebirdY[0] = 194;
-        blue_vx[0] = blue_vy[0] = 0;
-    discodragging= false;
-    discoflying= false;
-    discovisible= true;
+    bluedragging = false;
+    reddragging = false;
+    yellowdragging = false;
+    discodragging = false;
+    greendragging = false;
+    pinkdragging = false;
 
-    // Reset pigs
-    for (int i = 0; i < pigCount; i++)
-    {
-        pigVisible[i] = true;
-        pigFalling[i] = false;
-        pigX[i] = 1070 + i * 250;
-        pigY[i] = 420;
-        pigVX[i] = pigVY[i] = 0;
+    // Level-specific resets
+    if (screen == 1) { // Easy Level
+        // Reset pigs
+        for (int i = 0; i < pigCount; i++) {
+            pigVisible[i] = true;
+            pigFalling[i] = false;
+            pigX[i] = 1070 + i * 250;
+            pigY[i] = 420;
+            pigVX[i] = pigVY[i] = 0;
+        }
+        
+        // Reset pillars
+        resetBeams();
+        for (int i = 0; i < pillarCount; i++) {
+            pillarRotation[i] = 0;
+            pillarAngVelocity[i] = 0;
+            pillarRotating[i] = false;
+        }
     }
-
-    // Reset pillars & beams
-    resetBeams();
-    for (int i = 0; i < pillarCount; i++)
-    {
-        pillarRotation[i] = pillarAngVelocity[i] = 0;
-        pillarRotating[i] = false;
+    else if (screen == 3) { // Medium Level
+        // Reset map1 to initial state
+        int initialMap1[ROWS][COLLUMS] = {
+            // Your original map1 initialization data here
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0},
+            {0, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 0},
+            {1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1},
+            {1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 1, 0, 0, 1},
+            {1, 0, 2, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 2, 1},
+            {1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1},
+            {1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 1},
+            {1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1},
+            {1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 1},
+            {1, 1, 1, 1, 1, 0, 0, 2, 0, 0, 1, 0, 0, 2, 0, 1, 1, 1, 1, 1},
+            {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+        };
+        memcpy(map1, initialMap1, sizeof(map1));
+    }
+    else if (screen == 4) { // Hard Level
+        // Reset map3 to initial state
+        int initialMap3[20][20] = {
+            {0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 5, 0, 0, 0},
+            {0, 5, 0, 0, 7, 0, 0, 5, 0, 0, 7, 0, 0, 5, 0, 0, 7, 0, 0, 0},
+            {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 5, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0},
+            {0, 0, 0, 4, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0},
+            {0, 0, 4, 0, 4, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 4, 0, 4, 0, 0},
+            {0, 4, 0, 0, 0, 4, 0, 0, 0, 1, 0, 0, 0, 0, 4, 0, 0, 0, 4, 0},
+            {4, 0, 0, 0, 0, 0, 4, 0, 0, 1, 0, 0, 0, 4, 0, 0, 0, 0, 0, 4},
+            {3, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {2, 6, 0, 0, 0, 0, 2, 0, 0, 1, 0, 0, 0, 2, 6, 0, 0, 0, 0, 2},
+            {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
+        };
+        memcpy(map3, initialMap3, sizeof(map3));
     }
 }
 
 
 
+
+
+   
 void drawRubberLines(int x, int y)
 {
     iSetColor(0, 0, 0);
@@ -673,7 +890,7 @@ void updatePigMotion(int i)
 {
     if (pigFalling[i])
     {
-        pigVY[i] += g * 0.9f;
+        pigVY[i] += g * 0.3f;
         pigX[i] += pigVX[i];
         pigY[i] += pigVY[i];
 
@@ -684,7 +901,7 @@ void updatePigMotion(int i)
             if (collX && collY)
             {
                 pigVX[i] = -pigVX[i] * 0.4f;
-                pigVY[i] = -pigVY[i] ;
+                pigVY[i] = -pigVY[i] * 0.4f;
             }
         }
 
@@ -693,12 +910,20 @@ void updatePigMotion(int i)
             pigY[i] = groundY;
             pigVX[i] = pigVY[i] = 0;
             pigFalling[i] = false;
-            pigVisible[i] = false;
+           // pigVisible[i] = false;
+            if (pigVisible[i]) {
+                score += 500; // 500 points for pig destruction
+                pigVisible[i] = false;
+            }
         }
 
         if (pigX[i] < 0 || pigX[i] > 1920 || pigY[i] > 1080)
         {
-            pigVisible[i] = false;
+           // pigVisible[i] = false;
+           if (pigVisible[i]) {
+                score += 500; // 500 points for pig destruction
+                pigVisible[i] = false;
+            }
             pigFalling[i] = false;
         }
     }
@@ -734,9 +959,9 @@ void drawBirds_medium()
 void drawBirds_hard()
 {
 
-    for (int i = 0; i < 3; i++)
+        for (int i = 0; i < 3; i++)
         if (bluevisible_arr[i])
-            iShowLoadedImage2(bluebirdX[i], bluebirdY[i] - 115, &blueImg, 50, 50);
+            iShowLoadedImage2(bluebirdX[i], bluebirdY[i]-115, &blueImg, 50, 50);
 
     if (redvisible)
         iShowLoadedImage2(redSpriteX, redSpriteY - 115, &redImg, 50, 50);
@@ -781,7 +1006,8 @@ void updatePhysics()
             beamVelocitiesY[i] += g * 0.5f;
             beamPositionsX[i] += beamVelocitiesX[i];
             beamPositionsY[i] += beamVelocitiesY[i];
-
+            // float beamVelocitiesY[i];
+            // beamVelocitiesY[i] +=g*0.5;
             beamVelocitiesX[i] *= friction;
             if (beamPositionsY[i] <= groundY)
             {
@@ -843,6 +1069,8 @@ void updateSingleBird(int &x, int &y, float &vx, float &vy, bool &flying, bool &
             visible = false;
             return;
         }
+      
+        
 
         // Collision with pillars
         for (int i = 0; i < pillarCount; i++)
@@ -852,7 +1080,7 @@ void updateSingleBird(int &x, int &y, float &vx, float &vy, bool &flying, bool &
             // vertical
             if (checkCollision(x, y, birdwidth, birdheight, baseX, pillarY[i], pillarwidth, pillarheight))
             {
-
+                
                 vx = -vx * 0.5;
                 vy *= 0.8;
                 pillarHit[i] = true;
@@ -861,6 +1089,7 @@ void updateSingleBird(int &x, int &y, float &vx, float &vy, bool &flying, bool &
                 pillarAngVelocity[i] = -10.0f;
                 iPlaySound("assets/sounds/wood_damage_a1.wav");
             }
+           
 
             // horizontal
             if (checkCollision(x, y, birdwidth, birdheight,
@@ -874,7 +1103,7 @@ void updateSingleBird(int &x, int &y, float &vx, float &vy, bool &flying, bool &
             }
         }
 
-        // Pig collision
+        
         for (int i = 0; i < pigCount; i++)
         {
             if (pigVisible[i] &&
@@ -923,6 +1152,8 @@ void updateSingleBird_medium(int &x, int &y, float &vx, float &vy, bool &flying,
         vy += g * 0.8;
         x += vx;
         y += vy;
+
+
 
         if (y <= groundY)
         {
@@ -987,67 +1218,106 @@ bool Correct_username()
     }
     return false;
 }
-
-void addScore(const std::string &name, int score)
-{
-    // Debug: Show what's being added
-    char debugMsg[100];
-    sprintf(debugMsg, "Adding: %s - %d", name.c_str(), score);
-    iText(100, 120, debugMsg, GLUT_BITMAP_HELVETICA_12); // Temporary display
+void addScore(const std::string& name, int score) {
+    if (score <= 0 || name.empty() || name.find_first_not_of(' ') == std::string::npos)
+        return; // Skip garbage or placeholder entries
 
     PlayerScore newScore;
     newScore.name = name;
     newScore.score = score;
 
-    // Determine level based on current screen
-    if (screen == 1)
-    {
-        newScore.level = "Easy";
-    }
-    else if (screen == 3)
-    {
-        newScore.level = "Medium";
-    }
-    else if (screen == 4)
-    {
-        newScore.level = "Hard";
-    }
-    else
-    {
-        newScore.level = "Unknown"; // Fallback for unexpected cases
-    }
+    if (screen == 1)      newScore.level = "Easy";
+    else if (screen == 3) newScore.level = "Medium";
+    else if (screen == 4) newScore.level = "Hard";
+    else                  newScore.level = "Unknown";
 
     leaderboard.push_back(newScore);
 
-    // Sort by score descending
-    std::sort(leaderboard.begin(), leaderboard.end(), [](const PlayerScore &a, const PlayerScore &b)
-              { return a.score > b.score; });
+    std::sort(leaderboard.begin(), leaderboard.end(), [](const PlayerScore& a, const PlayerScore& b) {
+        return a.score > b.score;
+    });
 
-    // Keep only top 10 scores
     if (leaderboard.size() > 10)
-    {
         leaderboard.resize(10);
-    }
 
-    // Debug: Show what was saved
-    char saveMsg[100];
-    sprintf(saveMsg, "Saved: %s - %d (%s)", newScore.name.c_str(), newScore.score, newScore.level.c_str());
-    iText(100, 140, saveMsg, GLUT_BITMAP_HELVETICA_12); // Temporary
-
-    // Immediately save to file
     saveLeaderboard("leaderboard.txt");
 }
 
-void loadLeaderboard(const std::string &filename)
-{
+// void addScore(const std::string& name, int score) {
+//     // Debug: Show what's being added
+//     char debugMsg[100];
+//     sprintf(debugMsg, "Adding: %s - %d", name.c_str(), score);
+//     iText(100, 120, debugMsg, GLUT_BITMAP_HELVETICA_12); // Temporary display
+
+//     PlayerScore newScore;
+//     newScore.name = name;
+//     newScore.score = score;
+    
+//     // Determine level based on current screen
+//     if (screen == 1) {
+//         newScore.level = "Easy";
+//     } 
+//     else if (screen == 3) {
+//         newScore.level = "Medium";
+//     } 
+//     else if (screen == 4) {
+//         newScore.level = "Hard";
+//     }
+//     else {
+//         newScore.level = "Unknown"; // Fallback for unexpected cases
+//     }
+    
+//     leaderboard.push_back(newScore);
+    
+//     // Sort by score descending
+//     std::sort(leaderboard.begin(), leaderboard.end(), [](const PlayerScore& a, const PlayerScore& b) {
+//         return a.score > b.score;
+//     });
+    
+//     // Keep only top 10 scores
+//     if (leaderboard.size() > 10) {
+//         leaderboard.resize(10);
+//     }
+    
+//     // Debug: Show what was saved
+//     char saveMsg[100];
+//     sprintf(saveMsg, "Saved: %s - %d (%s)", newScore.name.c_str(), newScore.score, newScore.level.c_str());
+//     iText(100, 140, saveMsg, GLUT_BITMAP_HELVETICA_12); // Temporary
+    
+//     // Immediately save to file
+//     saveLeaderboard("leaderboard.txt");
+// }
+
+
+// void loadLeaderboard(const std::string& filename) {
+//     leaderboard.clear();
+//     std::ifstream file(filename);
+//     if (file.is_open()) {
+//         std::string name, level;
+//         int score;
+//         while (file >> name >> score >> level) {
+//             PlayerScore ps;
+//             ps.name = name;
+//             ps.score = score;
+//             ps.level = level;
+//             leaderboard.push_back(ps);
+//         }
+//         file.close();
+//     }
+    
+//     std::sort(leaderboard.begin(), leaderboard.end(), [](const PlayerScore& a, const PlayerScore& b) {
+//         return a.score > b.score;
+//     });
+// }
+
+
+void loadLeaderboard(const std::string& filename) {
     leaderboard.clear();
     std::ifstream file(filename);
-    if (file.is_open())
-    {
+    if (file.is_open()) {
         std::string name, level;
         int score;
-        while (file >> name >> score >> level)
-        {
+        while (file >> name >> score >> level) {
             PlayerScore ps;
             ps.name = name;
             ps.score = score;
@@ -1055,35 +1325,48 @@ void loadLeaderboard(const std::string &filename)
             leaderboard.push_back(ps);
         }
         file.close();
-    }
-
-    std::sort(leaderboard.begin(), leaderboard.end(), [](const PlayerScore &a, const PlayerScore &b)
-              { return a.score > b.score; });
-}
-
-void saveLeaderboard(const std::string &filename)
-{
-    FILE *file = fopen(filename.c_str(), "w");
-    if (file)
-    {
-        for (const auto &ps : leaderboard)
-        {
-            fprintf(file, "%s %d\n", ps.name.c_str(), ps.score);
-
-            // Debug: Show what's being saved
-            char saveMsg[100];
-            sprintf(saveMsg, "Saved: %s - %d", ps.name.c_str(), ps.score);
-            iText(100, 140, saveMsg, GLUT_BITMAP_HELVETICA_12); // Temporary
+        
+        // Sort by score descending
+        std::sort(leaderboard.begin(), leaderboard.end(), [](const PlayerScore& a, const PlayerScore& b) {
+            return a.score > b.score;
+        });
+        
+        // Keep only top 10 scores
+        if (leaderboard.size() > 10) {
+            leaderboard.resize(10);
         }
-        fclose(file);
     }
-    else
-    {
+}
+// void saveLeaderboard(const std::string& filename) {
+//     FILE* file = fopen(filename.c_str(), "w");
+//     if (file) {
+//         for (const auto& ps : leaderboard) {
+//             fprintf(file, "%s %d\n", ps.name.c_str(), ps.score);
+            
+//             // Debug: Show what's being saved
+//             char saveMsg[100];
+//             sprintf(saveMsg, "Saved: %s - %d", ps.name.c_str(), ps.score);
+//             iText(100, 140, saveMsg, GLUT_BITMAP_HELVETICA_12); // Temporary
+//         }
+//         fclose(file);
+//     } else {
+//         iText(100, 160, "ERROR: Can't open leaderboard file!", GLUT_BITMAP_HELVETICA_12);
+//     }
+// }
+void saveLeaderboard(const std::string& filename) {
+    std::ofstream file(filename);
+    if (file.is_open()) {
+        for (const auto& ps : leaderboard) {
+            file << ps.name << " " << ps.score << " " << ps.level << "\n";
+        }
+        file.close();
+    } else {
+        // Error handling
         iText(100, 160, "ERROR: Can't open leaderboard file!", GLUT_BITMAP_HELVETICA_12);
     }
 }
 
-int getPlayerRank(const std::string &playerName, int playerScore)
+int getPlayerRank(const std::string& playerName, int playerScore)
 {
     for (int i = 0; i < leaderboard.size(); i++)
     {
@@ -1102,13 +1385,13 @@ void drawScoreDisplay()
     iFilledRectangle(20, 1000, 200, 60);
     iSetColor(255, 255, 255);
     iRectangle(20, 1000, 200, 60);
-
+    
     // Draw score text
     iSetColor(255, 215, 0); // Gold color
     char scoreText[50];
     sprintf(scoreText, "SCORE: %d", score);
     iText(30, 1030, scoreText, GLUT_BITMAP_HELVETICA_18);
-
+    
     // Draw player name
     iSetColor(255, 255, 255);
     char playerText[100];
@@ -1126,11 +1409,12 @@ void resetBeams()
         beamVelocitiesY[i] = 0;
     }
 }
+
 void draweasy()
 {
 
     iShowLoadedImage2(0, 0, &bg);
-    iShowLoadedImage2(70, 960, &pause, 70, 70);
+    iShowLoadedImage2(1850, 960, &pause, 70, 70);
     iShowLoadedImage2(208, 177, &gultiback);
     iShowSprite(&redSprite);
     iShowSprite(&verticalSprite);
@@ -1144,7 +1428,8 @@ void draweasy()
 
     drawBirds_easy();
 
-    if (discodragging)
+   
+     if (discodragging)
         drawPathway(bluebirdX[0], bluebirdY[0], blue_vx[0], blue_vy[0]);
     if (reddragging)
         drawPathway(redSpriteX, redSpriteY, red_vx, red_vy);
@@ -1172,20 +1457,20 @@ void draweasy()
             iShowLoadedImage(pigX[i], pigY[i], &pigimage);
     }
 
-    // Draw score panel
+     // Draw new score display
+    drawScoreDisplay();
 
-    iShowLoadedImage2(25, 888 + 50, &scorebutton, 140, 130);
-
-    char str[20];
-    sprintf(str, "SCORE: %d", score);
-    iSetColor(0, 0, 0);
-    iText(55 - 2, 950 + 50, str);
+    
 }
 
 void drawmedium()
-{
+{// showWin = false;
+// showGameOver = false;
+
     iShowLoadedImage(0, 0, &bg1);
     iShowLoadedImage2(265, 140, &gultiback, 200, 200);
+    iShowLoadedImage2(1850, 960, &pause, 70, 70);
+    
     // iShowSprite(&redSprite);
     if (bluedragging)
         drawRubberLines_medium(bluebirdX[0], bluebirdY[0]);
@@ -1202,17 +1487,18 @@ void drawmedium()
     if (yellowdragging)
         drawPathway(yellowbirdX, yellowbirdY, yellow_vx, yellow_vy);
     iShowLoadedImage2(265, 140, &gultifront, 200, 200);
-    iShowLoadedImage2(25, 888 + 50, &scorebutton, 140, 130);
-    char str[20];
-    sprintf(str, "SCORE: %d", score);
-    iSetColor(0, 0, 0);
-    iText(55 - 2, 950 + 50, str);
+  
+     // Draw new score display
+    drawScoreDisplay();
 }
 
-void drawhard()
-{
+void drawhard(){
+// {showWin = false;
+// showGameOver = false;
+
     iShowLoadedImage2(0, 0, &bgHard, 1920, 1080);
     iShowLoadedImage2(208, 177 - 115, &gultiback, 200, 200);
+    iShowLoadedImage2(1850, 960, &pause, 70, 70);
 
     if (bluedragging)
         drawRubberLines_hard(bluebirdX[0], bluebirdY[0] - 115);
@@ -1234,16 +1520,15 @@ void drawhard()
 
     iShowLoadedImage2(208, 177 - 115, &gultifront, 200, 200);
 
-    iShowLoadedImage2(25, 888 + 50, &scorebutton, 140, 130);
-    char str[20];
-    sprintf(str, "SCORE: %d", score);
-    iSetColor(0, 0, 0);
-    iText(55 - 2, 950 + 50, str);
+    
+    drawScoreDisplay();
 }
+
 void iDraw()
 {
 
     iClear();
+  
     if (!soundOn)
     {
         iStopAllSounds();
@@ -1316,39 +1601,39 @@ void iDraw()
         iText(755, 470, "(iii)ABOUT:", GLUT_BITMAP_HELVETICA_18);
         iShowLoadedImage2(1115, 460, &about, 50, 50);
     }
-    else if (screen == 7)
+    else if (screen == 7) // instructions
     {
-           iShowLoadedImage2(0, 0, &menuBg);
+        iShowLoadedImage2(0, 0, &menuBg);
         iSetTransparentColor(0, 0, 0, 0.5);
         iFilledRectangle(0, 0, 1920, 1080);
         iShowLoadedImage2(56, 56, &previous, 50, 50);
         iShowLoadedImage2(677 - 152, 360 - 73, &whiteCanvas);
-
+        
         iTextBold(600, 711, "Press 'm' for going to Main-menu", GLUT_BITMAP_TIMES_ROMAN_24);
         iTextBold(600, 675, "Press 'q' to close the Application", GLUT_BITMAP_TIMES_ROMAN_24);
         iTextBold(600, 639, "Press 'r' to reset the Game state", GLUT_BITMAP_TIMES_ROMAN_24);
         iShowLoadedImage2(600, 550, &bluePair, 80, 80);
-        iSetColor(0, 0, 255);
+        iSetColor(0,0,255);
         iTextBold(700, 605, "(Jay,Jake & Jim) ->Availabe in medium and hard level", GLUT_BITMAP_TIMES_ROMAN_24);
         iTextBold(700, 575, "Initially, Jay will be with us but after right-clicking,", GLUT_BITMAP_TIMES_ROMAN_24);
         iTextBold(700, 545, "Jake & Jim will also join us", GLUT_BITMAP_TIMES_ROMAN_24);
         iShowLoadedImage2(600, 475, &redImg, 60, 60);
-        iSetColor(255, 0, 0);
+        iSetColor(255, 0 ,0);
         iTextBold(700, 498, "(Red) ->The main protagonist", GLUT_BITMAP_TIMES_ROMAN_24);
         iShowLoadedImage2(600, 405, &rosco, 60, 60);
-        iSetColor(153, 51, 102);
+        iSetColor(153,51,102);
         iTextBold(700, 430, "(Rosco) ->The KHILADI 786 ", GLUT_BITMAP_TIMES_ROMAN_24);
         iShowLoadedImage2(600, 335, &stella, 60, 60);
-        iSetColor(255, 153, 204);
+        iSetColor(255,153,204);
         iTextBold(700, 362, "(Stella) ->The Pookie ", GLUT_BITMAP_TIMES_ROMAN_24);
         iShowLoadedImage2(1015, 476, &hall, 60, 60);
-        iSetColor(0, 255, 0);
+        iSetColor(0,255,0);
         iTextBold(1083, 500, "(Hal) ->Boomerang Guy ", GLUT_BITMAP_TIMES_ROMAN_24);
         iShowLoadedImage2(1015, 408, &yellowImg, 60, 60);
-        iSetColor(255, 255, 0);
+        iSetColor(255,255,0);
         iTextBold(1083, 430, "(Chuck) ->Speedy Guy ", GLUT_BITMAP_TIMES_ROMAN_24);
         iShowLoadedImage2(1015, 340, &blackImg, 60, 60);
-        iSetColor(0, 0, 0);
+        iSetColor(0,0,0);
         iTextBold(1083, 360, "(Bomb) ->The Exploder ", GLUT_BITMAP_TIMES_ROMAN_24);
     }
     else if (screen == 8)
@@ -1374,33 +1659,28 @@ void iDraw()
         iShowLoadedImage2(0, 0, &menuBg);
         iSetTransparentColor(0, 0, 0, 0.4);
         iFilledRectangle(0, 0, 1920, 1080);
-
-        iText(700, 520, "Enter your name:", GLUT_BITMAP_HELVETICA_18);
-        iText(701, 520, "Enter your name:", GLUT_BITMAP_HELVETICA_18);
-        iText(700, 521, "Enter your name:", GLUT_BITMAP_HELVETICA_18);
-        iSetColor(0, 0, 0); // border color (black)
-        for (int i = 0; i < 4; i++)
-        {
-            iRectangle(700 - i, 460 - i, 350 + 2 * i, 45 + 2 * i);
+       
+       iText(700, 520, "Enter your name:", GLUT_BITMAP_HELVETICA_18);
+iText(701, 520, "Enter your name:", GLUT_BITMAP_HELVETICA_18);
+iText(700, 521, "Enter your name:", GLUT_BITMAP_HELVETICA_18);
+       iSetColor(0, 0, 0);  // border color (black)
+for (int i = 0; i < 4; i++) {
+    iRectangle(700 - i, 460 - i, 350 + 2*i, 45 + 2*i);
+}
+         for (int dx = 0; dx <= 1; dx++) {
+        for (int dy = 0; dy <= 1; dy++) {
+            iText(710 + dx, 470 + dy, userName, GLUT_BITMAP_TIMES_ROMAN_24);
         }
-        for (int dx = 0; dx <= 1; dx++)
-        {
-            for (int dy = 0; dy <= 1; dy++)
-            {
-                iText(710 + dx, 470 + dy, userName, GLUT_BITMAP_TIMES_ROMAN_24);
-            }
-        }
-        for (int dx = 0; dx <= 1; dx++)
-        {
-            for (int dy = 0; dy <= 1; dy++)
-            {
-                iText(700 + dx, 420 + dy, "Press ENTER to continue", GLUT_BITMAP_TIMES_ROMAN_24);
-            }
-        }
+    }
+        for (int dx = 0; dx <= 1; dx++) {
+    for (int dy = 0; dy <= 1; dy++) {
+        iText(700 + dx, 420 + dy, "Press ENTER to continue", GLUT_BITMAP_TIMES_ROMAN_24);
+    }
+}
         if (nameWarning)
         {
             iSetColor(255, 0, 0);
-            iText(700, 465, "Please, Enter your name", GLUT_BITMAP_TIMES_ROMAN_24);
+            iText(700, 465, "Please, Enter your name",GLUT_BITMAP_TIMES_ROMAN_24 );
         }
 
         else if (screen == 12)
@@ -1415,185 +1695,201 @@ void iDraw()
     {
         drawpause();
     }
-    else if (screen == SCREEN_LEADERBOARD)
-    {
-        iShowLoadedImage(0, 0, &menuBg);
-        iSetTransparentColor(0, 0, 0, 0.6);
-        iFilledRectangle(0, 0, 1920, 1080);
+//    else if (screen == SCREEN_LEADERBOARD)
+// {
+//     iShowLoadedImage(0, 0, &menuBg);
+//     iSetTransparentColor(0, 0, 0, 0.6);
+//     iFilledRectangle(0, 0, 1920, 1080);
 
-        // Main leaderboard background
-        iShowLoadedImage2(560, 200, &whiteCanvas, 800, 600);
+//    // Main leaderboard background
+//     iShowLoadedImage2(560, 200, &whiteCanvas, 800, 600);
+    
+//     // Title
+//     iSetColor(255, 215, 0); // Gold color for title
+//     iText(850, 720, "LEADERBOARD", GLUT_BITMAP_TIMES_ROMAN_24);
+    
+//     // Header line
+//     iSetColor(0, 0, 0);
+//     iText(650, 650, "RANK", GLUT_BITMAP_HELVETICA_18);
+//     iText(750, 650, "PLAYER", GLUT_BITMAP_HELVETICA_18);
+//     iText(950, 650, "LEVEL", GLUT_BITMAP_HELVETICA_18);  // New column
+//     iText(1100, 650, "SCORE", GLUT_BITMAP_HELVETICA_18); // Moved score to the right
+    
+//     // Draw a line under header
+//     iSetColor(100, 100, 100);
+//     iLine(600, 630, 1200, 630);
 
-        // Title
-        iSetColor(255, 215, 0); // Gold color for title
-        iText(850, 720, "LEADERBOARD", GLUT_BITMAP_TIMES_ROMAN_24);
+//     // Display leaderboard entries
+//     int y = 600;
+//     for (int i = 0; i < leaderboard.size() && i < 10; i++) {
+//         // Alternate row colors
+//         if (i % 2 == 0) {
+//             iSetColor(240, 240, 240);
+//             iFilledRectangle(600, y - 15, 600, 30);
+//         }
+        
+//         // Set color based on rank
+//         if (i == 0) iSetColor(255, 215, 0);      // Gold
+//         else if (i == 1) iSetColor(192, 192, 192); // Silver  
+//         else if (i == 2) iSetColor(205, 127, 50);  // Bronze
+//         else iSetColor(0, 0, 0);                   // Black
+        
+//         char rankStr[10], scoreStr[20];
+//         sprintf(rankStr, "%d", i + 1);
+//         sprintf(scoreStr, "%d", leaderboard[i].score);
+        
+//         iText(670, y, rankStr, GLUT_BITMAP_HELVETICA_18);
+//         iText(750, y, leaderboard[i].name.c_str(), GLUT_BITMAP_HELVETICA_18);
+//         iText(950, y, leaderboard[i].level.c_str(), GLUT_BITMAP_HELVETICA_18); // New level display
+//         iText(1100, y, scoreStr, GLUT_BITMAP_HELVETICA_18);
+//         y -= 40;
+    
+//     }
+    
+//     // If no scores yet
+//     if (leaderboard.size() == 0) {
+//         iSetColor(100, 100, 100);
+//         iText(850, 500, "No scores yet! Play to set a record!", GLUT_BITMAP_HELVETICA_18);
+//     }
+    
+   
 
-        // Header line
-        iSetColor(0, 0, 0);
-        iText(650, 650, "RANK", GLUT_BITMAP_HELVETICA_18);
-        iText(750, 650, "PLAYER", GLUT_BITMAP_HELVETICA_18);
-        iText(950, 650, "LEVEL", GLUT_BITMAP_HELVETICA_18);  // New column
-        iText(1100, 650, "SCORE", GLUT_BITMAP_HELVETICA_18); // Moved score to the right
+//}
+else if (screen == SCREEN_LEADERBOARD) {
+    iShowLoadedImage(0, 0, &menuBg);
+    iSetTransparentColor(0, 0, 0, 0.6);
+    iFilledRectangle(0, 0, 1920, 1080);
 
-        // Draw a line under header
+    // Main leaderboard background
+    iShowLoadedImage2(560, 200, &whiteCanvas, 800, 600);
+    
+    // Title
+    iSetColor(255, 215, 0); // Gold color for title
+    iText(850, 720, "LEADERBOARD", GLUT_BITMAP_TIMES_ROMAN_24);
+    
+    // Header line
+    iSetColor(0, 0, 0);
+    iText(650, 650, "RANK", GLUT_BITMAP_HELVETICA_18);
+    iText(750, 650, "PLAYER", GLUT_BITMAP_HELVETICA_18);
+    iText(950, 650, "LEVEL", GLUT_BITMAP_HELVETICA_18);
+    iText(1100, 650, "SCORE", GLUT_BITMAP_HELVETICA_18);
+    
+    // Draw a line under header
+    iSetColor(100, 100, 100);
+    iLine(600, 630, 1200, 630);
+
+    // Display leaderboard entries
+    int y = 600;
+    for (int i = 0; i < leaderboard.size() && i < 10; i++) {
+        // Alternate row colors
+        if (i % 2 == 0) {
+            iSetColor(240, 240, 240);
+            iFilledRectangle(600, y - 15, 600, 30);
+        }
+        
+        // Set color based on rank
+        if (i == 0) iSetColor(255, 215, 0);      // Gold
+        else if (i == 1) iSetColor(192, 192, 192); // Silver  
+        else if (i == 2) iSetColor(205, 127, 50);  // Bronze
+        else iSetColor(0, 0, 0);                   // Black
+        
+        char rankStr[10], scoreStr[20];
+        sprintf(rankStr, "%d", i + 1);
+        sprintf(scoreStr, "%d", leaderboard[i].score);
+        
+        iText(670, y, rankStr, GLUT_BITMAP_HELVETICA_18);
+        iText(750, y, leaderboard[i].name.c_str(), GLUT_BITMAP_HELVETICA_18);
+        iText(950, y, leaderboard[i].level.c_str(), GLUT_BITMAP_HELVETICA_18);
+        iText(1100, y, scoreStr, GLUT_BITMAP_HELVETICA_18);
+        y -= 40;
+    }
+    
+    // If no scores yet
+    if (leaderboard.size() == 0) {
         iSetColor(100, 100, 100);
-        iLine(600, 630, 1200, 630);
-
-        // Display leaderboard entries
-        int y = 600;
-        for (int i = 0; i < leaderboard.size() && i < 10; i++)
-        {
-            // Alternate row colors
-            if (i % 2 == 0)
-            {
-                iSetColor(240, 240, 240);
-                iFilledRectangle(600, y - 15, 600, 30);
-            }
-
-            // Set color based on rank
-            if (i == 0)
-                iSetColor(255, 215, 0); // Gold
-            else if (i == 1)
-                iSetColor(192, 192, 192); // Silver
-            else if (i == 2)
-                iSetColor(205, 127, 50); // Bronze
-            else
-                iSetColor(0, 0, 0); // Black
-
-            char rankStr[10], scoreStr[20];
-            sprintf(rankStr, "%d", i + 1);
-            sprintf(scoreStr, "%d", leaderboard[i].score);
-
-            iText(670, y, rankStr, GLUT_BITMAP_HELVETICA_18);
-            iText(750, y, leaderboard[i].name.c_str(), GLUT_BITMAP_HELVETICA_18);
-            iText(950, y, leaderboard[i].level.c_str(), GLUT_BITMAP_HELVETICA_18); // New level display
-            iText(1100, y, scoreStr, GLUT_BITMAP_HELVETICA_18);
-            y -= 40;
-        }
-
-        // If no scores yet
-        if (leaderboard.size() == 0)
-        {
-            iSetColor(100, 100, 100);
-            iText(850, 500, "No scores yet! Play to set a record!", GLUT_BITMAP_HELVETICA_18);
-        }
-
-        // Back button
-        iShowLoadedImage2(56, 56, &previous, 50, 50);
+        iText(850, 500, "No scores yet! Play to set a record!", GLUT_BITMAP_HELVETICA_18);
     }
-    if ((screen == 1 || screen == 3 || screen == 4) && showWin)
-    {
-        iSetTransparentColor(0, 0, 0, 0.5);
-        iFilledRectangle(0, 0, 1920, 1080);
-        iShowLoadedImage2(530, 320, &win, 950, 650);
-        char levelText[20];
-        if (screen == 1)
-            strcpy(levelText, "Easy Level");
-        else if (screen == 3)
-            strcpy(levelText, "Medium Level");
-        else
-            strcpy(levelText, "Hard Level");
-        iSetColor(255, 255, 255); // White color for text
-        iText(900, 580, levelText, GLUT_BITMAP_TIMES_ROMAN_24);
-
-        iShowLoadedImage2(683, 491, &restart, 70, 70);
-        iShowLoadedImage2(945, 491, &nextlevel, 70, 70);
-        iShowLoadedImage2(1180, 491, &mainmenu, 70, 70);
-        // Adjust position/size as needed
-        iSetColor(0, 0, 0); // Gold color
+    
+    // Back button
+    iShowLoadedImage2(56, 56, &previous, 50, 50);
+}
+    if ((screen == 1 || screen == 3 || screen == 4) && showWin) {
+       iSetTransparentColor(0,0,0,0.5);
+        iFilledRectangle(0,0,1920,1080); 
+    iShowLoadedImage2(530, 320, &win, 950, 650);
+     char levelText[20];
+    if (screen == 1) strcpy(levelText, "Easy Level");
+    else if (screen == 3) strcpy(levelText, "Medium Level");
+    else strcpy(levelText, "Hard Level");
+    iSetColor(255, 255, 255); // White color for text
+    iText(900, 580, levelText, GLUT_BITMAP_TIMES_ROMAN_24);
+     
+    
+    iShowLoadedImage2(683, 491, &restart, 70, 70);
+    iShowLoadedImage2(945, 491, &nextlevel, 70, 70);
+    iShowLoadedImage2(1180, 491, &mainmenu, 70, 70);
+    // Adjust position/size as needed
+    iSetColor(0, 0, 0); // Gold color
         char scoreText[50];
         sprintf(scoreText, "Your Score: %d", score);
         iText(900, 650, scoreText, GLUT_BITMAP_TIMES_ROMAN_24);
         // Show leaderboard position
-        int rank = getPlayerRank(std::string(userName), score);
-        if (rank != -1)
-        {
-            char rankText[100];
-            if (rank <= 10)
-            {
-                sprintf(rankText, "Leaderboard Position: #%d", rank);
-                iSetColor(255, 215, 0); // Gold color
-            }
-            else
-            {
-                sprintf(rankText, "Not in Top 10");
-                iSetColor(100, 100, 100); // Gray color
-            }
-            iText(850, 600, rankText, GLUT_BITMAP_HELVETICA_18);
+    int rank = getPlayerRank(std::string(userName), score);
+    if (rank != -1) {
+        char rankText[100];
+        if (rank <= 10) {
+            sprintf(rankText, "Leaderboard Position: #%d", rank);
+            iSetColor(255, 215, 0); // Gold color
+        } else {
+            sprintf(rankText, "Not in Top 10");
+            iSetColor(100, 100, 100); // Gray color
         }
-        // Add "Continue" button
-        // iSetColor(100, 200, 100);
-        // iFilledRectangle(800, 400, 200, 50);
-        // iSetColor(255, 255, 255);
-        // iText(850, 425, "CONTINUE", GLUT_BITMAP_HELVETICA_18);
+        iText(850, 600, rankText, GLUT_BITMAP_HELVETICA_18);
     }
-    if ((screen == 1 || screen == 3 || screen == 4) && showGameOver)
-    {
-        iShowLoadedImage2(530, 320, &gameover, 950, 650);
-        iShowLoadedImage2(683, 491, &restart, 70, 70);
-        iShowLoadedImage2(945, 491, &nextlevel, 70, 70);
-        iShowLoadedImage2(1180, 491, &mainmenu, 70, 70);
-        char levelText[20];
-        if (screen == 1)
-            strcpy(levelText, "Easy Level");
-        else if (screen == 3)
-            strcpy(levelText, "Medium Level");
-        else
-            strcpy(levelText, "Hard Level");
-        iSetColor(255, 255, 255); // White color for text
-        iText(900, 580, levelText, GLUT_BITMAP_TIMES_ROMAN_24);
-        // iSetColor(255, 0, 0); // Red color
-        //     char scoreText[50];
-        //     sprintf(scoreText, "Your Score: %d", score);
-        //     iText(900, 500, scoreText, GLUT_BITMAP_TIMES_ROMAN_24);
-        iSetColor(0, 0, 0);
-        char scoreText[50];
-        sprintf(scoreText, "Your Score: %d", score);
-        iText(900, 650, scoreText, GLUT_BITMAP_TIMES_ROMAN_24);
-        // Add "Try Again" button
-        // iSetColor(200, 100, 100);
-        // iFilledRectangle(800, 400, 200, 50);
-        // iSetColor(255, 255, 255);
-        // iText(850, 425, "TRY AGAIN", GLUT_BITMAP_HELVETICA_18);
-
-        // Add "Menu" button
-        // iSetColor(100, 100, 200);
-        // iFilledRectangle(800, 330, 200, 50);
-        // iSetColor(255, 255, 255);
-        // iText(850, 355, "MAIN MENU", GLUT_BITMAP_HELVETICA_18);
-        // Show leaderboard position
-        int rank = getPlayerRank(std::string(userName), score);
-        if (rank != -1)
-        {
-            char rankText[100];
-            if (rank <= 10)
-            {
-                sprintf(rankText, "Leaderboard Position: #%d", rank);
-                iSetColor(255, 215, 0); // Gold color
-            }
-            else
-            {
-                sprintf(rankText, "Not in Top 10");
-                iSetColor(100, 100, 100); // Gray color
-            }
-            iText(850, 600, rankText, GLUT_BITMAP_HELVETICA_18);
+       
+}
+if ((screen == 1 || screen == 3 || screen == 4) && showGameOver) {
+    iShowLoadedImage2(530, 320, &gameover, 950, 650);
+    iShowLoadedImage2(683, 491, &restart, 70, 70);
+    iShowLoadedImage2(945, 491, &nextlevel, 70, 70);
+    iShowLoadedImage2(1180, 491, &mainmenu, 70, 70);
+ char levelText[20];
+    if (screen == 1) strcpy(levelText, "Easy Level");
+    else if (screen == 3) strcpy(levelText, "Medium Level");
+    else strcpy(levelText, "Hard Level");
+    iSetColor(255, 255, 255); // White color for text
+    iText(900, 580, levelText, GLUT_BITMAP_TIMES_ROMAN_24);
+   
+         iSetColor(0, 0, 0);
+    char scoreText[50];
+    sprintf(scoreText, "Your Score: %d", score);
+    iText(900, 650, scoreText, GLUT_BITMAP_TIMES_ROMAN_24);
+       
+         // Show leaderboard position
+    int rank = getPlayerRank(std::string(userName), score);
+    if (rank != -1) {
+        char rankText[100];
+        if (rank <= 10) {
+            sprintf(rankText, "Leaderboard Position: #%d", rank);
+            iSetColor(255, 215, 0); // Gold color
+        } else {
+            sprintf(rankText, "Not in Top 10");
+            iSetColor(100, 100, 100); // Gray color
         }
+        iText(850, 600, rankText, GLUT_BITMAP_HELVETICA_18);
     }
-
-    if ((screen == 1 || screen == 3 || screen == 4) && (showWin || showGameOver))
-    {
+    }
+    
+     if ((screen == 1 || screen == 3 || screen == 4) && (showWin || showGameOver)) {
         // Semi-transparent overlay
         iSetTransparentColor(0, 0, 0, 0.7);
         iFilledRectangle(0, 0, 1920, 1080);
-
-        if (showWin)
-        {
+        
+        if (showWin) {
             iShowLoadedImage2(530, 320, &win, 950, 650);
             iSetColor(255, 215, 0); // Gold
             iText(900, 650, "VICTORY!", GLUT_BITMAP_TIMES_ROMAN_24);
-        }
-        else
-        {
+        } else {
             iShowLoadedImage2(530, 320, &gameover, 950, 650);
             iSetColor(255, 0, 0); // Red
             iText(900, 650, "GAME OVER", GLUT_BITMAP_TIMES_ROMAN_24);
@@ -1607,232 +1903,262 @@ void iDraw()
 
         // Level info
         char levelText[50];
-        if (screen == 1)
-            strcpy(levelText, "Easy Level");
-        else if (screen == 3)
-            strcpy(levelText, "Medium Level");
-        else
-            strcpy(levelText, "Hard Level");
+        if (screen == 1) strcpy(levelText, "Easy Level");
+        else if (screen == 3) strcpy(levelText, "Medium Level");
+        else strcpy(levelText, "Hard Level");
         iText(900, 550, levelText, GLUT_BITMAP_TIMES_ROMAN_24);
 
         // Buttons (same for all levels)
-        iShowLoadedImage2(683, 491, &restart, 70, 70);   // Restart
-        iShowLoadedImage2(945, 491, &nextlevel, 70, 70); // Next level
-        iShowLoadedImage2(1180, 491, &mainmenu, 70, 70); // Main menu
+        iShowLoadedImage2(683, 491, &restart, 70, 70);    // Restart
+        iShowLoadedImage2(945, 491, &nextlevel, 70, 70);  // Next level
+        iShowLoadedImage2(1180, 491, &mainmenu, 70, 70);  // Main menu
 
         // Leaderboard position
         int rank = getPlayerRank(std::string(userName), score);
-        if (rank != -1)
-        {
+        if (rank != -1) {
             char rankText[100];
-            if (rank <= 10)
-            {
+            if (rank <= 10) {
                 sprintf(rankText, "Rank: #%d", rank);
                 iSetColor(255, 215, 0); // Gold
-            }
-            else
-            {
+            } else {
                 sprintf(rankText, "Rank: Top %d%%", (rank * 100) / leaderboard.size());
                 iSetColor(200, 200, 200); // Silver
             }
             iText(900, 500, rankText, GLUT_BITMAP_TIMES_ROMAN_24);
         }
     }
-
-    // Adjust position/size as needed
+ 
+ // Adjust position/size as needed
 
     iSetColor(0, 0, 0);
     iText(1700, 1035, cursorStr, GLUT_BITMAP_HELVETICA_18);
 }
 
-void updateBird()
-{
+
+void updateBird() {
+    // Update physics first
     updatePhysics();
 
-    // Update all birds
-      if (screen == 1)
-    {
+    // Update birds based on current level
+    if (screen == 1) { // Easy Level
+    // Update birds
+    updateSingleBird(bluebirdX[0], bluebirdY[0], blue_vx[0], blue_vy[0], discoflying, discovisible);
+    updateSingleBird(redSpriteX, redSpriteY, red_vx, red_vy, redflying, redvisible);
+    updateSingleBird(yellowbirdX, yellowbirdY, yellow_vx, yellow_vy, yellowflying, yellowvisible);
 
-        updateSingleBird(bluebirdX[0], bluebirdY[0], blue_vx[0], blue_vy[0], discoflying, discovisible);
-        updateSingleBird(redSpriteX, redSpriteY, red_vx, red_vy, redflying, redvisible);
-        updateSingleBird(yellowbirdX, yellowbirdY, yellow_vx, yellow_vy, yellowflying, yellowvisible);
+    // Easy level win/loss conditions
+    bool allPigsGone = true;
+    bool birdsFinished = true;
+
+    // Check if all pigs are gone
+    for (int i = 0; i < pigCount; i++) {
+        if (pigVisible[i]) {
+            allPigsGone = false;
+            break;
+        }
     }
-    else if (screen == 3)
-    {
-        for (int i = 0; i < 3; i++)
-        {
-            if (blueflying[i] && bluevisible_arr[i])
-            {
+
+    // Check if all birds are used up
+    if ((discovisible || discoflying) || 
+        (redvisible || redflying) || 
+        (yellowvisible || yellowflying)) {
+        birdsFinished = false;
+    }
+
+    // Handle win condition
+    if (allPigsGone && !showWin && !showGameOver) {
+        showWin = true;
+        showGameOver = false;
+        score += 1000; // Level completion bonus
+        if (!scoreSaved) {
+            addScore(std::string(userName), score);
+            saveLeaderboard("leaderboard.txt");
+            scoreSaved = true;
+        }
+    }
+    // Handle loss condition
+    else if (birdsFinished && !allPigsGone && !showGameOver && !showWin) {
+        showGameOver = true;
+        showWin = false;
+        if (!scoreSaved) {
+            addScore(std::string(userName), score);
+            saveLeaderboard("leaderboard.txt");
+            scoreSaved = true;
+        }
+    }
+}
+    else if (screen == 3) { // Medium Level
+        for (int i = 0; i < 3; i++) {
+            if (blueflying[i] && bluevisible_arr[i]) {
                 updateSingleBird_medium(bluebirdX[i], bluebirdY[i], blue_vx[i], blue_vy[i], blueflying[i], bluevisible_arr[i]);
             }
         }
-
         updateSingleBird_medium(redSpriteX, redSpriteY, red_vx, red_vy, greenflying, greenvisible);
         updateSingleBird_medium(yellowbirdX, yellowbirdY, yellow_vx, yellow_vy, yellowflying, blackvisible);
-    }
-    else if (screen == 4)
-    {
-        for (int i = 0; i < 3; i++)
-        {
-            if (blueflying[i] && bluevisible_arr[i])
-            {
-                updateSingleBird_hard(bluebirdX[i], bluebirdY[i], blue_vx[i], blue_vy[i], blueflying[i], bluevisible_arr[i]);
+
+        // Medium level specific win/loss conditions
+        bool allPigsGone = true;
+        bool birdsFinished = true;
+
+        // Check if all pigs are destroyed in the map
+        for (int r = 0; r < ROWS; r++) {
+            for (int c = 0; c < COLLUMS; c++) {
+                if (map1[r][c] == 2) { // 2 represents pigs in the map
+                    allPigsGone = false;
+                    break;
+                }
             }
+            if (!allPigsGone) break;
         }
 
-        updateSingleBird_hard(redSpriteX, redSpriteY, red_vx, red_vy, redflying, redvisible);
-        updateSingleBird_hard(yellowbirdX, yellowbirdY, yellow_vx, yellow_vy, pinkflying, pinkvisible);
-    }
- 
-
-    // Check win/game over conditions for all levels
-    bool allPigsGone = true;
-    bool allBlocksGone = true;
-    bool birdsFinished = true;
-
-    // Check conditions based on current level
-    if (screen == 1)
-    { // Easy Level
-        // Check if all pigs are gone
-        for (int i = 0; i < pigCount; i++)
-        {
-            if (pigVisible[i])
-            {
-                allPigsGone = false;
+        // Check if all birds are used up
+        for (int i = 0; i < 3; i++) {
+            if (bluevisible_arr[i] || blueflying[i]) {
+                birdsFinished = false;
                 break;
             }
         }
-        allBlocksGone = true; // Easy level doesn't have blocks to track
-    }
-    else if (screen == 3)
-    { // Medium Level
-        allPigsGone = true;
-        allBlocksGone = true;
+        if (greenvisible || greenflying) birdsFinished = false;
+        if (blackvisible || yellowflying) birdsFinished = false;
 
-        // Check map1 for pigs (2) and blocks (1 or 3)
-        for (int r = 0; r < ROWS; r++)
-        {
-            for (int c = 0; c < COLLUMS; c++)
-            {
-                if (map1[r][c] == 2)
-                    allPigsGone = false;
-                if (map1[r][c] == 1 || map1[r][c] == 3)
-                    allBlocksGone = false;
-            }
-        }
-    }
-    else if (screen == 4)
-    { // Hard Level
-        allPigsGone = true;
-        allBlocksGone = true;
-
-        // Check map3 for pigs (5 or 6) and blocks (1-4, 7)
-        for (int r = 0; r < 20; r++)
-        {
-            for (int c = 0; c < 20; c++)
-            {
-                if (map3[r][c] == 5 || map3[r][c] == 6)
-                    allPigsGone = false;
-                if (map3[r][c] >= 1 && map3[r][c] <= 4 || map3[r][c] == 7)
-                    allBlocksGone = false;
-            }
-        }
-    }
-
-    // // Check if all birds are used
-    // for (int i = 0; i < 3; i++)
-    // {
-    //     if (bluevisible_arr[i] || blueflying[i])
-    //         birdsFinished = false;
-    // }
-    // if (redvisible || redflying)
-    //     birdsFinished = false;
-    // if (yellowvisible || yellowflying)
-    //     birdsFinished = false;
-if (screen ==1)
-{
-    if (discovisible || discoflying)
-       birdsFinished = false;
-   if (redvisible || redflying)
-        birdsFinished = false;
-    if (yellowvisible || yellowflying)
-       birdsFinished = false;
-}
-else if (screen ==3)
-{
-   for (int i = 0; i < 3; i++)
-    {
-        if (bluevisible_arr[i] || blueflying[i])
-            birdsFinished = false;
-    }
-   if (greenvisible || greenflying)
-        birdsFinished = false;
-    if (blackvisible || yellowflying)
-       birdsFinished = false;
-}
-else if (screen ==4)
-{
-   for (int i = 0; i < 3; i++)
-    {
-        if (bluevisible_arr[i] || blueflying[i])
-            birdsFinished = false;
-    }
-   if (redvisible|| redflying)
-        birdsFinished = false;
-    if (pinkvisible || pinkflying)
-       birdsFinished = false;
-}
-
-
-    // Win condition (all pigs and blocks gone)
-    if ((screen == 1 || screen == 3 || screen == 4) && allPigsGone && allBlocksGone && !showWin)
-    {
-        showWin = true;
-        showGameOver = false;
-        // Add level completion bonus
-        if (screen == 1)
-            score += 1000; // Easy
-        else if (screen == 3)
-            score += 1500; // Medium
-        else if (screen == 4)
-            score += 2000; // Hard
-        addScore(std::string(userName), score);
-        saveLeaderboard("leaderboard.txt");
-    }
-    
-    if ((screen == 1 || screen == 3 || screen == 4))
-    {
-        if (allPigsGone && allBlocksGone && !showWin)
-        {
+        // Handle win/lose conditions
+        if (allPigsGone && !showWin && !showGameOver) {
             showWin = true;
             showGameOver = false;
-            if (!scoreSaved)
-            {
+            if (!scoreSaved) {
                 addScore(std::string(userName), score);
                 saveLeaderboard("leaderboard.txt");
                 scoreSaved = true;
             }
         }
-        else if (birdsFinished && (!allPigsGone || !allBlocksGone) && !showGameOver && !showWin)
-        {
+        else if (birdsFinished && !allPigsGone && !showGameOver && !showWin) {
             showGameOver = true;
             showWin = false;
-            if (!scoreSaved)
-            {
+            if (!scoreSaved) {
                 addScore(std::string(userName), score);
                 saveLeaderboard("leaderboard.txt");
                 scoreSaved = true;
             }
         }
     }
+    else if (screen == 4) { // Hard Level
+        for (int i = 0; i < 3; i++) {
+            if (blueflying[i] && bluevisible_arr[i]) {
+                updateSingleBird_hard(bluebirdX[i], bluebirdY[i], blue_vx[i], blue_vy[i], blueflying[i], bluevisible_arr[i]);
+            }
+        }
+        updateSingleBird_hard(redSpriteX, redSpriteY, red_vx, red_vy, redflying, redvisible);
+        updateSingleBird_hard(yellowbirdX, yellowbirdY, yellow_vx, yellow_vy, pinkflying, pinkvisible);
+
+        // Hard level scoring and win/loss conditions
+        bool allPigsGone = true;
+        bool birdsFinished = true;
+
+        // Check map for collisions and update score
+        int blockSize = 30;
+        int startX = 1100;
+        int startY = 620;
+
+        for (int r = 0; r < 20; r++) {
+            for (int c = 0; c < 20; c++) {
+                int x = startX + c * blockSize;
+                int y = startY - r * blockSize;
+
+                // Check if any bird hit this cell
+                bool hitByBird = false;
+                for (int i = 0; i < 3; i++) {
+                    if (blueflying[i] && checkCollision(bluebirdX[i], bluebirdY[i], birdwidth, birdheight, x, y, blockSize, blockSize)) {
+                        hitByBird = true;
+                        break;
+                    }
+                }
+                if (!hitByBird && redflying && checkCollision(redSpriteX, redSpriteY, birdwidth, birdheight, x, y, blockSize, blockSize)) {
+                    hitByBird = true;
+                }
+                if (!hitByBird && pinkflying && checkCollision(yellowbirdX, yellowbirdY, birdwidth, birdheight, x, y, blockSize, blockSize)) {
+                    hitByBird = true;
+                }
+
+                if (hitByBird) {
+                    // Add score based on what was destroyed
+                    if (map3[r][c] == 5) { // Regular pig
+                        score += 500;
+                        map3[r][c] = 0; // Remove pig
+                    }
+                    else if (map3[r][c] == 6) { // Monster pig
+                        score += 700;
+                        map3[r][c] = 0; // Remove monster pig
+                    }
+                    else if (map3[r][c] >= 1 && map3[r][c] <= 4 || map3[r][c] == 7) { // All block types
+                        score += 100;
+                        map3[r][c] = 0; // Remove block
+                    }
+                }
+
+                // Check if pigs remain for win condition
+                if (map3[r][c] == 5 || map3[r][c] == 6) {
+                    allPigsGone = false;
+                }
+            }
+        }
+
+        // Check if all birds are used up
+        for (int i = 0; i < 3; i++) {
+            if (bluevisible_arr[i] || blueflying[i]) {
+                birdsFinished = false;
+                break;
+            }
+        }
+        if (redvisible || redflying) birdsFinished = false;
+        if (pinkvisible || pinkflying) birdsFinished = false;
+
+        // Handle win/lose conditions
+        if (allPigsGone && !showWin && !showGameOver) {
+            showWin = true;
+            showGameOver = false;
+            score += 2000; // Level completion bonus
+            if (!scoreSaved) {
+                addScore(std::string(userName), score);
+                saveLeaderboard("leaderboard.txt");
+                scoreSaved = true;
+            }
+        }
+        else if (birdsFinished && !allPigsGone && !showGameOver && !showWin) {
+            showGameOver = true;
+            showWin = false;
+            if (!scoreSaved) {
+                addScore(std::string(userName), score);
+                saveLeaderboard("leaderboard.txt");
+                scoreSaved = true;
+            }
+        }
+    }
+
+    // Update pig motion for all levels
+    for (int i = 0; i < pigCount; i++) {
+        updatePigMotion(i);
+    }
+
 }
 
+
+
 void iMouseMove(int mx, int my)
-{
+{     if (screen == 0) { // Menu screen
+        hoverPlay   = (mx >= 110 && mx <= 240 && my >= 237 && my <= 237 + 120);
+        hoverExit   = (mx >= 110 && mx <= 240 && my >= 177 && my <= 177 + 120);
+        hoverCredit = (mx >= 110 && mx <= 240 && my >= 110 && my <= 110 + 120);
+    }
+    if (screen == 2) { // Level select screen
+    hoverEasy   = (mx >= 85 && mx <= 225 && my >= 210 && my <= 340);
+    hoverMedium = (mx >= 85 && mx <= 225 && my >= 155 && my <= 285);
+    hoverHard   = (mx >= 85 && mx <= 225 && my >= 95  && my <= 225);
+}
+
     cursorX = mx;
     cursorY = my;
     sprintf(cursorStr, "Cursor: (%d, %d)", cursorX, cursorY);
-    if (screen == 1)
+    if (screen == 1 )
     {
         if (discodragging)
         {
@@ -1871,7 +2197,7 @@ void iMouseMove(int mx, int my)
             yellow_vy = v * sin(angle) * 0.5;
         }
     }
-    else if (screen == 3)
+    else if ( screen == 3)
     {
         if (bluedragging)
         {
@@ -1910,7 +2236,7 @@ void iMouseMove(int mx, int my)
             yellow_vy = v * sin(angle) * 0.5;
         }
     }
-    if ( screen == 4)
+       if (screen == 1 || screen == 3 || screen == 4)
     {
         if (bluedragging)
         {
@@ -1951,43 +2277,101 @@ void iMouseMove(int mx, int my)
     }
 }
 
-void resetMediumLevel()
-{
+
+void resetEasyLevel() {
+    score = 0;
     scoreSaved = false;
+    showWin = false;
+    showGameOver = false;
+    
+    selectedBird = -1;
+
+    // Reset all blue birds
+    
+        bluebirdX[0] = 20;
+        bluebirdY[0] = 194;
+        blue_vx[0] = blue_vy[0] = 0;
+        discovisible = true;
+    discoflying = false;
+    discodragging = false;
+        
+     
+
+    // Reset red bird
+    redSpriteX = 100;
+    redSpriteY = 194;
+    red_vx = red_vy = 0;
+    redflying = false;
+    redvisible = true;
+
+    // Reset yellow bird
+    yellowbirdX = 180;
+    yellowbirdY = 200;
+    yellow_vx = yellow_vy = 0;
+    yellowflying = false;
+    yellowvisible = true;
+
+    // Reset special birds (Rosco, Stella, Hal)
+    
+
+    // Reset dragging states
+    discodragging = reddragging = yellowdragging = false;
+
+    // Reset pigs
+    for (int i = 0; i < pigCount; i++) {
+        pigVisible[i] = true;
+        pigFalling[i] = false;
+        pigX[i] = 1070 + i * 250;
+        pigY[i] = 420;
+        pigVX[i] = pigVY[i] = 0;
+    }
+
+    // Reset pillars and beams
+    resetBeams();
+    for (int i = 0; i < pillarCount; i++) {
+        pillarRotation[i] = pillarAngVelocity[i] = 0;
+        pillarRotating[i] = false;
+    }
+}
+
+void resetMediumLevel() {
     score = 0;
     scoreSaved = false;
     showWin = false;
     showGameOver = false;
     blueSplit = false;
-    selectedBird = -1; // Reset flag when starting level
-    // Reset birds
-    bluebirdX[0] = 20;
-    bluebirdY[0] = 194;
-    redSpriteX = 100;
-    redSpriteY = 194;
-    yellowbirdX = 180;
-    yellowbirdY = 200;
-
-    for (int i = 0; i < 3; i++)
-    {
-        blue_vx[i] = blue_vy[i] = 0;
-        blueflying[i] = false;
-        bluevisible_arr[i] = (i == 0); // Only first blue bird visible
-    }
-
-    red_vx = red_vy = 0;
-    yellow_vx = yellow_vy = 0;
-    greenflying = yellowflying = false;
-    bluedragging =greendragging = yellowdragging = false;
-    
-    
-
-    // Reset score and selection
-    score = 0;
     selectedBird = -1;
 
+    // Reset all blue birds
+    for (int i = 0; i < 3; i++) {
+        bluebirdX[i] = 20;
+        bluebirdY[i] = 194;
+        blue_vx[i] = blue_vy[i] = 0;
+        blueflying[i] = false;
+        bluevisible_arr[i] = (i == 0); // Only first bird visible
+    }
+
+    // Reset green bird (Hal)
+    redSpriteX = 100;
+    redSpriteY = 194;
+    red_vx = red_vy = 0;
+    greenflying = false;
+    greenvisible = true;
+    greendragging = false;
+
+    // Reset black bird (Bomb)
+    yellowbirdX = 180;
+    yellowbirdY = 200;
+    yellow_vx = yellow_vy = 0;
+    yellowflying = false;
+    blackvisible = true;
+    yellowdragging = false;
+
+    // Reset dragging states
+    bluedragging = false;
+
     // Reset medium level map
-    int tempMap[ROWS][COLLUMS] = {
+    int initialMap1[ROWS][COLLUMS] = {
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
         {0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
         {0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0},
@@ -2000,82 +2384,50 @@ void resetMediumLevel()
         {1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1},
         {1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 1},
         {1, 1, 1, 1, 1, 0, 0, 2, 0, 0, 1, 0, 0, 2, 0, 1, 1, 1, 1, 1},
-        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};
-    memcpy(map1, tempMap, sizeof(map1));
-
-    // Reset game state flags
-    showWin = false;
-    showGameOver = false;
-    blueSplit = false;
-    for (int i = 0; i < 3; i++)
-    {
-        bluebirdX[i] = 20;
-        bluebirdY[i] = 194;
-        blue_vx[i] = blue_vy[i] = 0;
-        blueflying[i] = false;
-        bluevisible_arr[i] = (i == 0);
-    }
-
-    redSpriteX = 100;
-    redSpriteY = 194;
-    red_vx = red_vy = 0;
-    greenflying = false;
-    greenvisible = true;
-
-    yellowbirdX = 180;
-    yellowbirdY = 200;
-    yellow_vx = yellow_vy = 0;
-    yellowflying = false;
-    yellowvisible = true;
-    blackvisible = true;
-
-    bluedragging = greendragging = yellowdragging = false;
-    selectedBird = -1;
+        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+    };
+    memcpy(map1, initialMap1, sizeof(map1));
 }
 
-void resetHardLevel()
-{
-    scoreSaved = false; // Reset flag when starting level
+void resetHardLevel() {
     score = 0;
     scoreSaved = false;
     showWin = false;
     showGameOver = false;
     blueSplit = false;
     selectedBird = -1;
-    // Reset birds
-    bluebirdX[0] = 20;
-    bluebirdY[0] = 194;
-    redSpriteX = 100;
-    redSpriteY = 194;
-    yellowbirdX = 180;
-    yellowbirdY = 200;
-    if (!scoreSaved && (showWin || showGameOver))
-    {
-        addScore(std::string(userName), score);
-        saveLeaderboard("leaderboard.txt");
-        scoreSaved = true;
-    }
 
-    // Now reset game state
-    score = 0;
-
-    for (int i = 0; i < 3; i++)
-    {
+    // Reset all blue birds
+    for (int i = 0; i < 3; i++) {
+        bluebirdX[i] = 20;
+        bluebirdY[i] = 194;
         blue_vx[i] = blue_vy[i] = 0;
         blueflying[i] = false;
-        bluevisible_arr[i] = (i == 0); // Only first blue bird visible
+        bluevisible_arr[i] = (i == 0); // Only first bird visible
     }
 
+    // Reset red bird
+    redSpriteX = 100;
+    redSpriteY = 194;
     red_vx = red_vy = 0;
+    redflying = false;
+    redvisible = true;
+    reddragging = false;
+
+    // Reset pink bird (Stella)
+    yellowbirdX = 180;
+    yellowbirdY = 200;
     yellow_vx = yellow_vy = 0;
-    redflying = pinkflying = false;
-    bluedragging = reddragging = pinkdragging = false;
+    pinkflying = false;
+    pinkvisible = true;
+    pinkdragging = false;
 
-    // Reset score
-    score = 0;
-    selectedBird = -1;
+    // Reset dragging states
+    bluedragging = false;
 
-    // Reset hard level map to initial state
+    // Reset hard level map
     int initialMap3[20][20] = {
         {0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 5, 0, 0, 0},
         {0, 5, 0, 0, 7, 0, 0, 5, 0, 0, 7, 0, 0, 5, 0, 0, 7, 0, 0, 0},
@@ -2096,35 +2448,9 @@ void resetHardLevel()
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
         {2, 6, 0, 0, 0, 0, 2, 0, 0, 1, 0, 0, 0, 2, 6, 0, 0, 0, 0, 2},
-        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};
+        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
+    };
     memcpy(map3, initialMap3, sizeof(map3));
-
-    // Reset game state flags
-    showWin = false;
-    showGameOver = false;
-    blueSplit = false;
-    for (int i = 0; i < 3; i++)
-    {
-        bluebirdX[i] = 20;
-        bluebirdY[i] = 194;
-        blue_vx[i] = blue_vy[i] = 0;
-        blueflying[i] = false;
-        bluevisible_arr[i] = (i == 0);
-    }
-
-    redSpriteX = 100;
-    redSpriteY = 194;
-    red_vx = red_vy = 0;
-    redflying = false;
-    redvisible = true;
-
-    yellowbirdX = 180;
-    yellowbirdY = 200;
-    yellow_vx = yellow_vy = 0;
-    pinkflying = false;
-    pinkvisible = true;
-
-    selectedBird = -1;
 }
 void iMouse(int button, int state, int mx, int my)
 {
@@ -2140,12 +2466,10 @@ void iMouse(int button, int state, int mx, int my)
             userName[0] = '\0';
             userNameLen = 0;
             // Reset any level that might have been paused
-            if (currentScreen == 1)
-                resetEasyLevel();
-            else if (currentScreen == 3)
-                resetMediumLevel();
-            else if (currentScreen == 4)
-                resetHardLevel();
+    if (currentScreen == 1) resetEasyLevel();
+    else if (currentScreen == 3) resetMediumLevel();
+    else if (currentScreen == 4) resetHardLevel();
+
         }
         else if (mx >= 1830 && mx <= 1830 + 70 && my >= 130 && my <= 130 + 70) // leaderboard image
         {
@@ -2183,42 +2507,35 @@ void iMouse(int button, int state, int mx, int my)
         }
     }
 
-    else if (screen == 2 && button == GLUT_LEFT_BUTTON && state == GLUT_UP)
-    {
-
-        if (mx >= 97 && mx <= 211 && my >= 258 && my <= 294) // easy level
-        {
-            showWin = false;
-            showGameOver = false;
-            difficultylevel = 1;
-            screen = 1;
-
-            resetEasyLevel(); // Explicitly reset the level
-            resetBeams();
-            iStopAllSounds();
-            iPlaySound("assets/sounds/angry_birds_intro_music.wav", true);
-        }
-
-        else if (mx >= 97 && mx <= 211 && my >= 206 && my <= 241) // medium level
-        {
-            showWin = false;
-            showGameOver = false;
-            difficultylevel = 2;
-            screen = 3;
-            iStopAllSounds();
-            iPlaySound("assets/sounds/angry_birds_intro_music.wav", true);
-        }
-
-        else if (mx >= 97 && mx <= 211 && my >= 144 && my <= 178) // hard button button
-        {
-            showWin = false;
-            showGameOver = false;
-            difficultylevel = 3;
-            screen = 4;
-            iStopAllSounds();
-            iPlaySound("assets/sounds/angry_birds_intro_music.wav", true);
-        }
+    else if (screen == 2 && button == GLUT_LEFT_BUTTON && state == GLUT_UP) {
+    if (mx >= 97 && mx <= 211 && my >= 258 && my <= 294) { // easy level
+        showWin = false;
+        showGameOver = false;
+        difficultylevel = 1;
+        screen = 1;
+        resetLevel(); // Reset the level state
+        iStopAllSounds();
+        iPlaySound("assets/sounds/angry_birds_intro_music.wav", true);
     }
+    else if (mx >= 97 && mx <= 211 && my >= 206 && my <= 241) { // medium level
+        showWin = false;
+        showGameOver = false;
+        difficultylevel = 2;
+        screen = 3;
+        resetLevel(); // Reset the level state
+        iStopAllSounds();
+        iPlaySound("assets/sounds/angry_birds_intro_music.wav", true);
+    }
+    else if (mx >= 97 && mx <= 211 && my >= 144 && my <= 178) { // hard level
+        showWin = false;
+        showGameOver = false;
+        difficultylevel = 3;
+        screen = 4;
+        resetLevel(); // Reset the level state
+        iStopAllSounds();
+        iPlaySound("assets/sounds/angry_birds_intro_music.wav", true);
+    }
+}
 
     else if (( screen == 3 || screen == 4) && button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN)
     {
@@ -2244,12 +2561,17 @@ void iMouse(int button, int state, int mx, int my)
         }
     }
 
+   
+   
+    
+
     else if ((screen == 1) && button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
     {
         if (selectedBird == -1 && mx >= bluebirdX[0] && mx <= bluebirdX[0] + 70 && my >= bluebirdY[0] && my <= bluebirdY[0] + 70)
         {
             discodragging = true;
-            selectedBird = 0; //rosco
+            selectedBird = 0; // rosco
+      
             iPlaySound("assets/sounds/bird_01_select.wav", false);
         }
         else if (selectedBird == -1 && mx >= redSpriteX && mx <= redSpriteX + 70 && my >= redSpriteY && my <= redSpriteY + 70)
@@ -2266,39 +2588,33 @@ void iMouse(int button, int state, int mx, int my)
             iPlaySound("assets/sounds/bird_03_select.wav", false);
         }
         else if (mx >= 1850 && mx <= 1850 + 70 && my >= 960 && my <= 960 + 70)
-        {
-            currentScreen = screen;
+        {   currentScreen=screen;
             screen = 11;
         }
     }
-    else if ((screen == 3) && button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
+        else if ((screen == 3) && button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
     {
-        if (selectedBird == -1 && mx >= bluebirdX[0] && mx <= bluebirdX[0] + 50 && my >= bluebirdY[0] - 115 && my <= bluebirdY[0] - 115 + 50)
+        if (selectedBird == -1 && mx >= bluebirdX[0] && mx <= bluebirdX[0] + 50 && my >= bluebirdY[0] && my <= bluebirdY[0]  + 50)
         {
             bluedragging = true;
             selectedBird = 0;
             iPlaySound("assets/sounds/bird_01_select.wav", false);
         }
-        else if (selectedBird == -1 && mx >= redSpriteX && mx <= redSpriteX + 50 && my >= redSpriteY - 115 && my <= redSpriteY - 115 + 50)
+        else if (selectedBird == -1 && mx >= redSpriteX && mx <= redSpriteX + 50 && my >= redSpriteY&& my <= redSpriteY + 50)
         {
             greendragging = true;
             selectedBird = 1;
             iPlaySound("assets/sounds/bird_02_select.wav", false);
         }
-        else if (selectedBird == -1 && mx >= yellowbirdX && mx <= yellowbirdX + 50 && my >= yellowbirdY - 115 && my <= yellowbirdY - 115 + 50)
+        else if (selectedBird == -1 && mx >= yellowbirdX && mx <= yellowbirdX + 50 && my >= yellowbirdY && my <= yellowbirdY + 50)
 
         {
             yellowdragging = true;
             selectedBird = 2;
             iPlaySound("assets/sounds/bird_03_select.wav", false);
         }
-        else if (mx >= 1850 && mx <= 1850 + 70 && my >= 960 && my <= 960 + 70)
-        {
-            currentScreen = screen;
-            screen = 11;
-        }
     }
-      else if ((screen == 4) && button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
+    else if ((screen == 4) && button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
     {
         if (selectedBird == -1 && mx >= bluebirdX[0] && mx <= bluebirdX[0] + 50 && my >= bluebirdY[0] - 115 && my <= bluebirdY[0] - 115 + 50)
         {
@@ -2308,7 +2624,7 @@ void iMouse(int button, int state, int mx, int my)
         }
         else if (selectedBird == -1 && mx >= redSpriteX && mx <= redSpriteX + 50 && my >= redSpriteY - 115 && my <= redSpriteY - 115 + 50)
         {
-           reddragging = true;
+            reddragging = true;
             selectedBird = 1;
             iPlaySound("assets/sounds/bird_02_select.wav", false);
         }
@@ -2319,10 +2635,9 @@ void iMouse(int button, int state, int mx, int my)
             selectedBird = 2;
             iPlaySound("assets/sounds/bird_03_select.wav", false);
         }
-        else if (mx >= 1850 && mx <= 1850 + 70 && my >= 960 && my <= 960 + 70)
-        {
-            currentScreen = screen;
-            screen = 11; ////////////////////////////////////////////////////////////////
+         else if (mx >= 1850 && mx <= 1850 + 70 && my >= 960 && my <= 960 + 70)
+        {   currentScreen=screen;
+            screen = 11;
         }
     }
 
@@ -2365,8 +2680,8 @@ void iMouse(int button, int state, int mx, int my)
         }
           else if (pinkdragging)
         {
-           pinkdragging = false;
-           pinkflying = true;
+            pinkdragging = false;
+            pinkflying = true;
             iPlaySound("assets/sounds/bird_03_flying.wav", false);
             selectedBird = -1;
         }
@@ -2395,7 +2710,7 @@ void iMouse(int button, int state, int mx, int my)
             iStopAllSounds();
             iPlaySound("assets/sounds/menu_sound.wav", false);
             screen = 0;
-            // iStopAllSounds();
+            
             iPlaySound("assets/sounds/angry_birds_2.wav", true, 20);
         }
         else if (mx >= 1111 && mx <= 1283 && my >= 718 && my <= 767) // sound button
@@ -2412,7 +2727,7 @@ void iMouse(int button, int state, int mx, int my)
         }
         else if (mx >= 1118 && mx <= 1160 && my >= 593 && my <= 635) // instruction button
         {
-            iStopAllSounds();
+            
             iPlaySound("assets/sounds/menu_sound.wav", false);
             screen = 7;
             showWin = false;
@@ -2420,7 +2735,7 @@ void iMouse(int button, int state, int mx, int my)
         }
         else if (mx >= 1118 && mx <= 1160 && my >= 465 && my <= 500) // instruction button
         {
-            iStopAllSounds();
+            
             iPlaySound("assets/sounds/menu_sound.wav", false);
             screen = 8;
             showWin = false;
@@ -2431,7 +2746,7 @@ void iMouse(int button, int state, int mx, int my)
     {
         if (mx >= 58 && mx <= 101 && my >= 65 && my <= 103) // about & instruction- previous
         {
-            iStopAllSounds();
+            
             iPlaySound("assets/sounds/menu_sound.wav", false);
             screen = 6;
             showWin = false;
@@ -2439,7 +2754,7 @@ void iMouse(int button, int state, int mx, int my)
         }
         else if (mx >= 1264 && mx <= 1307 && my >= 367 && my <= 408) // for going about_2
         {
-            iStopAllSounds();
+            
             iPlaySound("assets/sounds/menu_sound.wav", false);
             screen = 9;
             showWin = false;
@@ -2450,7 +2765,7 @@ void iMouse(int button, int state, int mx, int my)
     {
         if (mx >= 585 && mx <= 626 && my >= 374 && my <= 413) // about_2 previous
         {
-            iStopAllSounds();
+            
             iPlaySound("assets/sounds/menu_sound.wav", false);
             screen = 8;
             showWin = false;
@@ -2458,177 +2773,174 @@ void iMouse(int button, int state, int mx, int my)
         }
         else if (mx >= 1353 && mx <= 1387 && my >= 790 && my <= 830) // about_2 previous
         {
-            iStopAllSounds();
+            
             iPlaySound("assets/sounds/menu_sound.wav", false);
             screen = 6;
             showWin = false;
             showGameOver = false;
         }
     }
-    //
-    else if (screen == 11 && button == GLUT_LEFT_BUTTON && state == GLUT_UP)
-    {
-        // Play Button (Resume Game)
-        if (mx >= 699 && mx <= 699 + 70 && my >= 555 && my <= 555 + 70)
-        {
-            iPlaySound("assets/sounds/menu_sound.wav", false);
-            screen = currentScreen; // Go back to the game
-        }
-        // Restart Button (Reset Level)
-        if (mx >= 911 && mx <= 911 + 70 && my >= 555 && my <= 555 + 70)
-        {
-            iPlaySound("assets/sounds/menu_sound.wav", false);
-            if (currentScreen == 1)
-                resetEasyLevel();
-            else if (currentScreen == 3)
-                resetMediumLevel();
-            else if (currentScreen == 4)
-                resetHardLevel();
-            screen = currentScreen;
-            showWin = false;
-            showGameOver = false;
-        }
-        // Main Menu Button (Go to Menu)
-        else if (mx >= 1121 && mx <= 1121 + 70 && my >= 555 && my <= 555 + 70)
-        {
-            iPlaySound("assets/sounds/menu_sound.wav", false);
-            screen = 0; // Go to main menu
-            // Reset the level that was paused
-            if (currentScreen == 1)
-                resetEasyLevel();
-            else if (currentScreen == 3)
-                resetMediumLevel();
-            else if (currentScreen == 4)
-                resetHardLevel();
-            iStopAllSounds();
-            iPlaySound("assets/sounds/angry_birds_2.wav", true, 20); // Play menu music
-        }
+//    
+else if (screen == 11 && button == GLUT_LEFT_BUTTON && state == GLUT_UP) {
+    // Play Button (Resume Game)
+    if (mx >= 699 && mx <= 699 + 70 && my >= 555 && my <= 555 + 70) {
+        iPlaySound("assets/sounds/menu_sound.wav", false);
+        screen = currentScreen; // Go back to the game
     }
+    // Restart Button (Reset Level)
+   if (mx >= 911 && mx <= 911 + 70 && my >= 555 && my <= 555 + 70) {
+        iPlaySound("assets/sounds/menu_sound.wav", false);
+        if (currentScreen == 1) resetEasyLevel();
+        else if (currentScreen == 3) resetMediumLevel();
+        else if (currentScreen == 4) resetHardLevel();
+        screen = currentScreen;
+        showWin = false;
+        showGameOver = false;
+    }
+    // Main Menu Button (Go to Menu)
+    else if (mx >= 1121 && mx <= 1121 + 70 && my >= 555 && my <= 555 + 70) { // Main menu button
+    iPlaySound("assets/sounds/menu_sound.wav", false);
+    screen = 0; // Go to main menu
+    // Reset the level that was paused
+    if (currentScreen == 1) resetEasyLevel();
+    else if (currentScreen == 3) resetMediumLevel();
+    else if (currentScreen == 4) resetHardLevel();
+    iStopAllSounds();
+    iPlaySound("assets/sounds/angry_birds_2.wav", true, 20);
+}
+}
     // Add this to the iMouse function (around where other screen handlers are)
-    else if ((screen == 1 || screen == 3 || screen == 4) && (showWin || showGameOver) && button == GLUT_LEFT_BUTTON && state == GLUT_UP)
+else if ((screen == 1 || screen == 3 || screen == 4) && (showWin || showGameOver) && button == GLUT_LEFT_BUTTON && state == GLUT_UP)
+{
+    if (mx >= 683 && mx <= 683 + 70 && my >= 491 && my <= 491 + 70) // Restart button
     {
-        if (mx >= 683 && mx <= 683 + 70 && my >= 491 && my <= 491 + 70) // Restart button
+        iPlaySound("assets/sounds/menu_sound.wav", false);
+        
+        if (screen == 1) // Easy level
         {
-            iPlaySound("assets/sounds/menu_sound.wav", false);
-
-            if (screen == 1) // Easy level
-            {
-                resetEasyLevel();
-            }
-            else if (screen == 3) // Medium level
-            {
-                resetMediumLevel();
-            }
-            else if (screen == 4) // Hard level
-            {
-                resetHardLevel();
-            }
-
-            // Reset game state flags
-            showWin = false;
-            showGameOver = false;
-            blueSplit = false;
-            selectedBird = -1;
-
-            // Reset bird visibility
-            for (int i = 0; i < 3; i++)
-            {
-                bluevisible_arr[i] = (i == 0); // Only first blue bird visible initially
-                blueflying[i] = false;
-            }
-            redvisible = true;
-            redflying = false;
-            yellowvisible = true;
-            yellowflying = false;
-
-            if (musicOn)
-            {
-                iStopAllSounds();
-                iPlaySound("assets/sounds/angry_birds_intro_music.wav", true);
-            }
+            resetEasyLevel();
         }
-        else if (mx >= 945 && mx <= 945 + 70 && my >= 491 && my <= 491 + 70) // Next level button
+        else if (screen == 3) // Medium level
         {
-            // Your existing next level logic...
+            resetMediumLevel();
         }
-        else if (mx >= 1180 && mx <= 1180 + 70 && my >= 491 && my <= 491 + 70) // Main menu button
+        else if (screen == 4) // Hard level
         {
-            // Your existing main menu logic...
+            resetHardLevel();
+        }
+        
+        // Reset game state flags
+        showWin = false;
+        showGameOver = false;
+        blueSplit = false;
+        selectedBird = -1;
+        
+        
+        
+        if (musicOn)
+        {
+            iStopAllSounds();
+            iPlaySound("assets/sounds/angry_birds_intro_music.wav", true);
         }
     }
-    else if (screen == SCREEN_LEADERBOARD && button == GLUT_LEFT_BUTTON && state == GLUT_UP)
+    else if (mx >= 945 && mx <= 945 + 70 && my >= 491 && my <= 491 + 70) // Next level button
     {
-        if (mx >= 56 && mx <= 106 && my >= 56 && my <= 106) // back button
-        {
+        // Your existing next level logic...
+    }
+    else if (mx >= 1180 && mx <= 1180 + 70 && my >= 491 && my <= 491 + 70) // Main menu button
+    {
+        // Your existing main menu logic...
+    }
+}
+  else if (screen == SCREEN_LEADERBOARD && button == GLUT_LEFT_BUTTON && state == GLUT_UP)
+{
+    if (mx >= 56 && mx <= 106 && my >= 56 && my <= 106) // back button
+    {
+        
             iPlaySound("assets/sounds/menu_sound.wav", false);
             screen = 0; // back to menu
             showWin = false;
             showGameOver = false;
         }
-    }
-    // Win screen button handlers
-    // Win screen button handlers
-    else if (showWin && button == GLUT_LEFT_BUTTON && state == GLUT_UP)
+}
+    else if (showWin && mx >= 1180 && mx <= 1180 + 70 && my >= 491 && my <= 491 + 70 && button == GLUT_LEFT_BUTTON && state == GLUT_UP)
     {
+        screen = 0; // Go to Menu Page
+        showWin = false;
+        showGameOver = false;
+        iStopAllSounds();
+        iPlaySound("assets/sounds/angry_birds_2.wav", true, 20);
+    }
+    else if (showGameOver && mx >= 800 && mx <= 1000 && my >= 330 && my <= 380 && button == GLUT_LEFT_BUTTON && state == GLUT_UP)
+    {
+        screen = 0; // Go to Menu Page
+        showWin = false;
+        showGameOver = false;
+        iStopAllSounds();
+        iPlaySound("assets/sounds/angry_birds_2.wav", true, 20);
+    }
+    else if (!(screen == 0 || screen == 2 || screen == 5 || screen == 6 || screen == 7 || screen == 8 || screen == 9 || screen == 10 || screen == 11))
+    {
+        showWin = false;
+        showGameOver = false;
+    }
+
+   // Win screen button handlers
+    // Win screen button handlers
+    else if (showWin && button == GLUT_LEFT_BUTTON && state == GLUT_UP) {
         // Restart Button (Left)
-        if (mx >= 683 && mx <= 753 && my >= 491 && my <= 561)
-        {
+        if (mx >= 683 && mx <= 753 && my >= 491 && my <= 561) {
             iPlaySound("assets/sounds/menu_sound.wav", false);
             score = 0; // Reset score
-            if (screen == 1)
-                resetEasyLevel();
-            else if (screen == 3)
-                resetMediumLevel();
-            else if (screen == 4)
-                resetHardLevel();
+            if (screen == 1) resetEasyLevel();
+            else if (screen == 3) resetMediumLevel();
+            else if (screen == 4) resetHardLevel();
             showWin = false;
             iStopAllSounds();
             iPlaySound("assets/sounds/angry_birds_intro_music.wav", true);
         }
+  
+else if (mx >= 945 && mx <= 1015 && my >= 491 && my <= 561) { // Next level button
+    iPlaySound("assets/sounds/menu_sound.wav", false);
+    // Reset all game state flags
+    showWin = false;
+    showGameOver = false;
+    blueSplit = false;
+    selectedBird = -1;
+    score = 0;
+    scoreSaved = false;
     
-        else if (mx >= 945 && mx <= 1015 && my >= 491 && my <= 561)
-        { // Next level button
-            iPlaySound("assets/sounds/menu_sound.wav", false);
-            score = 0;
-            scoreSaved = false;
-
-            if (screen == 1)
-            { // From easy to medium
-                screen = 3;
-                resetMediumLevel();
-            }
-            else if (screen == 3)
-            { // From medium to hard
-                screen = 4;
-                resetHardLevel();
-            }
-            else if (screen == 4)
-            { // From hard back to easy
-                screen = 1;
-                resetEasyLevel();
-            }
-
-            // Force reset all birds
-            for (int i = 0; i < 3; i++)
-            {
-                bluevisible_arr[i] = (i == 0);
-                blueflying[i] = false;
-            }
-            redvisible = true;
-            redflying = false;
-            yellowvisible = true;
-            yellowflying = false;
-
-            showWin = false;
-            showGameOver = false;
-            selectedBird = -1;
-            iStopAllSounds();
-            iPlaySound("assets/sounds/angry_birds_intro_music.wav", true);
-        }
+    if (screen == 1) { // From easy to medium
+        screen = 3;
+        resetMediumLevel();
+    }
+    else if (screen == 3) { // From medium to hard
+        screen = 4;
+        resetHardLevel();
+    }
+    else if (screen == 4) { // From hard back to easy
+        screen = 1;
+        resetEasyLevel();
+    }
+    
+    
+    
+    // Reset all birds
+    for (int i = 0; i < 3; i++) {
+        bluevisible_arr[i] = (i == 0);
+        blueflying[i] = false;
+    }
+    redvisible = true;
+    redflying = false;
+    yellowvisible = true;
+    yellowflying = false;
+    
+    iStopAllSounds();
+    iPlaySound("assets/sounds/angry_birds_intro_music.wav", true);
+}
 
         // Main Menu Button (Right)
-        else if (mx >= 1180 && mx <= 1250 && my >= 491 && my <= 561)
-        {
+        else if (mx >= 1180 && mx <= 1250 && my >= 491 && my <= 561) {
             iPlaySound("assets/sounds/menu_sound.wav", false);
             screen = 0;
             score = 0; // Reset score
@@ -2638,50 +2950,40 @@ void iMouse(int button, int state, int mx, int my)
         }
     }
     // Game over screen button handlers
-    else if (showGameOver && button == GLUT_LEFT_BUTTON && state == GLUT_UP)
-    {
+    else if (showGameOver && button == GLUT_LEFT_BUTTON && state == GLUT_UP) {
         // Restart Button (Left)
-        if (mx >= 683 && mx <= 753 && my >= 491 && my <= 561)
-        {
+        if (mx >= 683 && mx <= 753 && my >= 491 && my <= 561) {
             iPlaySound("assets/sounds/menu_sound.wav", false);
             score = 0; // Reset score
-            if (screen == 1)
-                resetEasyLevel();
-            else if (screen == 3)
-                resetMediumLevel();
-            else if (screen == 4)
-                resetHardLevel();
+            if (screen == 1) resetEasyLevel();
+            else if (screen == 3) resetMediumLevel();
+            else if (screen == 4) resetHardLevel();
             showGameOver = false;
             iStopAllSounds();
             iPlaySound("assets/sounds/angry_birds_intro_music.wav", true);
         }
         // Next Level Button (Middle)
-        if (mx >= 945 && mx <= 1015 && my >= 491 && my <= 561)
-        {
-            iPlaySound("assets/sounds/menu_sound.wav", false);
-            score = 0; // Reset score for the next level
-            if (screen == 1)
-            {
-                screen = 3; // Easy → Medium
-                resetMediumLevel();
-            }
-            else if (screen == 3)
-            {
-                screen = 4;       // Medium → Hard
-                resetHardLevel(); // Full reset of hard level
-            }
-            else if (screen == 4)
-            {
-                screen = 1; // Hard → Easy (loop)
-                resetEasyLevel();
-            }
-            showWin = false;
-            iStopAllSounds();
-            iPlaySound("assets/sounds/angry_birds_intro_music.wav", true);
+          if (mx >= 945 && mx <= 1015 && my >= 491 && my <= 561) {
+        iPlaySound("assets/sounds/menu_sound.wav", false);
+        score = 0; // Reset score for the next level
+        if (screen == 1) {
+            screen = 3; // Easy → Medium
+            resetMediumLevel();
         }
+        else if (screen == 3) {
+            screen = 4; // Medium → Hard
+            resetHardLevel(); // Full reset of hard level
+        }
+        else if (screen == 4) {
+            screen = 1; // Hard → Easy (loop)
+            resetEasyLevel();
+        }
+        showWin = false;
+        iStopAllSounds();
+        iPlaySound("assets/sounds/angry_birds_intro_music.wav", true);
+    }
         // Main Menu Button (Right)
-        else if (mx >= 1180 && mx <= 1250 && my >= 491 && my <= 561)
-        {
+        else if (mx >= 1180 && mx <= 1250 && my >= 491 && my <= 561) {
             iPlaySound("assets/sounds/menu_sound.wav", false);
             screen = 0;
             score = 0; // Reset score
@@ -2690,73 +2992,85 @@ void iMouse(int button, int state, int mx, int my)
             iPlaySound("assets/sounds/angry_birds_2.wav", true, 20);
         }
     }
-    else if (!(screen == 0 || screen == 2 || screen == 5 || screen == 6 || screen == 7 || screen == 8 || screen == 9 || screen == 10 || screen == 11))
-    {
+        else if (!(screen ==0 || screen ==2 || screen ==5 || screen ==6 || screen ==7 || screen ==8 || screen ==9 || screen ==10 || screen ==11 ))
+          {
+            showWin = false;
+            showGameOver = false;
+          }
+         if ((showWin || showGameOver) && button == GLUT_LEFT_BUTTON && state == GLUT_UP) {
+        // Restart Button (Left)
+        if (mx >= 683 && mx <= 753 && my >= 491 && my <= 561) {
+            iPlaySound("assets/sounds/menu_sound.wav", false);
+            if (screen == 1) resetEasyLevel();
+            else if (screen == 3) resetMediumLevel();
+            else if (screen == 4) resetHardLevel();
+            showWin = showGameOver = false;
+        }
+        // Next Level Button (Middle)
+        else if (mx >= 945 && mx <= 1015 && my >= 491 && my <= 561) {
+            iPlaySound("assets/sounds/menu_sound.wav", false);
+            if (screen == 1) screen = 3; // Easy → Medium
+            else if (screen == 3) screen = 4; // Medium → Hard
+            else if (screen == 4) screen = 1; // Hard → Easy (loop)
+            if (screen == 1) resetEasyLevel();
+            else if (screen == 3) resetMediumLevel();
+            else if (screen == 4) resetHardLevel();
+            showWin = showGameOver = false;
+        }
+        // Main Menu Button (Right)
+        else if (mx >= 1180 && mx <= 1250 && my >= 491 && my <= 561) {
+            iPlaySound("assets/sounds/menu_sound.wav", false);
+            screen = 0;
+            showWin = showGameOver = false;
+            iStopAllSounds();
+            iPlaySound("assets/sounds/angry_birds_2.wav", true, 20);
+        }
+    }
+    else if (screen == 4 && (showWin || showGameOver) && button == GLUT_LEFT_BUTTON && state == GLUT_UP) {
+    if (mx >= 683 && mx <= 753 && my >= 491 && my <= 561) { // Restart button
+        iPlaySound("assets/sounds/menu_sound.wav", false);
+        resetHardLevel();
         showWin = false;
         showGameOver = false;
-    }
-    if ((showWin || showGameOver) && button == GLUT_LEFT_BUTTON && state == GLUT_UP)
-    {
-        // Restart Button (Left)
-        if (mx >= 683 && mx <= 753 && my >= 491 && my <= 561)
-        {
-            iPlaySound("assets/sounds/menu_sound.wav", false);
-            if (screen == 1)
-                resetEasyLevel();
-            else if (screen == 3)
-                resetMediumLevel();
-            else if (screen == 4)
-                resetHardLevel();
-            showWin = showGameOver = false;
-        }
-        // Next Level Button (Middle)
-        else if (mx >= 945 && mx <= 1015 && my >= 491 && my <= 561)
-        {
-            iPlaySound("assets/sounds/menu_sound.wav", false);
-            if (screen == 1)
-                screen = 3; // Easy → Medium
-            else if (screen == 3)
-                screen = 4; // Medium → Hard
-            else if (screen == 4)
-                screen = 1; // Hard → Easy (loop)
-            if (screen == 1)
-                resetEasyLevel();
-            else if (screen == 3)
-                resetMediumLevel();
-            else if (screen == 4)
-                resetHardLevel();
-            showWin = showGameOver = false;
-        }
-        // Main Menu Button (Right)
-        else if (mx >= 1180 && mx <= 1250 && my >= 491 && my <= 561)
-        {
-            iPlaySound("assets/sounds/menu_sound.wav", false);
-            screen = 0;
-            showWin = showGameOver = false;
-            iStopAllSounds();
-            iPlaySound("assets/sounds/angry_birds_2.wav", true, 20);
-        }
-    }
-    else if (screen == 4 && (showWin || showGameOver) && button == GLUT_LEFT_BUTTON && state == GLUT_UP)
-    {
-        if (mx >= 683 && mx <= 753 && my >= 491 && my <= 561)
-        { // Restart button
-            iPlaySound("assets/sounds/menu_sound.wav", false);
-            resetHardLevel();
-            showWin = false;
-            showGameOver = false;
-            iStopAllSounds();
-            iPlaySound("assets/sounds/angry_birds_intro_music.wav", true);
-        }
+        iStopAllSounds();
+        iPlaySound("assets/sounds/angry_birds_intro_music.wav", true);
     }
 }
+    else if ((screen == 3) && button == GLUT_LEFT_BUTTON && state == GLUT_UP)
+    {
+        if (selectedBird == -1 && mx >= bluebirdX[0] && mx <= bluebirdX[0] + 50 && my >= bluebirdY[0] && my <= bluebirdY[0] + 50)
+        {
+            bluedragging = true;
+            selectedBird = 0;
+            iPlaySound("assets/sounds/bird_01_select.wav", false);
+        }
+        else if (selectedBird == -1 && mx >= redSpriteX && mx <= redSpriteX + 50 && my >= redSpriteY && my <= redSpriteY + 50)
+        {
+            greendragging = true;
+            selectedBird = 1;
+            iPlaySound("assets/sounds/bird_02_select.wav", false);
+        }
+        else if (selectedBird == -1 && mx >= yellowbirdX && mx <= yellowbirdX + 50 && my >= yellowbirdY && my <= yellowbirdY + 50)
+        {
+            yellowdragging = true;
+            selectedBird = 2;
+            iPlaySound("assets/sounds/bird_03_select.wav", false);
+        }
+        else if (mx >= 1850 && mx <= 1850 + 70 && my >= 960 && my <= 960 + 70) // Pause button
+        {
+            currentScreen = screen; // Remember current screen
+            screen = 11; // Go to pause screen
+            iPlaySound("assets/sounds/menu_sound.wav", false);
+        }
+    }}
+   
 
 void iKeyboard(unsigned char key, int state)
 {
     if (state != 0)
         return;
 
-    if (key == 'r'  && screen!= 10)
+    if (key == 'r')
     {
         for (int i = 0; i < pigCount; i++)
         {
@@ -2771,10 +3085,10 @@ void iKeyboard(unsigned char key, int state)
         }
         resetBeams();
     }
-    if (key == 'q' && screen!= 10)
+    if (key == 'q')
         iCloseWindow();
 
-    if (key == 'm' && screen!= 10)
+    if (key == 'm')
     {
         screen = 0;
         iStopAllSounds();
@@ -2782,37 +3096,30 @@ void iKeyboard(unsigned char key, int state)
         showWin = false;
         showGameOver = false;
     }
-    if (screen == 10)
-    {
-        if (key == '\r' || key == '\n')
-        { // Enter key
-            if (Correct_username())
-            {
-                screen = 2;
-            }
-            else
-            {
-                nameWarning = true;
-            }
+   if (screen == 10) {
+    if (key == '\r' || key == '\n') { // Enter key
+        if (Correct_username()) {
+            screen = 2;
+        } else {
+            nameWarning = true;
         }
-        else if (key == '\b')
-        { // Backspace
-            if (userNameLen > 0)
-            {
-                userName[--userNameLen] = '\0';
-            }
+    }
+    else if (key == '\b') { // Backspace
+        if (userNameLen > 0) {
+            userName[--userNameLen] = '\0';
         }
-        else if ((key >= 32) && (key <= 126))
-        { // Printable characters
-            if (userNameLen < 99)
-            {
-                userName[userNameLen++] = key;
-                userName[userNameLen] = '\0';
-                nameWarning = false;
-            }
+    }
+    else if ((key >= 32) && (key <= 126)) { // Printable characters
+        if (userNameLen < 99) {
+            userName[userNameLen++] = key;
+            userName[userNameLen] = '\0';
+            nameWarning = false;
         }
     }
 }
+}
+
+
 
 void iSpecialKeyboard(unsigned char key, int state)
 {
@@ -2824,9 +3131,9 @@ void iMouseDrag(int mx, int my) {}
 void iMouseWheel(int dir, int mx, int my) {}
 
 int main(int argc, char *argv[])
-{
-    //  std::ofstream clearFile("leaderboard.txt", std::ios::trunc);  // Overwrites file
-    //  clearFile.close();
+{   
+    //std::ofstream clearFile("leaderboard.txt", std::ios::trunc);  // Overwrites file
+    // clearFile.close();
     glutInit(&argc, argv);
     loadResources();
 

@@ -5,6 +5,7 @@
 #include "iSound.h"
 #include "2405083.h"
 #include "leaderboard.h"
+#include "iFont.h"
 /*
 screen =0 -> very first screen (menu screen)
 screen =1 -> third screen (easy level screen)
@@ -45,7 +46,7 @@ bool pigsRemain = false;
 
 // Bird Physics and States
 bool bluevisible = true, redvisible = true, yellowvisible = true, blackvisible = true;
-bool discovisible= true, pinkvisible = true, greenvisible = true;
+bool discovisible = true, pinkvisible = true, greenvisible = true;
 int bluebirdX[3] = {20, 20, 20};
 int bluebirdY[3] = {194, 194, 194};
 float blue_vx[3] = {0, 0, 0};
@@ -56,11 +57,10 @@ bool blueSplit = false;
 int redSpriteX = 100, redSpriteY = 194;
 int yellowbirdX = 180, yellowbirdY = 200;
 
-
 float red_vx = 0, red_vy = 0;
 float yellow_vx = 0, yellow_vy = 0;
 bool redflying = false, yellowflying = false, discoflying = false, pinkflying = false, greenflying = false,
-discodragging = false, pinkdragging = false, greendragging = false;
+     discodragging = false, pinkdragging = false, greendragging = false;
 bool bluedragging = false, reddragging = false, yellowdragging = false;
 float restitution = 0.6f, friction = 0.8f, angularFriction = 0.97f;
 
@@ -89,8 +89,8 @@ Image bg, gultiback, gultifront, map_block, map_mosaic, map_stone, woodblock, re
     woodHorizontal2, woodVertical2, rock, blackImg, bgHard, settings, previous, realiceSt, nameshowingBar,
     menubutton, levelbutton, scorebutton, pigimage, credit2, creditBack, credit1, cross_button, mediumCleared,
     sound1, sound2, about, faq, instruction, whiteCanvas, about1, about2, next_button, cross_button2, pause, pausebox,
-    monsterPig, leaderboardimg, win, gameover, restart, nextlevel, mainmenu, rosco, stella, hall, bluePair;
-    
+    monsterPig, leaderboardimg, win, gameover, restart, nextlevel, mainmenu, rosco, stella, hall, bluePair, nameinput;
+
 Sprite redSprite, verticalSprite;
 
 // for medium levels collision
@@ -177,6 +177,7 @@ void loadResources()
     iLoadImage(&stella, "assets/images/Stella.png");
     iLoadImage(&hall, "assets/images/Hal.png");
     iLoadImage(&bluePair, "assets/images/BluesSVG.png");
+   
 }
 // Rubber Position
 int leftArmX = 298, leftArmY = 374;
@@ -456,7 +457,7 @@ void checkMap3Collision(int birdX, int birdY)
             for (int c = 0; c < 20; c++)
             {
 
-                if (map3[r][c] >= 1 && map3[r][c] <= 7 && map3[r + 1][c] == 0 && map3[r + 1][c] !=3 )
+                if (map3[r][c] >= 1 && map3[r][c] <= 7 && map3[r + 1][c] == 0 && map3[r + 1][c] != 3)
                 {
                     map3[r + 1][c] = map3[r][c];
                     map3[r][c] = 0;
@@ -599,9 +600,9 @@ void drawBirds_medium()
 void drawBirds_hard()
 {
 
-        for (int i = 0; i < 3; i++)
+    for (int i = 0; i < 3; i++)
         if (bluevisible_arr[i])
-            iShowLoadedImage2(bluebirdX[i], bluebirdY[i]-115, &blueImg, 50, 50);
+            iShowLoadedImage2(bluebirdX[i], bluebirdY[i] - 115, &blueImg, 50, 50);
 
     if (redvisible)
         iShowLoadedImage2(redSpriteX, redSpriteY - 115, &redImg, 50, 50);
@@ -709,8 +710,6 @@ void updateSingleBird(int &x, int &y, float &vx, float &vy, bool &flying, bool &
             visible = false;
             return;
         }
-      
-        
 
         // Collision with pillars
         for (int i = 0; i < pillarCount; i++)
@@ -750,7 +749,6 @@ void updateSingleBird(int &x, int &y, float &vx, float &vy, bool &flying, bool &
             }
         }
 
-        
         for (int i = 0; i < pigCount; i++)
         {
             if (pigVisible[i] &&
@@ -799,8 +797,6 @@ void updateSingleBird_medium(int &x, int &y, float &vx, float &vy, bool &flying,
         vy += g * 0.8;
         x += vx;
         y += vy;
-
-
 
         if (y <= groundY)
         {
@@ -895,8 +891,7 @@ void draweasy()
 
     drawBirds_easy();
 
-   
-     if (discodragging)
+    if (discodragging)
         drawPathway(bluebirdX[0], bluebirdY[0], blue_vx[0], blue_vy[0]);
     if (reddragging)
         drawPathway(redSpriteX, redSpriteY, red_vx, red_vy);
@@ -997,7 +992,7 @@ void iDraw()
 {
 
     iClear();
-  
+
     if (!soundOn)
     {
         iStopAllSounds();
@@ -1077,32 +1072,32 @@ void iDraw()
         iFilledRectangle(0, 0, 1920, 1080);
         iShowLoadedImage2(56, 56, &previous, 50, 50);
         iShowLoadedImage2(677 - 152, 360 - 73, &whiteCanvas);
-        
+
         iTextBold(600, 711, "Press 'm' for going to Main-menu", GLUT_BITMAP_TIMES_ROMAN_24);
         iTextBold(600, 675, "Press 'q' to close the Application", GLUT_BITMAP_TIMES_ROMAN_24);
         iTextBold(600, 639, "Press 'r' to reset the Game state", GLUT_BITMAP_TIMES_ROMAN_24);
         iShowLoadedImage2(600, 550, &bluePair, 80, 80);
-        iSetColor(0,0,255);
+        iSetColor(0, 0, 255);
         iTextBold(700, 605, "(Jay,Jake & Jim) ->Availabe in medium and hard level", GLUT_BITMAP_TIMES_ROMAN_24);
         iTextBold(700, 575, "Initially, Jay will be with us but after right-clicking,", GLUT_BITMAP_TIMES_ROMAN_24);
         iTextBold(700, 545, "Jake & Jim will also join us", GLUT_BITMAP_TIMES_ROMAN_24);
         iShowLoadedImage2(600, 475, &redImg, 60, 60);
-        iSetColor(255, 0 ,0);
+        iSetColor(255, 0, 0);
         iTextBold(700, 498, "(Red) ->The main protagonist", GLUT_BITMAP_TIMES_ROMAN_24);
         iShowLoadedImage2(600, 405, &rosco, 60, 60);
-        iSetColor(153,51,102);
+        iSetColor(153, 51, 102);
         iTextBold(700, 430, "(Rosco) ->The KHILADI 786 ", GLUT_BITMAP_TIMES_ROMAN_24);
         iShowLoadedImage2(600, 335, &stella, 60, 60);
-        iSetColor(255,153,204);
+        iSetColor(255, 153, 204);
         iTextBold(700, 362, "(Stella) ->The Pookie ", GLUT_BITMAP_TIMES_ROMAN_24);
         iShowLoadedImage2(1015, 476, &hall, 60, 60);
-        iSetColor(0,255,0);
+        iSetColor(0, 255, 0);
         iTextBold(1083, 500, "(Hal) ->Boomerang Guy ", GLUT_BITMAP_TIMES_ROMAN_24);
         iShowLoadedImage2(1015, 408, &yellowImg, 60, 60);
-        iSetColor(255,255,0);
+        iSetColor(255, 255, 0);
         iTextBold(1083, 430, "(Chuck) ->Speedy Guy ", GLUT_BITMAP_TIMES_ROMAN_24);
         iShowLoadedImage2(1015, 340, &blackImg, 60, 60);
-        iSetColor(0,0,0);
+        iSetColor(0, 0, 0);
         iTextBold(1083, 360, "(Bomb) ->The Exploder ", GLUT_BITMAP_TIMES_ROMAN_24);
     }
     else if (screen == 8)
@@ -1126,16 +1121,20 @@ void iDraw()
     else if (screen == 10)
     {
         iShowLoadedImage2(0, 0, &menuBg);
-        iSetTransparentColor(0, 0, 0, 0.6);
+        iSetTransparentColor(0, 0, 0, 0.4);
         iFilledRectangle(0, 0, 1920, 1080);
-        iText(700, 500, "Enter your name:", GLUT_BITMAP_HELVETICA_18);
-        iRectangle(700, 460, 300, 30);
-        iText(710, 465, userName, GLUT_BITMAP_HELVETICA_18);
-        iText(700, 400, "Press ENTER to continue", GLUT_BITMAP_HELVETICA_12);
+        // iShowLoadedImage2(600, 250, &nameinput);
+        iSetColor(0, 0,0);
+        iShowText(700, 500, "Enter your name:",  "assets/fonts/DancingScript-Medium.ttf",  48);
+        iRectangle(700, 460, 380, 30);
+        iSetColor(255, 153, 204);
+        iText(710, 465, userName, GLUT_BITMAP_TIMES_ROMAN_24);
+        iSetColor(0, 0, 0);
+        iTextBold(700, 400, "Press ENTER to continue",GLUT_BITMAP_TIMES_ROMAN_24);
         if (nameWarning)
         {
             iSetColor(255, 0, 0);
-            iText(700, 465, "Please, Enter your name", GLUT_BITMAP_HELVETICA_18);
+            iTextBold(700, 465, "Please, Enter your name", GLUT_BITMAP_TIMES_ROMAN_24);
         }
 
         else if (screen == 12)
@@ -1216,104 +1215,46 @@ void iDraw()
     iText(1700, 1035, cursorStr, GLUT_BITMAP_HELVETICA_18);
 }
 
-// void updateBird()
-// {
-//     updatePhysics();
-//     for (int i = 0; i < 3; i++)
-//     {
-//         if (blueflying[i] && bluevisible_arr[i])
-//         {
-//             updateSingleBird(bluebirdX[i], bluebirdY[i], blue_vx[i], blue_vy[i], blueflying[i], bluevisible_arr[i]);
-//         }
-//     }
 
-//     updateSingleBird(redSpriteX, redSpriteY, red_vx, red_vy, redflying, redvisible);
-
-//     updateSingleBird(yellowbirdX, yellowbirdY, yellow_vx, yellow_vy, yellowflying, yellowvisible);
-//     updateSingleBird(yellowbirdX, yellowbirdY, yellow_vx, yellow_vy, yellowflying, blackvisible);
-
-//     for (int i = 0; i < pigCount; i++)
-//     {
-//         updatePigMotion(i);
-//     }
-//     bool allGone = true;
-// for (int i = 0; i < pigCount; i++) {
-//     if (pigVisible[i]) {
-//         allGone = false;
-//         break;
-//     }
-// }
-// // if (allGone && !showWin) {
-// //     showWin = true;
-// //     showGameOver = false;
-// //     // Optionally: addScore(std::string(userName), score); saveLeaderboard("leaderboard.txt");
-// // }
-
-// // // Check if all birds are finished but pigs remain
-// // bool birdsFinished = true;
-// // for (int i = 0; i < 3; i++) {
-// //     if (bluevisible_arr[i] || blueflying[i]) birdsFinished = false;
-// // }
-// // if (redvisible || redflying) birdsFinished = false;
-// // if (yellowvisible || yellowflying) birdsFinished = false;
-
-// // bool pigsRemain = false;
-// // for (int i = 0; i < pigCount; i++) {
-// //     if (pigVisible[i]) pigsRemain = true;
-// // }
-// // if (birdsFinished && pigsRemain && !showGameOver && !showWin) {
-// //     showGameOver = true;
-// //     showWin = false;
-// // }
-// if (allGone && !showWin && (screen == 1 || screen == 3 || screen == 4)) {
-//     showWin = true;
-//     showGameOver = false;
-// }
-
-// if (birdsFinished && pigsRemain && !showGameOver && !showWin && (screen == 1 || screen == 3 || screen == 4)) {
-//     showGameOver = true;
-//     showWin = false;
-// }
-// }
 
 void updateBird()
 {
     updatePhysics();
 
     // Update all birds
-   
+
     if (screen == 1)
     {
-    
+
         updateSingleBird(bluebirdX[0], bluebirdY[0], blue_vx[0], blue_vy[0], discoflying, discovisible);
         updateSingleBird(redSpriteX, redSpriteY, red_vx, red_vy, redflying, redvisible);
         updateSingleBird(yellowbirdX, yellowbirdY, yellow_vx, yellow_vy, yellowflying, yellowvisible);
     }
     else if (screen == 3)
     {
-             for (int i = 0; i < 3; i++)
-    {
-        if (blueflying[i] && bluevisible_arr[i])
+        for (int i = 0; i < 3; i++)
         {
-            updateSingleBird_hard(bluebirdX[i], bluebirdY[i], blue_vx[i], blue_vy[i], blueflying[i], bluevisible_arr[i]);
+            if (blueflying[i] && bluevisible_arr[i])
+            {
+                updateSingleBird_medium(bluebirdX[i], bluebirdY[i], blue_vx[i], blue_vy[i], blueflying[i], bluevisible_arr[i]);
+            }
         }
-    }
 
-        updateSingleBird_hard(redSpriteX, redSpriteY, red_vx, red_vy, greenflying, greenvisible);
-        updateSingleBird_hard(yellowbirdX, yellowbirdY, yellow_vx, yellow_vy, yellowflying, blackvisible);
+        updateSingleBird_medium(redSpriteX, redSpriteY, red_vx, red_vy, greenflying, greenvisible);
+        updateSingleBird_medium(yellowbirdX, yellowbirdY, yellow_vx, yellow_vy, yellowflying, blackvisible);
     }
-   else if (screen == 4)
+    else if (screen == 4)
     {
-             for (int i = 0; i < 3; i++)
-    {
-        if (blueflying[i] && bluevisible_arr[i])
+        for (int i = 0; i < 3; i++)
         {
-            updateSingleBird_medium(bluebirdX[i], bluebirdY[i], blue_vx[i], blue_vy[i], blueflying[i], bluevisible_arr[i]);
+            if (blueflying[i] && bluevisible_arr[i])
+            {
+                updateSingleBird_hard(bluebirdX[i], bluebirdY[i], blue_vx[i], blue_vy[i], blueflying[i], bluevisible_arr[i]);
+            }
         }
-    }
 
-        updateSingleBird_medium(redSpriteX, redSpriteY, red_vx, red_vy, redflying, redvisible);
-        updateSingleBird_medium(yellowbirdX, yellowbirdY, yellow_vx, yellow_vy, pinkflying, pinkvisible);
+        updateSingleBird_hard(redSpriteX, redSpriteY, red_vx, red_vy, redflying, redvisible);
+        updateSingleBird_hard(yellowbirdX, yellowbirdY, yellow_vx, yellow_vy, pinkflying, pinkvisible);
     }
 
     // Update pig motion and check if any pigs remain
@@ -1361,7 +1302,7 @@ void iMouseMove(int mx, int my)
     cursorX = mx;
     cursorY = my;
     sprintf(cursorStr, "Cursor: (%d, %d)", cursorX, cursorY);
-    if (screen == 1 )
+    if (screen == 1)
     {
         if (discodragging)
         {
@@ -1400,7 +1341,7 @@ void iMouseMove(int mx, int my)
             yellow_vy = v * sin(angle) * 0.5;
         }
     }
-    else if ( screen == 3)
+    else if (screen == 3)
     {
         if (bluedragging)
         {
@@ -1439,7 +1380,7 @@ void iMouseMove(int mx, int my)
             yellow_vy = v * sin(angle) * 0.5;
         }
     }
-       if (screen == 1 || screen == 3 || screen == 4)
+    if ( screen == 4)
     {
         if (bluedragging)
         {
@@ -1565,7 +1506,7 @@ void iMouse(int button, int state, int mx, int my)
         }
     }
 
-    else if (( screen == 3 || screen == 4) && button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN)
+    else if ((screen == 3 || screen == 4) && button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN)
     {
         // Blue bird split
         if (blueflying[0] && !blueSplit)
@@ -1589,17 +1530,13 @@ void iMouse(int button, int state, int mx, int my)
         }
     }
 
-   
-   
-    
-
     else if ((screen == 1) && button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
     {
         if (selectedBird == -1 && mx >= bluebirdX[0] && mx <= bluebirdX[0] + 70 && my >= bluebirdY[0] && my <= bluebirdY[0] + 70)
         {
             discodragging = true;
             selectedBird = 0; // rosco
-      
+
             iPlaySound("assets/sounds/bird_01_select.wav", false);
         }
         else if (selectedBird == -1 && mx >= redSpriteX && mx <= redSpriteX + 70 && my >= redSpriteY && my <= redSpriteY + 70)
@@ -1620,15 +1557,15 @@ void iMouse(int button, int state, int mx, int my)
             screen = 11;
         }
     }
-        else if ((screen == 3) && button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
+    else if ((screen == 3) && button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
     {
-        if (selectedBird == -1 && mx >= bluebirdX[0] && mx <= bluebirdX[0] + 50 && my >= bluebirdY[0] && my <= bluebirdY[0]  + 50)
+        if (selectedBird == -1 && mx >= bluebirdX[0] && mx <= bluebirdX[0] + 50 && my >= bluebirdY[0] && my <= bluebirdY[0] + 50)
         {
             bluedragging = true;
             selectedBird = 0;
             iPlaySound("assets/sounds/bird_01_select.wav", false);
         }
-        else if (selectedBird == -1 && mx >= redSpriteX && mx <= redSpriteX + 50 && my >= redSpriteY&& my <= redSpriteY + 50)
+        else if (selectedBird == -1 && mx >= redSpriteX && mx <= redSpriteX + 50 && my >= redSpriteY && my <= redSpriteY + 50)
         {
             greendragging = true;
             selectedBird = 1;
@@ -1688,21 +1625,21 @@ void iMouse(int button, int state, int mx, int my)
             iPlaySound("assets/sounds/bird_03_flying.wav", false);
             selectedBird = -1;
         }
-          else if (discodragging)
+        else if (discodragging)
         {
             discodragging = false;
             discoflying = true;
             iPlaySound("assets/sounds/bird_03_flying.wav", false);
             selectedBird = -1;
         }
-          else if (greendragging)
+        else if (greendragging)
         {
             greendragging = false;
             greenflying = true;
             iPlaySound("assets/sounds/bird_03_flying.wav", false);
             selectedBird = -1;
         }
-          else if (pinkdragging)
+        else if (pinkdragging)
         {
             pinkdragging = false;
             pinkflying = true;
@@ -1734,7 +1671,7 @@ void iMouse(int button, int state, int mx, int my)
             iStopAllSounds();
             iPlaySound("assets/sounds/menu_sound.wav", false);
             screen = 0;
-            
+
             iPlaySound("assets/sounds/angry_birds_2.wav", true, 20);
         }
         else if (mx >= 1111 && mx <= 1283 && my >= 718 && my <= 767) // sound button
@@ -1751,7 +1688,7 @@ void iMouse(int button, int state, int mx, int my)
         }
         else if (mx >= 1118 && mx <= 1160 && my >= 593 && my <= 635) // instruction button
         {
-            
+
             iPlaySound("assets/sounds/menu_sound.wav", false);
             screen = 7;
             showWin = false;
@@ -1759,7 +1696,7 @@ void iMouse(int button, int state, int mx, int my)
         }
         else if (mx >= 1118 && mx <= 1160 && my >= 465 && my <= 500) // instruction button
         {
-            
+
             iPlaySound("assets/sounds/menu_sound.wav", false);
             screen = 8;
             showWin = false;
@@ -1770,7 +1707,7 @@ void iMouse(int button, int state, int mx, int my)
     {
         if (mx >= 58 && mx <= 101 && my >= 65 && my <= 103) // about & instruction- previous
         {
-            
+
             iPlaySound("assets/sounds/menu_sound.wav", false);
             screen = 6;
             showWin = false;
@@ -1778,7 +1715,7 @@ void iMouse(int button, int state, int mx, int my)
         }
         else if (mx >= 1264 && mx <= 1307 && my >= 367 && my <= 408) // for going about_2
         {
-            
+
             iPlaySound("assets/sounds/menu_sound.wav", false);
             screen = 9;
             showWin = false;
@@ -1789,7 +1726,7 @@ void iMouse(int button, int state, int mx, int my)
     {
         if (mx >= 585 && mx <= 626 && my >= 374 && my <= 413) // about_2 previous
         {
-            
+
             iPlaySound("assets/sounds/menu_sound.wav", false);
             screen = 8;
             showWin = false;
@@ -1797,7 +1734,7 @@ void iMouse(int button, int state, int mx, int my)
         }
         else if (mx >= 1353 && mx <= 1387 && my >= 790 && my <= 830) // about_2 previous
         {
-            
+
             iPlaySound("assets/sounds/menu_sound.wav", false);
             screen = 6;
             showWin = false;
@@ -1851,33 +1788,70 @@ void iKeyboard(unsigned char key, int state)
     if (state != 0)
         return;
 
-    if (key == 'r')
+    else if (key == 'r' && screen != 10)
     {
-        for (int i = 0; i < pigCount; i++)
+        // Reset the game state
+        showWin = false;
+        showGameOver = false;
+        score = 0;
+        selectedBird = -1;
+        blueSplit = false;
+        discodragging = false;
+        reddragging = false;
+        yellowdragging = false;
+        bluedragging = false;
+        greendragging = false;
+        pinkdragging = false;
+
+        // Reset birds
+        for (int i = 0; i < 3; i++)
         {
-            pigVisible[i] = true;
-            pigFalling[i] = false;
-            pigX[i] = 1070 + (i / 2) * 250; // adjust position if needed
-            pigY[i] = (i % 2 == 0) ? 420 : 316;
-            pigVX[i] = pigVY[i] = 0;
-            pillarRotation[i] = 0;
-            pillarAngVelocity[i] = 0;
-            pillarRotating[i] = false;
+            blueflying[i] = false;
+            bluevisible_arr[i] = true;
+            bluebirdX[i] = 100 + i * 100; // adjust position if needed
+            bluebirdY[i] = 500;           // adjust position if needed
+            blue_vx[i] = blue_vy[i] = 0;
         }
-        resetBeams();
+        redflying = false;
+        redvisible = true;
+        redSpriteX = 200; // adjust position if needed
+        redSpriteY = 500; // adjust position if needed
+        red_vx = red_vy = 0;
+
+        yellowflying = false;
+        yellowvisible = true;
+        yellowbirdX = 300; // adjust position if needed
+        yellowbirdY = 500; // adjust position if needed
+        yellow_vx = yellow_vy = 0;
+        {
+            for (int i = 0; i < pigCount; i++)
+            {
+                pigVisible[i] = true;
+                pigFalling[i] = false;
+                pigX[i] = 1070 + (i / 2) * 250; // adjust position if needed
+                pigY[i] = (i % 2 == 0) ? 420 : 316;
+                pigVX[i] = pigVY[i] = 0;
+                pillarRotation[i] = 0;
+                pillarAngVelocity[i] = 0;
+                pillarRotating[i] = false;
+            }
+            resetBeams();
+        }
     }
-    if (key == 'q')
+    else if (key == 'q' && screen != 10)
         iCloseWindow();
 
-    if (key == 'm')
+    else if (key == 'm' && screen != 10)
     {
+        // Go to Menu Page
+        showWin = false;
+        showGameOver = false;
         screen = 0;
         iStopAllSounds();
         iPlaySound("assets/sounds/angry_birds_2.wav", true, 20);
-        showWin = false;
-        showGameOver = false;
     }
-    if (screen == 10)
+
+    else if (screen == 10)
     {
         if (key == '\r')
         {
@@ -1908,8 +1882,6 @@ void iKeyboard(unsigned char key, int state)
                     nameWarning = false;
                 }
             }
-
-            // printf("Key pressed: %c\n", key);
         }
     }
 }
