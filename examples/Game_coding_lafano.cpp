@@ -727,6 +727,9 @@ void resetLevel() {
     scoreSaved = false;
     blueSplit = false;
     selectedBird = -1;
+    greenvisible = true;
+blackvisible = true;
+pinkvisible=true;
 
     // Reset all birds
     for (int i = 0; i < 3; i++) {

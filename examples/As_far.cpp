@@ -74,6 +74,8 @@ int pigCounter = 0;
 bool pigsRemain = false;
 bool enterKeyPressed = false; 
 bool scoreSaved = false; // Tracks if score was already saved
+bool hoverPlay = false, hoverExit = false, hoverCredit = false;
+bool hoverEasy = false, hoverMedium = false, hoverHard = false;
 
 // Bird Physics and States
 bool bluevisible = true, redvisible = true, yellowvisible = true, blackvisible = true;
@@ -211,6 +213,7 @@ void loadResources()
     iLoadImage(&stella, "assets/images/Stella.png");
     iLoadImage(&hall, "assets/images/Hal.png");
     iLoadImage(&bluePair, "assets/images/BluesSVG.png");
+    iLoadImage(&play, "assets/images/play.png");
     
 }
 
@@ -231,24 +234,71 @@ bool pillarRotating[3] = {false};
 float beamPositionsX[3] = {1088 - 46, 1338 - 46, 1588 - 46}, beamPositionsY[3] = {398, 398, 398},
       beamVelocitiesX[3] = {0}, beamVelocitiesY[3] = {0};
 
+// void drawMenu()
+// {
+//     showGameOver = false;
+//     showWin = false;
+//     iShowLoadedImage(0, 0, &menuBg);
+
+//     iShowLoadedImage(110, 237, &menubutton);
+
+//     iSetColor(255, 255, 255);
+//     iText(140, 288, "PLAY", GLUT_BITMAP_TIMES_ROMAN_24);
+
+//     iShowLoadedImage(110, 177, &menubutton);
+//     iText(140, 228, "EXIT", GLUT_BITMAP_TIMES_ROMAN_24);
+
+//     iShowLoadedImage(110, 110, &menubutton);
+//     iText(132, 162, "CREDIT", GLUT_BITMAP_TIMES_ROMAN_24);
+//     iShowLoadedImage2(1830, 130, &leaderboardimg, 70, 70);
+// }
 void drawMenu()
 {
     showGameOver = false;
     showWin = false;
     iShowLoadedImage(0, 0, &menuBg);
 
-    iShowLoadedImage(110, 237, &menubutton);
-
+    // PLAY
+    if (hoverPlay)
+        iShowLoadedImage2(105, 232, &menubutton, 140, 130); // slightly larger
+    else
+        iShowLoadedImage(110, 237, &menubutton);
     iSetColor(255, 255, 255);
     iText(140, 288, "PLAY", GLUT_BITMAP_TIMES_ROMAN_24);
 
-    iShowLoadedImage(110, 177, &menubutton);
+    // EXIT
+    if (hoverExit)
+        iShowLoadedImage2(105, 172, &menubutton, 140, 130);
+    else
+        iShowLoadedImage(110, 177, &menubutton);
     iText(140, 228, "EXIT", GLUT_BITMAP_TIMES_ROMAN_24);
 
-    iShowLoadedImage(110, 110, &menubutton);
+    // CREDIT
+    if (hoverCredit)
+        iShowLoadedImage2(105, 105, &menubutton, 140, 130);
+    else
+        iShowLoadedImage(110, 110, &menubutton);
     iText(132, 162, "CREDIT", GLUT_BITMAP_TIMES_ROMAN_24);
+
     iShowLoadedImage2(1830, 130, &leaderboardimg, 70, 70);
 }
+
+// void drawLevelSelect()
+// {
+//     showGameOver = false;
+//     showWin = false;
+//     iShowLoadedImage(0, 0, &menuBg);
+
+//     iShowLoadedImage(85, 210, &levelbutton);
+//     iSetColor(255, 255, 255);
+//     iText(120, 265, "EASY", GLUT_BITMAP_TIMES_ROMAN_24);
+
+//     iShowLoadedImage(85, 155, &levelbutton);
+//     iText(105, 210, "MEDIUM", GLUT_BITMAP_TIMES_ROMAN_24);
+
+//     iShowLoadedImage(85, 95, &levelbutton);
+//     iText(120, 150, "HARD", GLUT_BITMAP_TIMES_ROMAN_24);
+// }
 
 void drawLevelSelect()
 {
@@ -256,16 +306,29 @@ void drawLevelSelect()
     showWin = false;
     iShowLoadedImage(0, 0, &menuBg);
 
-    iShowLoadedImage(85, 210, &levelbutton);
+    // EASY Button
+    if (hoverEasy)
+        iShowLoadedImage2(80, 205, &levelbutton, 150, 140);
+    else
+        iShowLoadedImage(85, 210, &levelbutton);
     iSetColor(255, 255, 255);
     iText(120, 265, "EASY", GLUT_BITMAP_TIMES_ROMAN_24);
 
-    iShowLoadedImage(85, 155, &levelbutton);
+    // MEDIUM Button
+    if (hoverMedium)
+        iShowLoadedImage2(80, 150, &levelbutton, 150, 140);
+    else
+        iShowLoadedImage(85, 155, &levelbutton);
     iText(105, 210, "MEDIUM", GLUT_BITMAP_TIMES_ROMAN_24);
 
-    iShowLoadedImage(85, 95, &levelbutton);
+    // HARD Button
+    if (hoverHard)
+        iShowLoadedImage2(80, 90, &levelbutton, 150, 140);
+    else
+        iShowLoadedImage(85, 95, &levelbutton);
     iText(120, 150, "HARD", GLUT_BITMAP_TIMES_ROMAN_24);
 }
+
 
 void drawSettings()
 {
@@ -748,6 +811,9 @@ void resetLevel() {
     score = 0;
     blueSplit = false;
     selectedBird = -1;
+    greenvisible = true;
+blackvisible = true;
+pinkvisible=true;
 
     // Reset all birds
     for (int i = 0; i < 3; i++) {
@@ -1371,13 +1437,13 @@ void drawScoreDisplay()
     iSetColor(255, 215, 0); // Gold color
     char scoreText[50];
     sprintf(scoreText, "SCORE: %d", score);
-    iText(30, 1030, scoreText, GLUT_BITMAP_HELVETICA_18);
+    iTextBold(30, 1040, scoreText, GLUT_BITMAP_TIMES_ROMAN_24);
     
     // Draw player name
     iSetColor(255, 255, 255);
     char playerText[100];
     sprintf(playerText, "Player: %s", userName);
-    iText(30, 1010, playerText, GLUT_BITMAP_HELVETICA_12);
+    iTextBold(30, 1010, playerText, GLUT_BITMAP_TIMES_ROMAN_24);
 }
 
 void resetBeams()
@@ -1656,40 +1722,30 @@ void iDraw()
     }
     else if (screen == 10)
     {
-        iShowLoadedImage2(0, 0, &menuBg);
+      iShowLoadedImage2(0, 0, &menuBg);
         iSetTransparentColor(0, 0, 0, 0.4);
         iFilledRectangle(0, 0, 1920, 1080);
-       
-       iText(700, 520, "Enter your name:", GLUT_BITMAP_HELVETICA_18);
-iText(701, 520, "Enter your name:", GLUT_BITMAP_HELVETICA_18);
-iText(700, 521, "Enter your name:", GLUT_BITMAP_HELVETICA_18);
-       iSetColor(0, 0, 0);  // border color (black)
-for (int i = 0; i < 4; i++) {
-    iRectangle(700 - i, 460 - i, 350 + 2*i, 45 + 2*i);
-}
-         for (int dx = 0; dx <= 1; dx++) {
-        for (int dy = 0; dy <= 1; dy++) {
-            iText(710 + dx, 470 + dy, userName, GLUT_BITMAP_TIMES_ROMAN_24);
-        }
-    }
-        for (int dx = 0; dx <= 1; dx++) {
-    for (int dy = 0; dy <= 1; dy++) {
-        iText(700 + dx, 420 + dy, "Press ENTER to continue", GLUT_BITMAP_TIMES_ROMAN_24);
-    }
-}
+        // iShowLoadedImage2(600, 250, &nameinput);
+        iSetColor(0, 0,0);
+        iShowText(700, 500, "Enter your name:",  "assets/fonts/DancingScript-Medium.ttf",  48);
+        iRectangle(700, 460, 380, 30);
+        iSetColor(255, 153, 204);
+        iText(710, 465, userName, GLUT_BITMAP_TIMES_ROMAN_24);
+        iSetColor(0, 0, 0);
+        iTextBold(700, 400, "Press ENTER to continue",GLUT_BITMAP_TIMES_ROMAN_24);
         if (nameWarning)
         {
             iSetColor(255, 0, 0);
-            iText(700, 465, "Please, Enter your name",GLUT_BITMAP_TIMES_ROMAN_24 );
+            iTextBold(700, 465, "Please, Enter your name", GLUT_BITMAP_TIMES_ROMAN_24);
         }
 
-        else if (screen == 12)
-        {
-            iShowLoadedImage2(0, 0, &menuBg);
-            iSetTransparentColor(0, 0, 0, 0.5);
-            iFilledRectangle(0, 0, 1920, 1080);
-            iShowLoadedImage2(100, 100, &mediumCleared);
-        }
+        // else if (screen == 12)
+        // {
+        //     iShowLoadedImage2(0, 0, &menuBg);
+        //     iSetTransparentColor(0, 0, 0, 0.5);
+        //     iFilledRectangle(0, 0, 1920, 1080);
+        //     iShowLoadedImage2(100, 100, &mediumCleared);
+        // }
     }
     else if (screen == 11)
     {
@@ -1782,7 +1838,7 @@ for (int i = 0; i < 4; i++) {
     iSetColor(255, 255, 255); // White color for text
     iText(900, 580, levelText, GLUT_BITMAP_TIMES_ROMAN_24);
      
-    
+     
     iShowLoadedImage2(683, 491, &restart, 70, 70);
     iShowLoadedImage2(945, 491, &nextlevel, 70, 70);
     iShowLoadedImage2(1180, 491, &mainmenu, 70, 70);
@@ -1813,6 +1869,7 @@ for (int i = 0; i < 4; i++) {
 if ((screen == 1 || screen == 3 || screen == 4) && showGameOver) {
     iShowLoadedImage2(530, 320, &gameover, 950, 650);
     iPlaySound("assets/sounds/failureTrack.wav", true);
+    
     iShowLoadedImage2(683, 491, &restart, 70, 70);
     iShowLoadedImage2(945, 491, &nextlevel, 70, 70);
     iShowLoadedImage2(1180, 491, &mainmenu, 70, 70);
@@ -1926,8 +1983,7 @@ if ((screen == 1 || screen == 3 || screen == 4) && showGameOver) {
  
  // Adjust position/size as needed
 
-    iSetColor(0, 0, 0);
-    iText(1700, 1035, cursorStr, GLUT_BITMAP_HELVETICA_18);
+   
 }
 
 // void updateBird()
@@ -2198,7 +2254,17 @@ void updateBird() {
 
 
 void iMouseMove(int mx, int my)
-{
+{ if (screen == 0) { // Menu screen
+        hoverPlay   = (mx >= 110 && mx <= 240 && my >= 237 && my <= 237 + 120);
+        hoverExit   = (mx >= 110 && mx <= 240 && my >= 177 && my <= 177 + 120);
+        hoverCredit = (mx >= 110 && mx <= 240 && my >= 110 && my <= 110 + 120);
+    }
+    if (screen == 2) { // Level select screen
+    hoverEasy   = (mx >= 85 && mx <= 225 && my >= 210 && my <= 340);
+    hoverMedium = (mx >= 85 && mx <= 225 && my >= 155 && my <= 285);
+    hoverHard   = (mx >= 85 && mx <= 225 && my >= 95  && my <= 225);
+}
+
     cursorX = mx;
     cursorY = my;
     sprintf(cursorStr, "Cursor: (%d, %d)", cursorX, cursorY);
@@ -3289,25 +3355,20 @@ void iKeyboard(unsigned char key, int state)
     if (state != 0)
         return;
 
-    if (key == 'r')
+    if (key == 'r' && screen!=10)
     {
-        for (int i = 0; i < pigCount; i++)
-        {
-            pigVisible[i] = true;
-            pigFalling[i] = false;
-            pigX[i] = 1070 + (i / 2) * 250; // adjust position if needed
-            pigY[i] = (i % 2 == 0) ? 420 : 316;
-            pigVX[i] = pigVY[i] = 0;
-            pillarRotation[i] = 0;
-            pillarAngVelocity[i] = 0;
-            pillarRotating[i] = false;
-        }
-        resetBeams();
+        iPlaySound("assets/sounds/menu_sound.wav", false);
+        if (currentScreen == 1) resetEasyLevel();
+        else if (currentScreen == 3) resetMediumLevel();
+        else if (currentScreen == 4) resetHardLevel();
+        screen = currentScreen;
+        showWin = false;
+        showGameOver = false;
     }
-    if (key == 'q')
+    if (key == 'q' && screen!=10)
         iCloseWindow();
 
-    if (key == 'm')
+    if (key == 'm' && screen!=10)
     {
         screen = 0;
         iStopAllSounds();
@@ -3337,9 +3398,6 @@ void iKeyboard(unsigned char key, int state)
     }
 }
 }
-
-
-
 void iSpecialKeyboard(unsigned char key, int state)
 {
     if (key == GLUT_KEY_END)
@@ -3351,18 +3409,14 @@ void iMouseWheel(int dir, int mx, int my) {}
 
 int main(int argc, char *argv[])
 {   
-    //  std::ofstream clearFile("leaderboard.txt", std::ios::trunc);  // Overwrites file
+     //std::ofstream clearFile("leaderboard.txt", std::ios::trunc);  // Overwrites file
     //  clearFile.close();
     glutInit(&argc, argv);
     loadResources();
-
     loadLeaderboard("leaderboard.txt"); // <-- Move it here
-
     iInitializeSound();
-    
     iPlaySound("assets/sounds/angry_birds_2.wav", true);
     iSetTimer(100, updateBird);
-    
     iOpenWindow(1920, 1080, "Angry Birds - BUET PROJECT");
     return 0;
 }
