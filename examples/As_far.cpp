@@ -13,7 +13,7 @@
 struct PlayerScore {
     std::string name;
     int score;
-    std::string level;  // New field to track which level the score was achieved on
+    std::string level;  
 };
 
 std::vector<PlayerScore> leaderboard;
@@ -73,7 +73,7 @@ bool medium_clear = false, easy_clear = false, hard_clear = false;
 int pigCounter = 0;
 bool pigsRemain = false;
 bool enterKeyPressed = false; 
-bool scoreSaved = false; // Tracks if score was already saved
+bool scoreSaved = false; 
 bool hoverPlay = false, hoverExit = false, hoverCredit = false;
 bool hoverEasy = false, hoverMedium = false, hoverHard = false;
 
@@ -85,7 +85,7 @@ int bluebirdY[3] = {194, 194, 194};
 float blue_vx[3] = {0, 0, 0};
 float blue_vy[3] = {0, 0, 0};
 bool blueflying[3] = {false, false, false};
-bool bluevisible_arr[3] = {true, false, false}; // renamed to avoid conflict
+bool bluevisible_arr[3] = {true, false, false}; 
 bool blueSplit = false;
 int redSpriteX = 100, redSpriteY = 194;
 int yellowbirdX = 180, yellowbirdY = 200;
@@ -234,33 +234,15 @@ bool pillarRotating[3] = {false};
 float beamPositionsX[3] = {1088 - 46, 1338 - 46, 1588 - 46}, beamPositionsY[3] = {398, 398, 398},
       beamVelocitiesX[3] = {0}, beamVelocitiesY[3] = {0};
 
-// void drawMenu()
-// {
-//     showGameOver = false;
-//     showWin = false;
-//     iShowLoadedImage(0, 0, &menuBg);
-
-//     iShowLoadedImage(110, 237, &menubutton);
-
-//     iSetColor(255, 255, 255);
-//     iText(140, 288, "PLAY", GLUT_BITMAP_TIMES_ROMAN_24);
-
-//     iShowLoadedImage(110, 177, &menubutton);
-//     iText(140, 228, "EXIT", GLUT_BITMAP_TIMES_ROMAN_24);
-
-//     iShowLoadedImage(110, 110, &menubutton);
-//     iText(132, 162, "CREDIT", GLUT_BITMAP_TIMES_ROMAN_24);
-//     iShowLoadedImage2(1830, 130, &leaderboardimg, 70, 70);
-// }
 void drawMenu()
 {
     showGameOver = false;
     showWin = false;
     iShowLoadedImage(0, 0, &menuBg);
 
-    // PLAY
+    
     if (hoverPlay)
-        iShowLoadedImage2(105, 232, &menubutton, 140, 130); // slightly larger
+        iShowLoadedImage2(105, 232, &menubutton, 140, 130); 
     else
         iShowLoadedImage(110, 237, &menubutton);
     iSetColor(255, 255, 255);
@@ -283,22 +265,7 @@ void drawMenu()
     iShowLoadedImage2(1830, 130, &leaderboardimg, 70, 70);
 }
 
-// void drawLevelSelect()
-// {
-//     showGameOver = false;
-//     showWin = false;
-//     iShowLoadedImage(0, 0, &menuBg);
 
-//     iShowLoadedImage(85, 210, &levelbutton);
-//     iSetColor(255, 255, 255);
-//     iText(120, 265, "EASY", GLUT_BITMAP_TIMES_ROMAN_24);
-
-//     iShowLoadedImage(85, 155, &levelbutton);
-//     iText(105, 210, "MEDIUM", GLUT_BITMAP_TIMES_ROMAN_24);
-
-//     iShowLoadedImage(85, 95, &levelbutton);
-//     iText(120, 150, "HARD", GLUT_BITMAP_TIMES_ROMAN_24);
-// }
 
 void drawLevelSelect()
 {
@@ -332,7 +299,7 @@ void drawLevelSelect()
 
 void drawSettings()
 {
-    // iPlaySound("assets/sounds/thukraKe.wav", true);
+    
     showGameOver = false;
     showWin = false;
     iShowLoadedImage(0, 0, &menuBg);
@@ -418,7 +385,7 @@ void checkMap1Collision(int birdX, int birdY)
                 if (birdX + birdRadius > x && birdX - birdRadius < x + blockW &&
                     birdY + birdRadius > y && birdY - birdRadius < y + blockH)
                 {
-                    // Add score based on what was destroyed
+                    
                     if (map1[r][c] == 2) { // Pig
                         score += 500;
                     } else if (map1[r][c] == 1 || map1[r][c] == 3) { // Block or rock
@@ -431,7 +398,7 @@ void checkMap1Collision(int birdX, int birdY)
         }
     }
 
-    // Handle falling blocks
+    
     while (falling)
     {
         falling = false;
@@ -597,21 +564,8 @@ void checkMap3Collision(int birdX, int birdY)
 }
 
 
-
-
-// void initEasyLevel() {
-//     // Reset easy level specific elements
-//     for (int i = 0; i < pigCount; i++) {
-//         pigVisible[i] = true;
-//         pigFalling[i] = false;
-//         pigX[i] = 1070 + i * 250;
-//         pigY[i] = 420;
-//         pigVX[i] = pigVY[i] = 0;
-//     }
-//     resetBeams();
-// }
 void initEasyLevel() {
-    // Reset pigs
+   
     pigX[0] = 1070; pigY[0] = 420;
     pigX[1] = 1320; pigY[1] = 420;
     pigX[2] = 1570; pigY[2] = 420;
@@ -622,7 +576,7 @@ void initEasyLevel() {
         pigVX[i] = pigVY[i] = 0;
     }
     
-    // Reset pillars and beams
+   
     for (int i = 0; i < pillarCount; i++) {
         pillarX[i] = 1088 + i * 250;
         pillarY[i] = 205;
@@ -635,7 +589,7 @@ void initEasyLevel() {
         beamVelocitiesX[i] = beamVelocitiesY[i] = 0;
     }
     
-    // Reset birds
+    
     bluebirdX[0] = 20; bluebirdY[0] = 194;
     redSpriteX = 100; redSpriteY = 194;
     yellowbirdX = 180; yellowbirdY = 200;
@@ -653,15 +607,9 @@ void initEasyLevel() {
     selectedBird = -1;
 }
 
-// void initMediumLevel() {
-//     // Reset medium level map
-//     int initialMap1[ROWS][COLLUMS] = {
-//         // Your original map1 initialization data
-//     };
-//     memcpy(map1, initialMap1, sizeof(map1));
-// }
+
 void initMediumLevel() {
-    // Full medium level map (15x20)
+    
     int initialMap1[ROWS][COLLUMS] = {
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
         {0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -699,13 +647,7 @@ void initMediumLevel() {
     selectedBird = -1;
 }
 
-// void initHardLevel() {
-//     // Reset hard level map
-//     int initialMap3[20][20] = {
-//         // Your original map3 initialization data
-//     };
-//     memcpy(map3, initialMap3, sizeof(map3));
-// }
+
 void initHardLevel() {
     // Full hard level map (20x20)
     int initialMap3[20][20] = {
@@ -750,60 +692,7 @@ void initHardLevel() {
     selectedBird = -1;
 }
 
-// void resetEasyLevel(void) {
-//     score = 0;
-//     scoreSaved = false;
-//     showWin = false;
-//     showGameOver = false;
-//     blueSplit = false;
-//     selectedBird = -1;
 
-//     // Reset all blue birds
-//     for (int i = 0; i < 3; i++) {
-//         bluebirdX[i] = 20;
-//         bluebirdY[i] = 194;
-//         blue_vx[i] = blue_vy[i] = 0;
-//         blueflying[i] = false;
-//         bluevisible_arr[i] = (i == 0); // Only first bird visible
-//     }
-
-//     // Reset red bird
-//     redSpriteX = 100;
-//     redSpriteY = 194;
-//     red_vx = red_vy = 0;
-//     redflying = false;
-//     redvisible = true;  // Make sure this is set to true
-
-//     // Reset yellow bird
-//     yellowbirdX = 180;
-//     yellowbirdY = 200;
-//     yellow_vx = yellow_vy = 0;
-//     yellowflying = false;
-//     yellowvisible = true;
-
-//     // Reset dragging states
-//     bluedragging = reddragging = yellowdragging = false;
-
-//     // Reset pigs
-//     for (int i = 0; i < pigCount; i++) {
-//         pigVisible[i] = true;
-//         pigFalling[i] = false;
-//         pigX[i] = 1070 + i * 250;
-//         pigY[i] = 420;
-//         pigVX[i] = pigVY[i] = 0;
-//     }
-
-//     // Reset pillars & beams
-//     resetBeams();
-//     for (int i = 0; i < pillarCount; i++) {
-//         pillarRotation[i] = pillarAngVelocity[i] = 0;
-//         pillarRotating[i] = false;
-//     }
-// }
-
-//     score = 0;
-//     selectedBird = -1;
-// }
 void resetLevel() {
     // Reset game state flags
     showWin = false;
@@ -822,7 +711,7 @@ pinkvisible=true;
         blue_vx[i] = 0;
         blue_vy[i] = 0;
         blueflying[i] = false;
-        bluevisible_arr[i] = (i == 0); // Only first bird visible initially
+        bluevisible_arr[i] = (i == 0); 
     }
     
     redSpriteX = 100;
@@ -863,20 +752,20 @@ pinkvisible=true;
         }
     }
     else if (screen == 3) { // Medium Level
-        // Reset map1 to initial state
+        
         int initialMap1[ROWS][COLLUMS] = {
             // Your original map1 initialization data here
             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            // ... rest of your map data ...
+            // rest,,,,,, eta sudhu bojhar jonne
         };
         memcpy(map1, initialMap1, sizeof(map1));
     }
     else if (screen == 4) { // Hard Level
-        // Reset map3 to initial state
+        
         int initialMap3[20][20] = {
             // Your original map3 initialization data here
             {0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 5, 0, 0, 0},
-            // ... rest of your map data ...
+            // bojhar jnne
         };
         memcpy(map3, initialMap3, sizeof(map3));}
 }
@@ -917,8 +806,7 @@ void drawPathway(int x, int y, float vx, float vy)
         fx += vx * dt;
         fy += vy * dt;
         vy += g * dt;
-        // if (fy < groundY)
-        //     break;
+      
         iSetColor(0, 0, 0);
         iFilledCircle(fx, fy, 2);
     }
@@ -965,18 +853,18 @@ void updatePigMotion(int i)
             pigY[i] = groundY;
             pigVX[i] = pigVY[i] = 0;
             pigFalling[i] = false;
-           // pigVisible[i] = false;
+           
             if (pigVisible[i]) {
-                score += 500; // 500 points for pig destruction
+                score += 500; // 
                 pigVisible[i] = false;
             }
         }
 
         if (pigX[i] < 0 || pigX[i] > 1920 || pigY[i] > 1080)
         {
-           // pigVisible[i] = false;
+          
            if (pigVisible[i]) {
-                score += 500; // 500 points for pig destruction
+                score += 500; 
                 pigVisible[i] = false;
             }
             pigFalling[i] = false;
