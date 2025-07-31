@@ -8,7 +8,7 @@ Custom remake of the classic Angry Birds game using iGraphics.h for BUET CSE_102
 
 ## 🏠 Main Menu
 
-![Main Menu](assest/images/mainMenuSS.png)
+![Main Menu](assets/images/mainMenuSS.png)
 
 ---
 
