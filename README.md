@@ -14,16 +14,16 @@ Custom remake of the classic Angry Birds game using iGraphics.h for BUET CSE_102
 
 ## 🎮 Gameplay
 
-![Gameplay](images/gameplay.png)
+
 
 ---
 
 ## ✅ Level Completed Screen
 
-![Level Win](images/level_win.png)
+
 
 ---
 
 ## ❌ Level Failed Screen
 
-![Level Failed](images/level_failed.png)
+
