@@ -8,14 +8,27 @@ Demo : [Checkout from YouTube] https://youtu.be/EdEt1Ufy0yE?si=lHaZWqr7nMxhvzXs
 
 ## 🏠 Main Menu
 
-![Main Menu](assets/images/IconFinal.png)
+![Main Menu](assets/images/mainMenuSS.png)
 
 ---
 ## © Credit
 
-![Credit](assets/images/credits2.png)
+![Credit](assets/images/creditSS.png)
 
 ---
+## ⚙️Settings
+
+![Settings](assets/images/settingsSS.png)
+
+---
+## 🛠️Instruction
+
+![Instruction](assets/images/instructionsSS.png)
+
+---
+
+## ✍️Name Entering Screen
+![Name Entering Screen](assets/images/nameEntrySS.png)
 
 ## 🎮 Available Birds
 **Jay, Jake & Jim**
@@ -41,16 +54,35 @@ Demo : [Checkout from YouTube] https://youtu.be/EdEt1Ufy0yE?si=lHaZWqr7nMxhvzXs
 
 ---
 
+## 🎮Gameplay 
+**Easy Level**
+<img src="assets/images/easySS.png" />
+
+**Medium Level [Bird Splitting]**
+<img src="assets/images/birdSplittinginMediumSS.png" />
+
+**HardLevel**
+<img src="assets/images/hardSS.png" />
+
+---
+
 ## ✅ Level Completed Screen
-![Level Complete Screen](assets/images/Winbox.png)
+![Level Complete Screen](assets/images/victorySS.png)
 
 ---
 ## ⏸️ Game Pause Screen
-![Game Pause Screen](assets/images/pausebox.png)
+![Game Pause Screen](assets/images/pauseSS.png)
 
 ---
 
 ## ❌ Level Failed Screen
-![Level Failed Screen](assets/images/gameover.png)
+![Level Failed Screen](assets/images/failedSS.png)
+
+---
+
+## 🏆 Leaderboard
+![Leaderboard](assets/images/leaderboardSS.png)
+
+---
 
 
